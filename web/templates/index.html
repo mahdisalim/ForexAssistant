@@ -1,0 +1,1759 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" id="html-root">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon32.png">
+    <link rel="shortcut icon" href="/static/favicon32.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+        }
+        .card-glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .bullish { color: #10b981; }
+        .bearish { color: #ef4444; }
+        .neutral { color: #f59e0b; }
+        .loading {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
+        }
+        /* Fix dropdown text color */
+        select {
+            background-color: #1e293b !important;
+        }
+        select option {
+            background-color: #1e293b;
+            color: #ffffff;
+            padding: 8px;
+        }
+        select option:hover {
+            background-color: #334155;
+        }
+        /* Tab styles */
+        .tab-btn {
+            transition: all 0.3s ease;
+        }
+        .tab-btn.active {
+            background: rgba(99, 102, 241, 0.3);
+            border-color: #6366f1;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        /* Clock styles */
+        .clock-container {
+            position: relative;
+            width: 70px;
+            height: 70px;
+        }
+        .clock-face {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: linear-gradient(145deg, rgba(255,255,255,0.1), rgba(0,0,0,0.2));
+            border: 2px solid rgba(255,255,255,0.2);
+            position: relative;
+        }
+        .clock-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: #60a5fa;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+        .clock-hand {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            transform-origin: bottom center;
+            border-radius: 2px;
+        }
+        .hour-hand {
+            width: 2px;
+            height: 18px;
+            background: #f0f0f0;
+            margin-left: -1px;
+        }
+        .minute-hand {
+            width: 2px;
+            height: 24px;
+            background: #60a5fa;
+            margin-left: -1px;
+        }
+        .second-hand {
+            width: 1px;
+            height: 28px;
+            background: #ef4444;
+            margin-left: -0.5px;
+        }
+        .clock-marker {
+            position: absolute;
+            width: 2px;
+            height: 4px;
+            background: rgba(255,255,255,0.4);
+            top: 2px;
+            left: 50%;
+            transform-origin: center 33px;
+        }
+        .market-status {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        .market-open {
+            background: rgba(16, 185, 129, 0.3);
+            color: #10b981;
+        }
+        .market-closed {
+            background: rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+        /* LTR for English */
+        html[dir="ltr"] {
+            direction: ltr;
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen text-white">
+    <!-- Header -->
+    <header class="border-b border-white/10 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <i data-lucide="trending-up" class="w-8 h-8 text-blue-400"></i>
+                <h1 class="text-2xl font-bold" data-i18n="app_title">دستیار تحلیل فارکس</h1>
+            </div>
+            <div class="flex items-center gap-4">
+                <!-- Language Selector Dropdown -->
+                <div class="relative">
+                    <select id="language-selector" onchange="setLanguage(this.value)" class="px-3 py-2 bg-slate-800 border border-white/20 rounded-lg text-sm text-white appearance-none cursor-pointer pr-8">
+                        <option value="en">🇺🇸 English</option>
+                        <option value="fa">🇮🇷 فارسی</option>
+                        <option value="ar">🇸🇦 العربية</option>
+                        <option value="tr">🇹🇷 Türkçe</option>
+                        <option value="de">🇩🇪 Deutsch</option>
+                        <option value="fr">🇫🇷 Français</option>
+                        <option value="es">🇪🇸 Español</option>
+                        <option value="ru">🇷🇺 Русский</option>
+                        <option value="zh">🇨🇳 中文</option>
+                        <option value="ja">🇯🇵 日本語</option>
+                        <option value="ko">🇰🇷 한국어</option>
+                        <option value="pt">🇧🇷 Português</option>
+                        <option value="it">🇮🇹 Italiano</option>
+                        <option value="hi">🇮🇳 हिन्दी</option>
+                    </select>
+                    <i data-lucide="chevron-down" class="w-4 h-4 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400"></i>
+                </div>
+                <button onclick="refreshData()" class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition">
+                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                    <span data-i18n="refresh">بروزرسانی</span>
+                </button>
+                <button onclick="openAddPairModal()" class="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg transition">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    <span data-i18n="add_pair">افزودن جفت‌ارز</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content - Three Column Layout -->
+    <main class="px-4 py-6">
+        <div class="flex gap-4 flex-row-reverse" id="main-layout">
+            <!-- Right Sidebar - Clocks & Signals (Always on right) -->
+            <div class="w-64 flex-shrink-0" id="right-sidebar">
+                <div class="card-glass rounded-xl p-3 sticky top-4 mb-4">
+                    <div class="flex items-center gap-2 mb-3">
+                        <i data-lucide="zap" class="w-4 h-4 text-yellow-400"></i>
+                        <h3 class="text-sm font-semibold" data-i18n="trade_signals">Trade Signals</h3>
+                    </div>
+                    <div id="trade-signals-list" class="space-y-2 max-h-64 overflow-y-auto">
+                        <div class="text-xs text-gray-400 text-center" data-i18n="loading">Loading...</div>
+                    </div>
+                </div>
+                
+                <!-- World Clocks -->
+                <div class="card-glass rounded-xl p-3 sticky top-80">
+                    <h3 class="text-xs font-semibold text-gray-400 mb-3 text-center" data-i18n="world_clocks">World Clocks</h3>
+                    
+                    <!-- Tehran Clock -->
+                    <div class="mb-4 text-center">
+                        <div class="clock-container mx-auto mb-1" id="clock-tehran">
+                            <div class="clock-face">
+                                <div class="clock-center"></div>
+                                <div class="clock-hand hour-hand" id="hour-tehran"></div>
+                                <div class="clock-hand minute-hand" id="minute-tehran"></div>
+                                <div class="clock-hand second-hand" id="second-tehran"></div>
+                            </div>
+                        </div>
+                        <div class="text-xs text-blue-400 font-medium" data-i18n="tehran">Tehran</div>
+                        <div class="text-sm font-mono" id="time-tehran">--:--</div>
+                    </div>
+                    
+                    <!-- London Clock -->
+                    <div class="mb-4 text-center">
+                        <div class="clock-container mx-auto mb-1" id="clock-london">
+                            <div class="clock-face">
+                                <div class="clock-center"></div>
+                                <div class="clock-hand hour-hand" id="hour-london"></div>
+                                <div class="clock-hand minute-hand" id="minute-london"></div>
+                                <div class="clock-hand second-hand" id="second-london"></div>
+                            </div>
+                        </div>
+                        <div class="text-xs text-purple-400 font-medium" data-i18n="london">London</div>
+                        <div class="text-sm font-mono" id="time-london">--:--</div>
+                        <span class="market-status text-[10px]" id="london-status">Closed</span>
+                    </div>
+                    
+                    <!-- New York Clock -->
+                    <div class="mb-4 text-center">
+                        <div class="clock-container mx-auto mb-1" id="clock-newyork">
+                            <div class="clock-face">
+                                <div class="clock-center"></div>
+                                <div class="clock-hand hour-hand" id="hour-newyork"></div>
+                                <div class="clock-hand minute-hand" id="minute-newyork"></div>
+                                <div class="clock-hand second-hand" id="second-newyork"></div>
+                            </div>
+                        </div>
+                        <div class="text-xs text-yellow-400 font-medium" data-i18n="newyork">New York</div>
+                        <div class="text-sm font-mono" id="time-newyork">--:--</div>
+                        <span class="market-status text-[10px]" id="newyork-status">Closed</span>
+                    </div>
+                    
+                    <!-- Tokyo Clock -->
+                    <div class="text-center">
+                        <div class="clock-container mx-auto mb-1" id="clock-tokyo">
+                            <div class="clock-face">
+                                <div class="clock-center"></div>
+                                <div class="clock-hand hour-hand" id="hour-tokyo"></div>
+                                <div class="clock-hand minute-hand" id="minute-tokyo"></div>
+                                <div class="clock-hand second-hand" id="second-tokyo"></div>
+                            </div>
+                        </div>
+                        <div class="text-xs text-red-400 font-medium" data-i18n="tokyo">Tokyo</div>
+                        <div class="text-sm font-mono" id="time-tokyo">--:--</div>
+                        <span class="market-status text-[10px]" id="tokyo-status">Closed</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Left Sidebar - Navigation Menu -->
+            <div class="w-48 flex-shrink-0 order-last" id="left-sidebar">
+                <div class="card-glass rounded-xl p-3 sticky top-4">
+                    <nav class="space-y-2" dir="auto">
+                        <button onclick="switchTab('ai')" id="tab-ai" class="tab-btn w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-white/10 active">
+                            <i data-lucide="brain" class="w-4 h-4 text-purple-400"></i>
+                            <span data-i18n="ai_analysis">AI Analysis</span>
+                        </button>
+                        <button onclick="switchTab('strategy')" id="tab-strategy" class="tab-btn w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-white/10">
+                            <i data-lucide="settings" class="w-4 h-4 text-blue-400"></i>
+                            <span data-i18n="strategy">Strategy</span>
+                        </button>
+                        <button onclick="switchTab('account')" id="tab-account" class="tab-btn w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-white/10">
+                            <i data-lucide="wallet" class="w-4 h-4 text-green-400"></i>
+                            <span data-i18n="account">Account</span>
+                        </button>
+                    </nav>
+                </div>
+            </div>
+            
+            <!-- Main Content Column -->
+            <div class="flex-1 min-w-0">
+                <!-- AI Tab Content -->
+                <div id="content-ai" class="tab-content active">
+                    <!-- Market Overview Settings -->
+                    <section class="mb-6">
+                        <div class="card-glass rounded-xl p-4">
+                            <div class="flex items-center justify-between flex-wrap gap-4">
+                                <div class="flex items-center gap-2">
+                                    <i data-lucide="bar-chart-3" class="w-5 h-5 text-green-400"></i>
+                                    <h2 class="text-lg font-semibold" data-i18n="market_overview">Market Overview</h2>
+                                </div>
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <!-- Asset Selection -->
+                                    <select id="overview-asset" class="px-2 py-1.5 bg-slate-800 border border-white/20 rounded-lg text-sm text-white">
+                                        <optgroup id="asset-group-currencies" label="Currencies">
+                                            <option value="USD" data-i18n-asset="usd">US Dollar (USD)</option>
+                                            <option value="EUR" data-i18n-asset="eur">Euro (EUR)</option>
+                                            <option value="GBP" data-i18n-asset="gbp">British Pound (GBP)</option>
+                                            <option value="JPY" data-i18n-asset="jpy">Japanese Yen (JPY)</option>
+                                            <option value="CHF" data-i18n-asset="chf">Swiss Franc (CHF)</option>
+                                            <option value="AUD" data-i18n-asset="aud">Australian Dollar (AUD)</option>
+                                            <option value="CAD" data-i18n-asset="cad">Canadian Dollar (CAD)</option>
+                                            <option value="NZD" data-i18n-asset="nzd">New Zealand Dollar (NZD)</option>
+                                            <option value="CNY" data-i18n-asset="cny">Chinese Yuan (CNY)</option>
+                                        </optgroup>
+                                        <optgroup id="asset-group-commodities" label="Commodities">
+                                            <option value="XAU" data-i18n-asset="xau">Gold (XAU)</option>
+                                            <option value="XAG" data-i18n-asset="xag">Silver (XAG)</option>
+                                            <option value="OIL" data-i18n-asset="oil">Crude Oil (OIL)</option>
+                                        </optgroup>
+                                        <optgroup id="asset-group-indices" label="Indices">
+                                            <option value="SPX" data-i18n-asset="spx">S&P 500 (SPX)</option>
+                                            <option value="DJI" data-i18n-asset="dji">Dow Jones (DJI)</option>
+                                            <option value="NDX" data-i18n-asset="ndx">NASDAQ (NDX)</option>
+                                            <option value="FTSE" data-i18n-asset="ftse">FTSE 100</option>
+                                            <option value="DAX" data-i18n-asset="dax">DAX</option>
+                                            <option value="NKY" data-i18n-asset="nky">Nikkei 225 (NKY)</option>
+                                        </optgroup>
+                                        <optgroup id="asset-group-crypto" label="Cryptocurrencies">
+                                            <option value="BTC" data-i18n-asset="btc">Bitcoin (BTC)</option>
+                                            <option value="ETH" data-i18n-asset="eth">Ethereum (ETH)</option>
+                                            <option value="BNB" data-i18n-asset="bnb">Binance Coin (BNB)</option>
+                                            <option value="XRP" data-i18n-asset="xrp">Ripple (XRP)</option>
+                                            <option value="SOL" data-i18n-asset="sol">Solana (SOL)</option>
+                                            <option value="ADA" data-i18n-asset="ada">Cardano (ADA)</option>
+                                            <option value="DOGE" data-i18n-asset="doge">Dogecoin (DOGE)</option>
+                                            <option value="DOT" data-i18n-asset="dot">Polkadot (DOT)</option>
+                                        </optgroup>
+                                    </select>
+                                    <!-- Timeframe Selection -->
+                                    <select id="overview-timeframe" class="px-2 py-1.5 bg-slate-800 border border-white/20 rounded-lg text-sm text-white">
+                                        <option value="short" data-i18n-opt="short_term">Short Term</option>
+                                        <option value="medium" selected data-i18n-opt="medium_term">Medium Term</option>
+                                        <option value="long" data-i18n-opt="long_term">Long Term</option>
+                                    </select>
+                                    <button onclick="loadMarketOverview()" class="px-3 py-1.5 bg-green-600 hover:bg-green-700 rounded-lg text-sm transition">
+                                        <span data-i18n="analyze">Analyze</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Summary Section -->
+                    <section class="mb-6">
+                        <div class="card-glass rounded-xl p-6">
+                            <div class="flex items-center gap-2 mb-4">
+                                <i data-lucide="newspaper" class="w-5 h-5 text-blue-400"></i>
+                                <h2 class="text-xl font-semibold" data-i18n="daily_summary">Daily Market Summary</h2>
+                            </div>
+                            <div id="summary-content" class="text-gray-300 loading" data-i18n="loading_summary">
+                                Loading market summary...
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Charts Analysis Grid -->
+                    <section>
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="text-xl font-semibold" data-i18n="charts_analysis">تحلیل چارت‌ها</h2>
+                            <span id="last-update" class="text-sm text-gray-400"></span>
+                        </div>
+                    
+                    <div id="pairs-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {% for pair in pairs %}
+                        <div class="card-glass rounded-xl p-4 pair-card" data-pair="{{ pair }}">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="text-lg font-bold">{{ pair }}</h3>
+                                <button onclick="removePair('{{ pair }}')" class="text-gray-400 hover:text-red-400 transition">
+                                    <i data-lucide="x" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                            <!-- Trading Style (Always visible - First Priority) -->
+                            <div class="flex items-center gap-2 mb-2">
+                                <select id="style-{{ pair }}" class="flex-1 px-2 py-1 bg-slate-800 border border-white/20 rounded text-xs text-white">
+                                    <option value="scalp" data-i18n-style="scalp">Scalp</option>
+                                    <option value="day" selected data-i18n-style="day">Day Trading</option>
+                                    <option value="swing" data-i18n-style="swing">Swing</option>
+                                    <option value="position" data-i18n-style="position">Position</option>
+                                </select>
+                                <!-- Analysis Mode Selector -->
+                                <select id="mode-{{ pair }}" onchange="toggleMTFOptions('{{ pair }}')" class="px-2 py-1 bg-slate-800 border border-white/20 rounded text-xs text-white">
+                                    <option value="single" data-i18n-opt="single_tf">Single TF</option>
+                                    <option value="mtf" data-i18n-opt="multi_tf">Multi TF</option>
+                                </select>
+                            </div>
+                            <!-- Timeframe Selection -->
+                            <div class="flex items-center gap-1 mb-2">
+                                <select id="tf-{{ pair }}" class="flex-1 px-2 py-1 bg-slate-800 border border-white/20 rounded text-xs text-white">
+                                    <option value="M1">M1</option>
+                                    <option value="M5">M5</option>
+                                    <option value="M15">M15</option>
+                                    <option value="M30">M30</option>
+                                    <option value="H1" selected>H1</option>
+                                    <option value="H4">H4</option>
+                                    <option value="D1">D1</option>
+                                    <option value="W1">W1</option>
+                                    <option value="MN1">MN1</option>
+                                </select>
+                                <button onclick="addTimeframe('{{ pair }}')" id="add-tf-btn-{{ pair }}" class="hidden px-2 py-1 bg-green-600 hover:bg-green-700 rounded text-xs" title="Add TF">
+                                    <i data-lucide="plus" class="w-3 h-3"></i>
+                                </button>
+                                <button onclick="loadPairAnalysis('{{ pair }}', true)" class="px-2 py-1 bg-blue-600 hover:bg-blue-700 rounded text-xs" title="Refresh">
+                                    <i data-lucide="refresh-cw" class="w-3 h-3"></i>
+                                </button>
+                            </div>
+                            <!-- Selected Timeframes (for MTF) -->
+                            <div id="selected-tfs-{{ pair }}" class="hidden flex flex-wrap gap-1 mb-2"></div>
+                            <div class="analysis-content loading" id="analysis-{{ pair }}">
+                                <div class="h-4 bg-white/10 rounded mb-2"></div>
+                                <div class="h-4 bg-white/10 rounded w-3/4"></div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    </section>
+                </div>
+                
+                <!-- Strategy Tab Content (with clocks only) -->
+                <div id="content-strategy" class="tab-content">
+                    <div class="card-glass rounded-xl p-6">
+                        <div class="flex items-center gap-2 mb-4">
+                            <i data-lucide="settings" class="w-5 h-5 text-blue-400"></i>
+                            <h2 class="text-xl font-semibold" data-i18n="strategy">Strategy</h2>
+                        </div>
+                        <p class="text-gray-400 mb-6" data-i18n="coming_soon">Coming soon...</p>
+                        
+                        <!-- World Clocks in Strategy -->
+                        <div class="mt-6">
+                            <h3 class="text-sm font-semibold text-gray-400 mb-4" data-i18n="world_clocks">World Clocks</h3>
+                            <div class="grid grid-cols-4 gap-4">
+                                <div class="text-center">
+                                    <div class="clock-container mx-auto mb-1" id="clock-tehran-strategy">
+                                        <div class="clock-face">
+                                            <div class="clock-center"></div>
+                                            <div class="clock-hand hour-hand" id="hour-tehran-strategy"></div>
+                                            <div class="clock-hand minute-hand" id="minute-tehran-strategy"></div>
+                                            <div class="clock-hand second-hand" id="second-tehran-strategy"></div>
+                                        </div>
+                                    </div>
+                                    <div class="text-xs text-blue-400 font-medium" data-i18n="tehran">Tehran</div>
+                                    <div class="text-sm font-mono" id="time-tehran-strategy">--:--</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="clock-container mx-auto mb-1" id="clock-london-strategy">
+                                        <div class="clock-face">
+                                            <div class="clock-center"></div>
+                                            <div class="clock-hand hour-hand" id="hour-london-strategy"></div>
+                                            <div class="clock-hand minute-hand" id="minute-london-strategy"></div>
+                                            <div class="clock-hand second-hand" id="second-london-strategy"></div>
+                                        </div>
+                                    </div>
+                                    <div class="text-xs text-purple-400 font-medium" data-i18n="london">London</div>
+                                    <div class="text-sm font-mono" id="time-london-strategy">--:--</div>
+                                    <span class="market-status text-[10px]" id="london-status-strategy">Closed</span>
+                                </div>
+                                <div class="text-center">
+                                    <div class="clock-container mx-auto mb-1" id="clock-newyork-strategy">
+                                        <div class="clock-face">
+                                            <div class="clock-center"></div>
+                                            <div class="clock-hand hour-hand" id="hour-newyork-strategy"></div>
+                                            <div class="clock-hand minute-hand" id="minute-newyork-strategy"></div>
+                                            <div class="clock-hand second-hand" id="second-newyork-strategy"></div>
+                                        </div>
+                                    </div>
+                                    <div class="text-xs text-yellow-400 font-medium" data-i18n="newyork">New York</div>
+                                    <div class="text-sm font-mono" id="time-newyork-strategy">--:--</div>
+                                    <span class="market-status text-[10px]" id="newyork-status-strategy">Closed</span>
+                                </div>
+                                <div class="text-center">
+                                    <div class="clock-container mx-auto mb-1" id="clock-tokyo-strategy">
+                                        <div class="clock-face">
+                                            <div class="clock-center"></div>
+                                            <div class="clock-hand hour-hand" id="hour-tokyo-strategy"></div>
+                                            <div class="clock-hand minute-hand" id="minute-tokyo-strategy"></div>
+                                            <div class="clock-hand second-hand" id="second-tokyo-strategy"></div>
+                                        </div>
+                                    </div>
+                                    <div class="text-xs text-red-400 font-medium" data-i18n="tokyo">Tokyo</div>
+                                    <div class="text-sm font-mono" id="time-tokyo-strategy">--:--</div>
+                                    <span class="market-status text-[10px]" id="tokyo-status-strategy">Closed</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Account Tab Content (empty) -->
+                <div id="content-account" class="tab-content">
+                    <div class="card-glass rounded-xl p-6">
+                        <div class="flex items-center gap-2 mb-4">
+                            <i data-lucide="wallet" class="w-5 h-5 text-green-400"></i>
+                            <h2 class="text-xl font-semibold" data-i18n="account">Account</h2>
+                        </div>
+                        <p class="text-gray-400" data-i18n="coming_soon">Coming soon...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add Pair Modal -->
+    <div id="add-pair-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+        <div class="card-glass rounded-xl p-6 w-full max-w-md mx-4">
+            <h3 class="text-xl font-bold mb-4">Add Currency Pair</h3>
+            <form onsubmit="addPair(event)">
+                <div class="mb-4">
+                    <label class="block text-sm text-gray-400 mb-2">Pair Symbol</label>
+                    <input type="text" id="new-pair" placeholder="e.g., EURUSD" 
+                           class="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:border-blue-500"
+                           required pattern="[A-Za-z]{6}">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm text-gray-400 mb-2">Volatility</label>
+                    <select id="new-volatility" class="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:border-blue-500">
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-2">Default SL (pips)</label>
+                        <input type="number" id="new-sl" value="30" 
+                               class="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-2">Default TP (pips)</label>
+                        <input type="number" id="new-tp" value="60" 
+                               class="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:border-blue-500">
+                    </div>
+                </div>
+                <div class="flex gap-4">
+                    <button type="button" onclick="closeAddPairModal()" 
+                            class="flex-1 px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition">
+                        Cancel
+                    </button>
+                    <button type="submit" 
+                            class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition">
+                        Add Pair
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Analysis Detail Modal -->
+    <div id="analysis-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 overflow-y-auto">
+        <div class="card-glass rounded-xl p-6 w-full max-w-2xl mx-4 my-8">
+            <div class="flex items-center justify-between mb-4">
+                <h3 id="modal-pair-title" class="text-xl font-bold"></h3>
+                <button onclick="closeAnalysisModal()" class="text-gray-400 hover:text-white">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <div id="modal-content"></div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // ============== Language System ==============
+        // Default language is Persian (fa)
+        let currentLang = localStorage.getItem('lang') || 'fa';
+        
+        // RTL languages
+        const rtlLanguages = ['fa', 'ar', 'he'];
+        
+        // Available languages
+        const availableLanguages = ['en', 'fa', 'ar', 'tr', 'de', 'fr', 'es', 'ru', 'zh', 'ja', 'ko', 'pt', 'it', 'hi'];
+        
+        // Translations cache - loaded from JSON files
+        let translations = {};
+        let translationsLoaded = false;
+        
+        // Load translations from JSON files
+        async function loadTranslations() {
+            const promises = availableLanguages.map(async (lang) => {
+                try {
+                    const response = await fetch(`/static/locales/${lang}.json`);
+                    if (response.ok) {
+                        translations[lang] = await response.json();
+                        console.log(`Loaded translations for ${lang}:`, Object.keys(translations[lang]).length, 'keys');
+                    } else {
+                        console.warn(`Failed to load translations for ${lang}: HTTP ${response.status}`);
+                    }
+                } catch (error) {
+                    console.warn(`Failed to load translations for ${lang}:`, error);
+                }
+            });
+            await Promise.all(promises);
+            translationsLoaded = true;
+            console.log('All translations loaded. Available languages:', Object.keys(translations));
+        }
+        
+        // Fallback translations (English) - used before JSON loads
+        const baseTranslations = {
+            app_title: 'Financial Markets Analysis Assistant',
+            refresh: 'Refresh',
+            add_pair: 'Add Chart',
+            world_clocks: 'World Clocks',
+            tehran: 'Tehran',
+            london: 'London',
+            newyork: 'New York',
+            tokyo: 'Tokyo',
+            open: 'Open',
+            closed: 'Closed',
+            market_overview: 'Market Overview',
+            analyze: 'Analyze',
+            daily_summary: 'Daily Market Summary',
+            loading_summary: 'Loading market summary...',
+            charts_analysis: 'Charts Analysis',
+            last_updated: 'Last updated:',
+            short_term: 'Short Term',
+            medium_term: 'Medium Term',
+            long_term: 'Long Term',
+            single_tf: 'Single TF',
+            multi_tf: 'Multi TF',
+            details: 'Details',
+            scalp: 'Scalp',
+            // New translations
+            ai_analysis: 'AI Analysis',
+            account: 'Account',
+            strategy: 'Strategy',
+            trade_signals: 'Trade Signals',
+            coming_soon: 'Coming soon...',
+            loading: 'Loading...',
+            trade_suggestion: 'Trade Suggestion',
+            buy: 'BUY',
+            sell: 'SELL',
+            wait: 'WAIT',
+            tp: 'TP',
+            sl: 'SL',
+            rr: 'R:R',
+            day: 'Day Trading',
+            swing: 'Swing',
+            position: 'Position',
+            currencies: 'Currencies',
+            commodities: 'Commodities',
+            indices: 'Indices',
+            crypto: 'Cryptocurrencies',
+            // Asset names
+            usd: 'US Dollar (USD)',
+            eur: 'Euro (EUR)',
+            gbp: 'British Pound (GBP)',
+            jpy: 'Japanese Yen (JPY)',
+            chf: 'Swiss Franc (CHF)',
+            aud: 'Australian Dollar (AUD)',
+            cad: 'Canadian Dollar (CAD)',
+            nzd: 'New Zealand Dollar (NZD)',
+            cny: 'Chinese Yuan (CNY)',
+            xau: 'Gold (XAU)',
+            xag: 'Silver (XAG)',
+            oil: 'Crude Oil (OIL)',
+            spx: 'S&P 500 (SPX)',
+            dji: 'Dow Jones (DJI)',
+            ndx: 'NASDAQ (NDX)',
+            ftse: 'FTSE 100',
+            dax: 'DAX',
+            nky: 'Nikkei 225 (NKY)',
+            // Crypto
+            btc: 'Bitcoin (BTC)',
+            eth: 'Ethereum (ETH)',
+            bnb: 'Binance Coin (BNB)',
+            xrp: 'Ripple (XRP)',
+            sol: 'Solana (SOL)',
+            ada: 'Cardano (ADA)',
+            doge: 'Dogecoin (DOGE)',
+            dot: 'Polkadot (DOT)',
+            // Messages
+            no_analysis_title: 'No Analysis Available',
+            no_analysis_message: 'Please select your options above and click the <strong>Analyze</strong> button to fetch news and generate AI analysis.',
+            no_analysis_wait: 'This may take a moment while we gather the latest market news...',
+            ai_analyzing: 'AI is analyzing the market news...',
+            // Sentiments
+            neutral: 'Neutral',
+            bullish: 'Bullish',
+            bearish: 'Bearish'
+        };
+        
+        // Initialize translations with baseTranslations as fallback
+        translations.en = { ...baseTranslations };
+        
+        // Translations are now loaded from /static/locales/*.json files
+        // Supported languages: en, fa, ar, tr, de, fr, es, ru, zh, ja, ko, pt, it, hi
+        
+        
+        
+        // Get translation with fallback to English
+        function t(key) {
+            return (translations[currentLang] && translations[currentLang][key]) || translations.en[key] || baseTranslations[key] || key;
+        }
+
+        // ============== Content Cache System ==============
+        // Cache for storing analysis content to avoid re-fetching when language changes
+        let summaryCache = {
+            content: null,       // Original content
+            lang: null,          // Language of cached content
+            translations: {}     // Cached translations { lang: translatedContent }
+        };
+        
+        // Cache for pair analysis data
+        let pairAnalysisCache = {};  // { pair: { data, lang, mode, style, translations: {} } }
+        
+        let previousLang = currentLang;
+        
+        // Translate text using API
+        async function translateContent(text, targetLang) {
+            try {
+                const response = await fetch('/api/translate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: text, target_lang: targetLang })
+                });
+                const data = await response.json();
+                return data.translated;
+            } catch (error) {
+                console.error('Translation failed:', error);
+                return text; // Return original if translation fails
+            }
+        }
+        
+        // Translate cached summary when language changes
+        async function translateSummaryIfNeeded(newLang) {
+            if (!summaryCache.content) return; // No content to translate
+            
+            const summaryEl = document.getElementById('summary-content');
+            
+            // If we already have this translation cached, use it
+            if (summaryCache.translations[newLang]) {
+                summaryEl.innerHTML = formatSummary(summaryCache.translations[newLang]);
+                return;
+            }
+            
+            // If content is already in target language, no need to translate
+            if (summaryCache.lang === newLang) {
+                summaryEl.innerHTML = formatSummary(summaryCache.content);
+                return;
+            }
+            
+            // Show loading indicator
+            summaryEl.innerHTML = `<div class="text-center text-gray-400">${t('loading')}...</div>`;
+            
+            // Translate and cache
+            const translated = await translateContent(summaryCache.content, newLang);
+            summaryCache.translations[newLang] = translated;
+            summaryEl.innerHTML = formatSummary(translated);
+        }
+
+        function setLanguage(lang) {
+            previousLang = currentLang;
+            currentLang = lang;
+            localStorage.setItem('lang', lang);
+            
+            // Update direction based on RTL languages
+            const html = document.getElementById('html-root');
+            html.dir = rtlLanguages.includes(lang) ? 'rtl' : 'ltr';
+            html.lang = lang;
+            
+            // Update language selector dropdown
+            const langSelector = document.getElementById('language-selector');
+            if (langSelector) langSelector.value = lang;
+            
+            // Update document title
+            document.title = t('app_title');
+            
+            // Update all translatable elements with data-i18n
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                el.textContent = t(key);
+            });
+            
+            // Update select options with data-i18n-opt
+            document.querySelectorAll('[data-i18n-opt]').forEach(opt => {
+                const key = opt.getAttribute('data-i18n-opt');
+                opt.textContent = t(key);
+            });
+            
+            // Update trading style options with data-i18n-style
+            document.querySelectorAll('[data-i18n-style]').forEach(opt => {
+                const key = opt.getAttribute('data-i18n-style');
+                opt.textContent = t(key);
+            });
+            
+            // Update asset options with data-i18n-asset
+            document.querySelectorAll('[data-i18n-asset]').forEach(opt => {
+                const key = opt.getAttribute('data-i18n-asset');
+                opt.textContent = t(key);
+            });
+            
+            // Update optgroup labels
+            const currenciesGroup = document.getElementById('asset-group-currencies');
+            const commoditiesGroup = document.getElementById('asset-group-commodities');
+            const indicesGroup = document.getElementById('asset-group-indices');
+            const cryptoGroup = document.getElementById('asset-group-crypto');
+            if (currenciesGroup) currenciesGroup.label = t('currencies');
+            if (commoditiesGroup) commoditiesGroup.label = t('commodities');
+            if (indicesGroup) indicesGroup.label = t('indices');
+            if (cryptoGroup) cryptoGroup.label = t('crypto');
+            
+            // Update market status badges with correct language
+            updateMarketStatus();
+            
+            // Refresh icons
+            lucide.createIcons();
+            
+            // Update trade signals panel
+            updateTradeSignalsPanel();
+            
+            // Only translate existing content, don't reload from API
+            // API will only be called when user clicks "Analyze" button
+            if (summaryCache.content && previousLang !== lang) {
+                translateSummaryIfNeeded(lang);
+            } else if (!summaryCache.content) {
+                // If no analysis loaded yet, show the no-analysis message in new language
+                showNoAnalysisMessage();
+            }
+            
+            // Re-render pair analyses with new language (using cached data)
+            rerenderAllPairAnalyses();
+        }
+
+        // ============== Clock Functions ==============
+        const marketHours = {
+            london: { open: 8, close: 16.5, offset: 0 },      // 8:00 - 16:30 UTC
+            newyork: { open: 13, close: 22, offset: -5 },     // 8:00 - 17:00 EST (13:00-22:00 UTC)
+            tokyo: { open: 0, close: 6, offset: 9 }           // 9:00 - 15:00 JST (0:00-6:00 UTC)
+        };
+
+        function updateClocks() {
+            const now = new Date();
+            
+            // Tehran (UTC+3:30)
+            const tehranOffset = 3.5 * 60;
+            const tehranTime = new Date(now.getTime() + (tehranOffset + now.getTimezoneOffset()) * 60000);
+            updateClock('tehran', tehranTime);
+            updateClock('tehran-strategy', tehranTime);
+            
+            // London (UTC+0)
+            const londonOffset = 0 * 60;
+            const londonTime = new Date(now.getTime() + (londonOffset + now.getTimezoneOffset()) * 60000);
+            updateClock('london', londonTime);
+            updateClock('london-strategy', londonTime);
+            
+            // New York (UTC-5)
+            const nyOffset = -5 * 60;
+            const nyTime = new Date(now.getTime() + (nyOffset + now.getTimezoneOffset()) * 60000);
+            updateClock('newyork', nyTime);
+            updateClock('newyork-strategy', nyTime);
+            
+            // Tokyo (UTC+9)
+            const tokyoOffset = 9 * 60;
+            const tokyoTime = new Date(now.getTime() + (tokyoOffset + now.getTimezoneOffset()) * 60000);
+            updateClock('tokyo', tokyoTime);
+            updateClock('tokyo-strategy', tokyoTime);
+            
+            updateMarketStatus();
+        }
+        
+        function updateClock(city, time) {
+            const hours = time.getHours();
+            const minutes = time.getMinutes();
+            const seconds = time.getSeconds();
+            
+            const hourAngle = (hours % 12) * 30 + minutes * 0.5;
+            const minuteAngle = minutes * 6 + seconds * 0.1;
+            const secondAngle = seconds * 6;
+            
+            const hourHand = document.getElementById(`hour-${city}`);
+            const minuteHand = document.getElementById(`minute-${city}`);
+            const secondHand = document.getElementById(`second-${city}`);
+            
+            if (hourHand) hourHand.style.transform = `rotate(${hourAngle}deg)`;
+            if (minuteHand) minuteHand.style.transform = `rotate(${minuteAngle}deg)`;
+            if (secondHand) secondHand.style.transform = `rotate(${secondAngle}deg)`;
+            
+            const timeStr = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            const timeEl = document.getElementById(`time-${city}`);
+            if (timeEl) timeEl.textContent = timeStr;
+        }
+        
+        function updateMarketStatus() {
+            const now = new Date();
+            const utcHours = now.getUTCHours() + now.getUTCMinutes() / 60;
+            const dayOfWeek = now.getUTCDay();
+            
+            // Weekend check (Saturday=6, Sunday=0)
+            const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+            
+            // London: 8:00 - 16:30 UTC (Mon-Fri)
+            const londonOpen = !isWeekend && utcHours >= 8 && utcHours < 16.5;
+            updateStatusBadge('london', londonOpen);
+            
+            // New York: 13:00 - 22:00 UTC (Mon-Fri)
+            const nyOpen = !isWeekend && utcHours >= 13 && utcHours < 22;
+            updateStatusBadge('newyork', nyOpen);
+            
+            // Tokyo: 0:00 - 6:00 UTC (Mon-Fri)
+            const tokyoOpen = !isWeekend && (utcHours >= 0 && utcHours < 6);
+            updateStatusBadge('tokyo', tokyoOpen);
+        }
+        
+        function updateStatusBadge(market, isOpen) {
+            const badge = document.getElementById(`${market}-status`);
+            if (badge) {
+                badge.textContent = t(isOpen ? 'open' : 'closed');
+                badge.className = `market-status ${isOpen ? 'market-open' : 'market-closed'}`;
+            }
+        }
+        
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Load translations from JSON files first - MUST be done before anything else
+            await loadTranslations();
+            
+            // Set language selector to saved language
+            const langSelector = document.getElementById('language-selector');
+            if (langSelector) langSelector.value = currentLang;
+            
+            // Apply language settings (this will update all UI elements)
+            setLanguage(currentLang);
+            
+            // Start clock updates AFTER translations are loaded
+            setInterval(updateClocks, 1000);
+            updateClocks();
+            
+            // Update market status with correct translations
+            updateMarketStatus();
+            
+            // Show initial message with fun animation - no analysis yet
+            showNoAnalysisMessage();
+        });
+        
+        // Show "No Analysis" message with fun animation
+        function showNoAnalysisMessage() {
+            const summaryEl = document.getElementById('summary-content');
+            if (summaryEl) {
+                summaryEl.innerHTML = `
+                    <div class="text-center py-8">
+                        <div class="text-6xl mb-4 animate-bounce">🔍</div>
+                        <h3 class="text-xl font-bold text-yellow-400 mb-2">${t('no_analysis_title')}</h3>
+                        <p class="text-gray-300 mb-3">${t('no_analysis_message')}</p>
+                        <p class="text-gray-500 text-sm italic">${t('no_analysis_wait')}</p>
+                        <div class="mt-4 flex justify-center gap-2">
+                            <span class="text-2xl animate-pulse">📊</span>
+                            <span class="text-2xl animate-pulse" style="animation-delay: 0.2s">📈</span>
+                            <span class="text-2xl animate-pulse" style="animation-delay: 0.4s">📉</span>
+                        </div>
+                    </div>
+                `;
+                summaryEl.classList.remove('loading');
+            }
+        }
+        
+        // Show loading animation while fetching from AI
+        function showLoadingAnimation() {
+            const summaryEl = document.getElementById('summary-content');
+            if (summaryEl) {
+                summaryEl.innerHTML = `
+                    <div class="text-center py-8">
+                        <div class="text-6xl mb-4">
+                            <span class="inline-block animate-spin">⚙️</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-blue-400 mb-2">${t('loading')}...</h3>
+                        <p class="text-gray-400 mb-4">${t('ai_analyzing')}</p>
+                        <div class="flex justify-center gap-1">
+                            <div class="w-3 h-3 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0s"></div>
+                            <div class="w-3 h-3 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                            <div class="w-3 h-3 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                        </div>
+                        <div class="mt-4 text-4xl">
+                            <span class="inline-block animate-pulse">🤖</span>
+                            <span class="inline-block animate-bounce mx-2">💭</span>
+                            <span class="inline-block animate-pulse">📰</span>
+                        </div>
+                    </div>
+                `;
+                summaryEl.classList.add('loading');
+            }
+        }
+
+        // Load summary from API - only called when user clicks Analyze button
+        async function loadSummary() {
+            // Show fun loading animation
+            showLoadingAnimation();
+            
+            try {
+                const asset = document.getElementById('overview-asset')?.value || 'USD';
+                const timeframe = document.getElementById('overview-timeframe')?.value || 'medium';
+                
+                // Map timeframe to actual values
+                const tfMap = {
+                    'short': 'H1',
+                    'medium': 'H4',
+                    'long': 'D1'
+                };
+                
+                const response = await fetch(`/api/summary?asset=${asset}&timeframe=${tfMap[timeframe]}&lang=${currentLang}`);
+                const data = await response.json();
+                
+                // Cache the content
+                summaryCache.content = data.summary;
+                summaryCache.lang = currentLang;
+                summaryCache.translations = {}; // Clear old translations
+                summaryCache.translations[currentLang] = data.summary; // Cache current language
+                
+                summaryEl.innerHTML = formatSummary(data.summary);
+                summaryEl.classList.remove('loading');
+            } catch (error) {
+                const errorMsg = t('loading_summary');
+                summaryEl.innerHTML = `<span class="text-red-400">${errorMsg}</span>`;
+                summaryEl.classList.remove('loading');
+            }
+        }
+
+        async function loadAllAnalysis() {
+            try {
+                // Get current trading style from first pair's style selector or default
+                const firstStyleSelect = document.querySelector('[id^="style-"]');
+                const tradingStyle = firstStyleSelect ? firstStyleSelect.value : 'day';
+                
+                // Get current timeframe from first pair's timeframe selector or default
+                const firstTfSelect = document.querySelector('[id^="tf-"]');
+                const timeframe = firstTfSelect ? firstTfSelect.value : 'H1';
+                
+                const response = await fetch(`/api/analysis?timeframe=${timeframe}&trading_style=${tradingStyle}`);
+                const data = await response.json();
+                
+                document.getElementById('last-update').textContent = `${t('last_updated')} ${new Date(data.generated_at).toLocaleString()}`;
+                
+                data.results.forEach(result => {
+                    updatePairCard(result.pair, result.analysis, result.recommendation, result.trading_style || tradingStyle);
+                });
+            } catch (error) {
+                console.error('Failed to load analysis:', error);
+            }
+        }
+
+        // Store selected timeframes for each pair
+        const pairTimeframes = {};
+        
+        // Store all trade signals for the signals panel
+        const allTradeSignals = [];
+
+        // Switch between tabs
+        function switchTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            // Remove active from all tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            // Show selected tab content
+            document.getElementById(`content-${tabName}`).classList.add('active');
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+        }
+
+        // Update trade signals panel
+        function updateTradeSignalsPanel() {
+            const container = document.getElementById('trade-signals-list');
+            if (!container || allTradeSignals.length === 0) {
+                container.innerHTML = `<div class="text-xs text-gray-400 text-center">${t('loading')}</div>`;
+                return;
+            }
+            
+            container.innerHTML = allTradeSignals.map(signal => `
+                <div class="p-2 bg-white/5 rounded text-xs">
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="font-bold">${signal.pair}</span>
+                        <span class="px-1.5 py-0.5 rounded text-[10px] ${
+                            signal.action === 'BUY' ? 'bg-green-600' : 
+                            signal.action === 'SELL' ? 'bg-red-600' : 'bg-yellow-600'
+                        }">${signal.action === 'BUY' ? t('buy') : signal.action === 'SELL' ? t('sell') : t('wait')}</span>
+                    </div>
+                    <div class="flex justify-between text-gray-400">
+                        <span>${t('tp')}: ${signal.tp}</span>
+                        <span>${t('sl')}: ${signal.sl}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Toggle MTF options visibility
+        function toggleMTFOptions(pair) {
+            const mode = document.getElementById(`mode-${pair}`).value;
+            const addTfBtn = document.getElementById(`add-tf-btn-${pair}`);
+            const selectedTfsDiv = document.getElementById(`selected-tfs-${pair}`);
+            
+            if (mode === 'mtf') {
+                addTfBtn.classList.remove('hidden');
+                selectedTfsDiv.classList.remove('hidden');
+                // Initialize timeframes array if not exists
+                if (!pairTimeframes[pair]) {
+                    pairTimeframes[pair] = [];
+                }
+            } else {
+                addTfBtn.classList.add('hidden');
+                selectedTfsDiv.classList.add('hidden');
+            }
+            lucide.createIcons();
+        }
+
+        // Add timeframe to MTF list
+        function addTimeframe(pair) {
+            const tfSelect = document.getElementById(`tf-${pair}`);
+            const tf = tfSelect.value;
+            
+            if (!pairTimeframes[pair]) {
+                pairTimeframes[pair] = [];
+            }
+            
+            if (!pairTimeframes[pair].includes(tf)) {
+                pairTimeframes[pair].push(tf);
+                renderSelectedTimeframes(pair);
+            }
+        }
+
+        // Remove timeframe from MTF list
+        function removeTimeframe(pair, tf) {
+            if (pairTimeframes[pair]) {
+                pairTimeframes[pair] = pairTimeframes[pair].filter(t => t !== tf);
+                renderSelectedTimeframes(pair);
+            }
+        }
+
+        // Render selected timeframes
+        function renderSelectedTimeframes(pair) {
+            const container = document.getElementById(`selected-tfs-${pair}`);
+            if (!container) return;
+            
+            const tfs = pairTimeframes[pair] || [];
+            container.innerHTML = tfs.map(tf => `
+                <span class="px-2 py-0.5 bg-blue-600/50 rounded text-[10px] flex items-center gap-1">
+                    ${tf}
+                    <button onclick="removeTimeframe('${pair}', '${tf}')" class="hover:text-red-400">×</button>
+                </span>
+            `).join('');
+        }
+
+        // Load analysis for specific pair with selected timeframe and mode
+        async function loadPairAnalysis(pair, forceRefresh = false) {
+            const tfSelect = document.getElementById(`tf-${pair}`);
+            const modeSelect = document.getElementById(`mode-${pair}`);
+            const styleSelect = document.getElementById(`style-${pair}`);
+            const timeframe = tfSelect ? tfSelect.value : 'H1';
+            const mode = modeSelect ? modeSelect.value : 'single';
+            const style = styleSelect ? styleSelect.value : 'day';
+            const contentEl = document.getElementById(`analysis-${pair}`);
+            
+            // Check cache first (if not forcing refresh)
+            const cacheKey = `${pair}_${timeframe}_${mode}_${style}`;
+            if (!forceRefresh && pairAnalysisCache[cacheKey]) {
+                const cached = pairAnalysisCache[cacheKey];
+                // Use cached data and re-render with current language
+                if (mode === 'mtf') {
+                    updatePairCardMTF(pair, cached.data, style);
+                } else {
+                    updatePairCard(pair, cached.data.analysis, cached.data.recommendation, style);
+                }
+                return;
+            }
+            
+            const loadingText = t('loading');
+            if (contentEl) {
+                contentEl.innerHTML = `<div class="text-center text-gray-400 text-sm">${loadingText}</div>`;
+            }
+            
+            try {
+                let response;
+                if (mode === 'mtf') {
+                    // Get selected timeframes or use default
+                    const timeframes = pairTimeframes[pair] && pairTimeframes[pair].length > 0 
+                        ? pairTimeframes[pair].join(',') 
+                        : timeframe;
+                    response = await fetch(`/api/mtf/${pair}?timeframes=${timeframes}&trading_style=${style}`);
+                } else {
+                    response = await fetch(`/api/analysis/${pair}?timeframe=${timeframe}&trading_style=${style}`);
+                }
+                const data = await response.json();
+                
+                // Cache the data
+                pairAnalysisCache[cacheKey] = {
+                    data: data,
+                    lang: currentLang,
+                    mode: mode,
+                    style: style,
+                    timestamp: Date.now()
+                };
+                
+                if (mode === 'mtf') {
+                    updatePairCardMTF(pair, data, style);
+                } else {
+                    updatePairCard(pair, data.analysis, data.recommendation, style);
+                }
+            } catch (error) {
+                console.error(`Failed to load analysis for ${pair}:`, error);
+                const errorText = t('loading') + ' error';
+                if (contentEl) {
+                    contentEl.innerHTML = `<div class="text-red-400 text-sm">${errorText}</div>`;
+                }
+            }
+        }
+        
+        // Re-render all cached pair analyses with current language
+        function rerenderAllPairAnalyses() {
+            Object.keys(pairAnalysisCache).forEach(cacheKey => {
+                const cached = pairAnalysisCache[cacheKey];
+                const pair = cacheKey.split('_')[0];
+                if (cached.mode === 'mtf') {
+                    updatePairCardMTF(pair, cached.data, cached.style);
+                } else {
+                    updatePairCard(pair, cached.data.analysis, cached.data.recommendation, cached.style);
+                }
+            });
+        }
+
+        // Load Market Overview - called when user clicks Analyze button
+        async function loadMarketOverview() {
+            const asset = document.getElementById('overview-asset').value;
+            const timeframe = document.getElementById('overview-timeframe').value;
+            
+            // Show fun loading animation
+            showLoadingAnimation();
+            
+            // Map timeframe to actual values
+            const tfMap = {
+                'short': 'H1',
+                'medium': 'H4',
+                'long': 'D1'
+            };
+            
+            try {
+                const response = await fetch(`/api/summary?asset=${asset}&timeframe=${tfMap[timeframe]}&lang=${currentLang}`);
+                const data = await response.json();
+                
+                // Cache the content
+                summaryCache.content = data.summary;
+                summaryCache.lang = currentLang;
+                summaryCache.translations = {}; // Clear old translations
+                summaryCache.translations[currentLang] = data.summary;
+                
+                const summaryEl = document.getElementById('summary-content');
+                summaryEl.innerHTML = formatSummary(data.summary);
+                summaryEl.classList.remove('loading');
+            } catch (error) {
+                console.error('Failed to load market overview:', error);
+                const summaryEl = document.getElementById('summary-content');
+                summaryEl.innerHTML = `<div class="text-red-400">${t('loading')} error</div>`;
+                summaryEl.classList.remove('loading');
+            }
+        }
+
+        function formatSummary(text) {
+            return text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        }
+
+        async function refreshData() {
+            // Trigger scrape
+            await fetch('/api/scrape', { method: 'POST' });
+            
+            // Wait a bit then reload
+            setTimeout(() => {
+                loadSummary();
+                loadAllAnalysis();
+            }, 3000);
+        }
+
+        function openAddPairModal() {
+            document.getElementById('add-pair-modal').classList.remove('hidden');
+            document.getElementById('add-pair-modal').classList.add('flex');
+        }
+
+        function closeAddPairModal() {
+            document.getElementById('add-pair-modal').classList.add('hidden');
+            document.getElementById('add-pair-modal').classList.remove('flex');
+        }
+
+        async function addPair(event) {
+            event.preventDefault();
+            
+            const pair = document.getElementById('new-pair').value.toUpperCase();
+            const config = {
+                volatility: document.getElementById('new-volatility').value,
+                default_sl_pips: parseInt(document.getElementById('new-sl').value),
+                default_tp_pips: parseInt(document.getElementById('new-tp').value),
+                keywords: [pair.substring(0, 3), pair.substring(3, 6)]
+            };
+
+            try {
+                const response = await fetch('/api/pairs', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ pair, config })
+                });
+
+                if (response.ok) {
+                    closeAddPairModal();
+                    location.reload();
+                } else {
+                    const error = await response.json();
+                    alert(error.detail);
+                }
+            } catch (error) {
+                alert('Failed to add pair');
+            }
+        }
+
+        async function removePair(pair) {
+            if (!confirm(`Remove ${pair} from tracking?`)) return;
+
+            try {
+                const response = await fetch(`/api/pairs/${pair}`, { method: 'DELETE' });
+                if (response.ok) {
+                    location.reload();
+                }
+            } catch (error) {
+                alert('Failed to remove pair');
+            }
+        }
+
+        let analysisCache = {};
+
+        async function showAnalysisDetail(pair) {
+            document.getElementById('modal-pair-title').textContent = pair;
+            document.getElementById('analysis-modal').classList.remove('hidden');
+            document.getElementById('analysis-modal').classList.add('flex');
+            
+            try {
+                const response = await fetch(`/api/analysis/${pair}`);
+                const data = await response.json();
+                analysisCache[pair] = data;
+                
+                const rec = data.recommendation;
+                const analysis = data.analysis;
+                
+                document.getElementById('modal-content').innerHTML = `
+                    <div class="space-y-6">
+                        <!-- Recommendation -->
+                        <div class="p-4 rounded-lg ${rec.recommendation === 'BUY' ? 'bg-green-900/30' : 
+                                                      rec.recommendation === 'SELL' ? 'bg-red-900/30' : 'bg-yellow-900/30'}">
+                            <h4 class="font-bold mb-2">Trade Recommendation</h4>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <span class="text-gray-400">Action:</span>
+                                    <span class="font-bold ml-2">${rec.recommendation}</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-400">Confidence:</span>
+                                    <span class="ml-2">${rec.confidence}%</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-400">Timeframe:</span>
+                                    <span class="ml-2">${rec.timeframe}</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-400">R:R Ratio:</span>
+                                    <span class="ml-2">${rec.risk_reward_ratio}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Entry/Exit -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="p-4 bg-white/5 rounded-lg">
+                                <h5 class="text-red-400 font-medium mb-2">Stop Loss</h5>
+                                <div class="text-2xl font-bold">${rec.stop_loss.pips} pips</div>
+                                <div class="text-sm text-gray-400">${rec.stop_loss.description}</div>
+                            </div>
+                            <div class="p-4 bg-white/5 rounded-lg">
+                                <h5 class="text-green-400 font-medium mb-2">Take Profit</h5>
+                                <div class="text-2xl font-bold">${rec.take_profit.pips} pips</div>
+                                <div class="text-sm text-gray-400">${rec.take_profit.description}</div>
+                            </div>
+                        </div>
+
+                        <!-- Reasoning -->
+                        <div class="p-4 bg-white/5 rounded-lg">
+                            <h4 class="font-bold mb-2">Analysis</h4>
+                            <p class="text-gray-300">${rec.reasoning}</p>
+                        </div>
+
+                        <!-- Key Levels -->
+                        <div class="p-4 bg-white/5 rounded-lg">
+                            <h4 class="font-bold mb-2">Key Levels</h4>
+                            <div class="flex flex-wrap gap-2">
+                                ${rec.key_levels.map(level => `<span class="px-2 py-1 bg-blue-600/30 rounded">${level}</span>`).join('')}
+                            </div>
+                        </div>
+
+                        <!-- Invalidation -->
+                        <div class="p-4 bg-red-900/20 rounded-lg">
+                            <h4 class="font-bold mb-2">Trade Invalidation</h4>
+                            <p class="text-gray-300">${rec.invalidation}</p>
+                        </div>
+
+                        <!-- News to Watch -->
+                        <div class="p-4 bg-white/5 rounded-lg">
+                            <h4 class="font-bold mb-2">News to Watch</h4>
+                            <ul class="list-disc list-inside text-gray-300">
+                                ${rec.news_to_watch.map(news => `<li>${news}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('modal-content').innerHTML = '<p class="text-red-400">Failed to load analysis</p>';
+            }
+        }
+
+        function closeAnalysisModal() {
+            document.getElementById('analysis-modal').classList.add('hidden');
+            document.getElementById('analysis-modal').classList.remove('flex');
+        }
+
+        // Close modals on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeAddPairModal();
+                closeAnalysisModal();
+                closeMTFModal();
+            }
+        });
+
+        // ============== Multi-Timeframe Functions ==============
+        
+        const tradingStyleTimeframes = {
+            scalping: ['M1', 'M5', 'M15'],
+            day_trading: ['M15', 'M30', 'H1', 'H4'],
+            swing_trading: ['H1', 'H4', 'D1'],
+            position_trading: ['D1', 'W1', 'MN1']
+        };
+
+        function updateTimeframeOptions() {
+            const style = document.getElementById('trading-style').value;
+            const tfSelect = document.getElementById('primary-timeframe');
+            const timeframes = tradingStyleTimeframes[style];
+            
+            tfSelect.innerHTML = timeframes.map(tf => 
+                `<option value="${tf}">${tf}</option>`
+            ).join('');
+            
+            // Select middle timeframe as default
+            tfSelect.selectedIndex = Math.floor(timeframes.length / 2);
+        }
+
+        async function loadMTFAnalysis() {
+            const statusEl = document.getElementById('mtf-status');
+            statusEl.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin mr-2"></i> Loading...';
+            lucide.createIcons();
+
+            const style = document.getElementById('trading-style').value;
+            const primaryTf = document.getElementById('primary-timeframe').value;
+            
+            // Get all pairs
+            const pairsResponse = await fetch('/api/pairs');
+            const pairsData = await pairsResponse.json();
+            const pairs = Object.keys(pairsData.pairs);
+
+            // Load MTF analysis for each pair
+            const results = [];
+            for (const pair of pairs) {
+                try {
+                    const response = await fetch(`/api/mtf/${pair}?primary_tf=${primaryTf}&trading_style=${style}`);
+                    const data = await response.json();
+                    results.push(data);
+                } catch (error) {
+                    console.error(`MTF analysis failed for ${pair}:`, error);
+                }
+            }
+
+            statusEl.innerHTML = `<i data-lucide="check-circle" class="w-4 h-4 text-green-400 mr-2"></i> Analyzed ${results.length} pairs`;
+            lucide.createIcons();
+
+            // Show MTF modal with results
+            showMTFResults(results, primaryTf, style);
+        }
+
+        function showMTFResults(results, primaryTf, style) {
+            // Create MTF modal if not exists
+            let modal = document.getElementById('mtf-modal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'mtf-modal';
+                modal.className = 'fixed inset-0 bg-black/50 hidden items-center justify-center z-50 overflow-y-auto';
+                modal.innerHTML = `
+                    <div class="card-glass rounded-xl p-6 w-full max-w-4xl mx-4 my-8 max-h-[90vh] overflow-y-auto">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-xl font-bold flex items-center gap-2">
+                                <i data-lucide="layers" class="w-6 h-6 text-purple-400"></i>
+                                Multi-Timeframe Analysis
+                            </h3>
+                            <button onclick="closeMTFModal()" class="text-gray-400 hover:text-white">
+                                <i data-lucide="x" class="w-6 h-6"></i>
+                            </button>
+                        </div>
+                        <div id="mtf-modal-content"></div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            }
+
+            const content = document.getElementById('mtf-modal-content');
+            content.innerHTML = `
+                <div class="mb-4 p-4 bg-purple-900/30 rounded-lg">
+                    <div class="grid grid-cols-3 gap-4 text-sm">
+                        <div><span class="text-gray-400">Trading Style:</span> <span class="font-bold">${style.replace('_', ' ')}</span></div>
+                        <div><span class="text-gray-400">Primary TF:</span> <span class="font-bold">${primaryTf}</span></div>
+                        <div><span class="text-gray-400">Pairs Analyzed:</span> <span class="font-bold">${results.length}</span></div>
+                    </div>
+                </div>
+                
+                <div class="space-y-4">
+                    ${results.map(r => renderMTFPairResult(r)).join('')}
+                </div>
+            `;
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            lucide.createIcons();
+        }
+
+        function renderMTFPairResult(result) {
+            const analysis = result.analysis || {};
+            const confluence = analysis.confluence || {};
+            const recommendation = analysis.trade_recommendation || {};
+            const tfDetails = analysis.timeframe_details || {};
+            
+            const biasClass = confluence.overall_bias === 'bullish' ? 'bullish' : 
+                             confluence.overall_bias === 'bearish' ? 'bearish' : 'neutral';
+            
+            const actionClass = recommendation.action === 'BUY' ? 'bg-green-600' :
+                               recommendation.action === 'SELL' ? 'bg-red-600' : 'bg-yellow-600';
+
+            return `
+                <div class="card-glass rounded-lg p-4">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="text-lg font-bold">${result.pair}</h4>
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl font-bold ${biasClass}">${confluence.overall_bias || 'N/A'}</span>
+                            <span class="px-3 py-1 rounded-full text-sm font-medium ${actionClass}">
+                                ${recommendation.action || 'WAIT'}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- Timeframe Breakdown -->
+                    <div class="grid grid-cols-3 gap-2 mb-4">
+                        ${Object.entries(tfDetails).map(([tf, data]) => `
+                            <div class="p-2 bg-white/5 rounded text-center">
+                                <div class="text-xs text-gray-400">${tf}</div>
+                                <div class="font-bold ${data.trend === 'bullish' ? 'bullish' : data.trend === 'bearish' ? 'bearish' : 'neutral'}">
+                                    ${data.trend || 'N/A'}
+                                </div>
+                                <div class="text-xs text-gray-500">${data.strength || ''}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <!-- Confluence Info -->
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <span class="text-gray-400">Confluence:</span>
+                            <span class="ml-2 ${confluence.aligned ? 'text-green-400' : 'text-yellow-400'}">
+                                ${confluence.aligned ? '✓ Aligned' : '⚠ Mixed'}
+                            </span>
+                        </div>
+                        <div>
+                            <span class="text-gray-400">Confidence:</span>
+                            <span class="ml-2">${confluence.confidence || 0}%</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-400">Entry TF:</span>
+                            <span class="ml-2">${recommendation.entry_tf || 'N/A'}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-400">Confirm TF:</span>
+                            <span class="ml-2">${recommendation.confirmation_tf || 'N/A'}</span>
+                        </div>
+                    </div>
+                    
+                    ${confluence.summary ? `
+                        <div class="mt-3 p-2 bg-white/5 rounded text-sm text-gray-300">
+                            ${confluence.summary}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function closeMTFModal() {
+            const modal = document.getElementById('mtf-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        // Update pair card with analysis results (Single TF)
+        function updatePairCard(pair, analysis, recommendation, style = 'day') {
+            const contentEl = document.getElementById(`analysis-${pair}`);
+            if (!contentEl) return;
+
+            const sentimentClass = analysis.sentiment ? analysis.sentiment.toLowerCase() : 'neutral';
+            const rec = recommendation || {};
+            const sl = rec.stop_loss || { pips: 0 };
+            const tp = rec.take_profit || { pips: 0 };
+            const styleName = t(style) || style;
+            
+            // Add to trade signals
+            const existingIndex = allTradeSignals.findIndex(s => s.pair === pair);
+            const signal = {
+                pair: pair,
+                action: rec.recommendation || 'HOLD',
+                tp: tp.pips || 0,
+                sl: sl.pips || 0,
+                style: style
+            };
+            if (existingIndex >= 0) {
+                allTradeSignals[existingIndex] = signal;
+            } else {
+                allTradeSignals.push(signal);
+            }
+            updateTradeSignalsPanel();
+            
+            // Translate sentiment
+            const sentimentKey = (analysis.sentiment || 'neutral').toLowerCase();
+            const translatedSentiment = t(sentimentKey) || analysis.sentiment || t('neutral');
+            
+            contentEl.innerHTML = `
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xl font-bold ${sentimentClass}">${translatedSentiment}</span>
+                    <span class="text-xs text-gray-400">${analysis.confidence || 0}%</span>
+                </div>
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="px-2 py-0.5 rounded text-xs font-medium
+                        ${rec.recommendation === 'BUY' ? 'bg-green-600' : 
+                          rec.recommendation === 'SELL' ? 'bg-red-600' : 'bg-yellow-600'}">
+                        ${rec.recommendation === 'BUY' ? t('buy') : rec.recommendation === 'SELL' ? t('sell') : t('wait')}
+                    </span>
+                    <span class="text-xs text-gray-400">${rec.timeframe || 'H1'}</span>
+                </div>
+                <!-- Trade Suggestion Box -->
+                <div class="p-2 bg-white/5 rounded mb-2">
+                    <div class="text-[10px] text-gray-400 mb-1">${t('trade_suggestion')} (${styleName})</div>
+                    <div class="text-xs text-gray-300">
+                        <div class="flex justify-between mb-1">
+                            <span class="${rec.recommendation === 'BUY' ? 'text-green-400' : rec.recommendation === 'SELL' ? 'text-red-400' : 'text-yellow-400'}">
+                                ${rec.recommendation === 'BUY' ? '🟢 ' + t('buy') : 
+                                  rec.recommendation === 'SELL' ? '🔴 ' + t('sell') : 
+                                  '🟡 ' + t('wait')}
+                            </span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>${t('tp')}: ${tp.pips} pips</span>
+                            <span>${t('sl')}: ${sl.pips} pips</span>
+                        </div>
+                        <div class="text-gray-500">${t('rr')} ${rec.risk_reward_ratio || '1.5'}</div>
+                    </div>
+                </div>
+                <button onclick="showAnalysisDetail('${pair}')" 
+                        class="w-full px-2 py-1.5 bg-blue-600/50 hover:bg-blue-600 rounded text-xs transition">
+                    ${t('details')}
+                </button>
+            `;
+            contentEl.classList.remove('loading');
+        }
+
+        // Update pair card with MTF results
+        function updatePairCardMTF(pair, data, style = 'day') {
+            const contentEl = document.getElementById(`analysis-${pair}`);
+            if (!contentEl) return;
+
+            const analysis = data.analysis || {};
+            const confluence = analysis.confluence || {};
+            const rec = analysis.trade_recommendation || {};
+            const tfDetails = analysis.timeframe_details || {};
+            
+            const biasClass = confluence.overall_bias === 'bullish' ? 'bullish' : 
+                             confluence.overall_bias === 'bearish' ? 'bearish' : 'neutral';
+            const styleName = t(style) || style;
+            
+            // Add to trade signals
+            const existingIndex = allTradeSignals.findIndex(s => s.pair === pair);
+            const signal = {
+                pair: pair,
+                action: rec.action || 'WAIT',
+                tp: rec.tp_pips || 0,
+                sl: rec.sl_pips || 0,
+                style: style
+            };
+            if (existingIndex >= 0) {
+                allTradeSignals[existingIndex] = signal;
+            } else {
+                allTradeSignals.push(signal);
+            }
+            updateTradeSignalsPanel();
+            
+            // Translate bias
+            const biasKey = (confluence.overall_bias || 'neutral').toLowerCase();
+            const translatedBias = t(biasKey) || confluence.overall_bias || t('neutral');
+            
+            contentEl.innerHTML = `
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-lg font-bold ${biasClass}">${translatedBias}</span>
+                    <span class="text-xs px-2 py-0.5 rounded ${confluence.aligned ? 'bg-green-600' : 'bg-yellow-600'}">
+                        ${confluence.aligned ? '✓' : '⚠'}
+                    </span>
+                </div>
+                <div class="grid grid-cols-3 gap-1 mb-2 text-[10px]">
+                    ${Object.entries(tfDetails).slice(0, 3).map(([tf, d]) => {
+                        const trendKey = (d.trend || 'neutral').toLowerCase();
+                        const translatedTrend = t(trendKey) || d.trend || '-';
+                        return `
+                        <div class="text-center p-1 bg-white/5 rounded">
+                            <div class="text-gray-400">${tf}</div>
+                            <div class="${d.trend === 'bullish' ? 'bullish' : d.trend === 'bearish' ? 'bearish' : 'neutral'}">${translatedTrend}</div>
+                        </div>
+                    `}).join('')}
+                </div>
+                <!-- Trade Suggestion Box for MTF -->
+                <div class="p-2 bg-purple-900/30 rounded mb-2">
+                    <div class="text-[10px] text-gray-400 mb-1">${t('trade_suggestion')} (${styleName})</div>
+                    <div class="text-xs">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="px-2 py-0.5 rounded text-xs font-medium
+                                ${rec.action === 'BUY' ? 'bg-green-600' : 
+                                  rec.action === 'SELL' ? 'bg-red-600' : 'bg-yellow-600'}">
+                                ${rec.action === 'BUY' ? t('buy') : rec.action === 'SELL' ? t('sell') : t('wait')}
+                            </span>
+                        </div>
+                        <div class="flex justify-between text-gray-300">
+                            <span>${t('tp')}: ${rec.tp_pips || 0} pips</span>
+                            <span>${t('sl')}: ${rec.sl_pips || 0} pips</span>
+                        </div>
+                        <div class="text-gray-500">${t('rr')} ${rec.risk_reward || '1.5'}</div>
+                    </div>
+                </div>
+                <button onclick="showAnalysisDetail('${pair}')" 
+                        class="w-full px-2 py-1.5 bg-purple-600/50 hover:bg-purple-600 rounded text-xs transition">
+                    ${t('details')}
+                </button>
+            `;
+            contentEl.classList.remove('loading');
+        }
+
+        async function showPairMTF(pair) {
+            const tfSelect = document.getElementById(`tf-${pair}`);
+            const primaryTf = tfSelect ? tfSelect.value : 'H1';
+
+            try {
+                const response = await fetch(`/api/mtf/${pair}?primary_tf=${primaryTf}&trading_style=day_trading`);
+                const data = await response.json();
+                showMTFResults([data], primaryTf, 'day_trading');
+            } catch (error) {
+                alert('Failed to load MTF analysis');
+            }
+        }
+    </script>
+</body>
+</html>
