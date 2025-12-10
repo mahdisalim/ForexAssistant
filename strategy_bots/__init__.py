@@ -1,6 +1,13 @@
 """
 Strategy Bots Module
 ربات‌های استراتژی معاملاتی
+
+Example:
+    >>> from strategy_bots import RSIBot, BotConfig
+    >>> from strategy_bots.sl_strategies import PinBarSL, CompositeSL
+    >>> 
+    >>> bot = RSIBot(pairs=["EURUSD", "GBPUSD"])
+    >>> signal = bot.analyze("EURUSD", candles)
 """
 
 from .models import Signal, Trade, PendingSetup, BotAnalysis, SignalType, TradeDirection, TradeStatus
@@ -10,9 +17,13 @@ from .config import (
     AccountConfig, TradeConfig, BotConfig,
     RiskMode, SLMode, TPMode, DEFAULT_CONFIG
 )
-from .patterns import (
-    PatternDetector, CandlePattern, PatternType,
-    calculate_sl_from_pin_bar, calculate_tp_from_rr, calculate_lot_size
+# SL Strategies module
+from .sl_strategies import (
+    PinBarSL, PinBar, ATRSL, SwingPointSL, CompositeSL, SLResult
+)
+# TP Strategies module
+from .tp_strategies import (
+    RiskRewardTP, MultiTargetTP, ATRTP, FixedPipsTP, CompositeTP, TPResult
 )
 
 __all__ = [
@@ -24,7 +35,8 @@ __all__ = [
     # Config
     'AccountConfig', 'TradeConfig', 'BotConfig',
     'RiskMode', 'SLMode', 'TPMode', 'DEFAULT_CONFIG',
-    # Patterns
-    'PatternDetector', 'CandlePattern', 'PatternType',
-    'calculate_sl_from_pin_bar', 'calculate_tp_from_rr', 'calculate_lot_size'
+    # SL Strategies
+    'PinBarSL', 'PinBar', 'ATRSL', 'SwingPointSL', 'CompositeSL', 'SLResult',
+    # TP Strategies
+    'RiskRewardTP', 'MultiTargetTP', 'ATRTP', 'FixedPipsTP', 'CompositeTP', 'TPResult'
 ]

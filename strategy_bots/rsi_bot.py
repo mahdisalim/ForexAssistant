@@ -13,12 +13,24 @@ from .models import (
     SignalType, TradeDirection
 )
 from .config import BotConfig, SLMode, TPMode, DEFAULT_CONFIG
-from .patterns import (
-    PatternDetector, 
-    calculate_sl_from_pin_bar, 
-    calculate_tp_from_rr,
-    calculate_lot_size
+from .sl_strategies import (
+    PinBarSL, ATRSL, SwingPointSL, CompositeSL,
+    TradeDirection as SLDirection
 )
+from .tp_strategies import (
+    MultiTargetTP, RiskRewardTP, ATRTP, FixedPipsTP, CompositeTP,
+    TradeDirection as TPDirection
+)
+
+
+def calculate_lot_size(account_balance: float, risk_percent: float,
+                       sl_pips: float, pip_value_per_lot: float = 10.0) -> float:
+    """محاسبه حجم معامله"""
+    if sl_pips <= 0:
+        return 0.01
+    risk_amount = account_balance * (risk_percent / 100)
+    lot_size = risk_amount / (sl_pips * pip_value_per_lot)
+    return max(0.01, min(round(lot_size, 2), 100.0))
 
 
 class RSIBot(BaseStrategyBot):
@@ -34,7 +46,7 @@ class RSIBot(BaseStrategyBot):
     - بر اساس سطوح حمایت و مقاومت اخیر
     
     ویژگی‌های جدید:
-    - SL بر اساس Pin Bar (پشت آخرین پین بار در جهت معامله)
+    - SL بر اساس Pin Bar (ماژول مستقل sl_strategies)
     - TP بر اساس نسبت ریسک به ریوارد
     - پشتیبانی از تنظیمات حساب کاربر
     
@@ -63,8 +75,11 @@ class RSIBot(BaseStrategyBot):
         # تنظیمات ربات
         self.config = config or DEFAULT_CONFIG
         
-        # تشخیص‌دهنده الگوها
-        self.pattern_detector = PatternDetector()
+        # ماژول SL - استفاده از ماژول مستقل
+        self._init_sl_strategy()
+        
+        # ماژول TP - استفاده از MultiTargetTP
+        self._init_tp_strategy()
         
         # ذخیره آخرین کندل‌ها برای تشخیص الگو
         self.candles_cache = {}
@@ -72,9 +87,45 @@ class RSIBot(BaseStrategyBot):
         self.logger.info(
             f"RSI Bot configured: period={rsi_period}, "
             f"oversold={oversold}, overbought={overbought}, "
-            f"SL mode={self.config.trade.sl_mode.value}, "
-            f"TP mode={self.config.trade.tp_mode.value}"
+            f"SL: PinBar, TP: MultiTarget"
         )
+    
+    def _init_sl_strategy(self):
+        """راه‌اندازی استراتژی SL بر اساس تنظیمات"""
+        sl_mode = self.config.trade.sl_mode
+        buffer = self.config.trade.pin_bar_buffer_pips
+        
+        if sl_mode == SLMode.PIN_BAR:
+            # استفاده از ترکیبی: اول Pin Bar، بعد ATR
+            self.sl_strategy = CompositeSL(
+                strategies=[PinBarSL(buffer_pips=buffer)],
+                fallback_strategy=ATRSL(multiplier=self.config.trade.atr_sl_multiplier)
+            )
+        elif sl_mode == SLMode.SWING_POINT:
+            self.sl_strategy = CompositeSL(
+                strategies=[SwingPointSL(buffer_pips=buffer)],
+                fallback_strategy=ATRSL(multiplier=self.config.trade.atr_sl_multiplier)
+            )
+        elif sl_mode == SLMode.ATR_BASED:
+            self.sl_strategy = ATRSL(multiplier=self.config.trade.atr_sl_multiplier)
+        else:
+            # FIXED_PIPS - از ATR با ضریب ثابت استفاده می‌کنیم
+            self.sl_strategy = ATRSL(multiplier=1.0)
+    
+    def _init_tp_strategy(self):
+        """راه‌اندازی استراتژی TP - MultiTarget"""
+        # تنظیمات Multi-Target TP
+        # TP1: R:R 1:1, بستن 50% پوزیشن
+        # TP2: R:R 1:2, بستن 30% پوزیشن  
+        # TP3: R:R 1:3, بستن 20% پوزیشن
+        self.tp_strategy = MultiTargetTP(targets=[
+            (1.0, 50),   # TP1
+            (2.0, 30),   # TP2
+            (3.0, 20),   # TP3
+        ])
+        
+        # ذخیره آخرین نتایج TP برای هر جفت ارز
+        self.tp_levels = {}
     
     def calculate_rsi(self, closes: np.ndarray, period: int = None) -> np.ndarray:
         """
@@ -238,89 +289,90 @@ class RSIBot(BaseStrategyBot):
     def _calculate_sl_price(self, candles: list, direction: TradeDirection, 
                              current_price: float, atr: float) -> float:
         """
-        محاسبه قیمت Stop Loss بر اساس تنظیمات
+        محاسبه قیمت Stop Loss با استفاده از ماژول sl_strategies
         
         Args:
             candles: لیست کندل‌ها
             direction: جهت معامله
             current_price: قیمت فعلی
-            atr: مقدار ATR
+            atr: مقدار ATR (برای fallback)
             
         Returns:
             قیمت SL
         """
-        sl_mode = self.config.trade.sl_mode
+        # تبدیل جهت به فرمت ماژول SL
+        sl_direction = SLDirection.BUY if direction == TradeDirection.BUY else SLDirection.SELL
         
-        if sl_mode == SLMode.PIN_BAR:
-            # پیدا کردن آخرین پین بار در جهت معامله
-            pin_direction = "bullish" if direction == TradeDirection.BUY else "bearish"
-            pin_bar = self.pattern_detector.find_last_pin_bar(candles, pin_direction, lookback=15)
-            
-            if pin_bar:
-                sl_price = calculate_sl_from_pin_bar(
-                    pin_bar, 
-                    direction.value,
-                    buffer_pips=self.config.trade.pin_bar_buffer_pips
-                )
-                self.logger.info(f"SL from Pin Bar: {sl_price:.5f}")
-                return sl_price
-            else:
-                # اگر پین بار پیدا نشد، از ATR استفاده کن
-                self.logger.info("No Pin Bar found, using ATR for SL")
-                sl_mode = SLMode.ATR_BASED
+        # استفاده از ماژول مستقل SL
+        result = self.sl_strategy.calculate(candles, sl_direction, current_price)
         
-        if sl_mode == SLMode.ATR_BASED:
-            sl_distance = atr * self.config.trade.atr_sl_multiplier
-            if direction == TradeDirection.BUY:
-                return current_price - sl_distance
-            else:
-                return current_price + sl_distance
+        self.logger.info(f"SL calculated: {result.sl_price:.5f} (method: {result.method}, reason: {result.reason})")
         
-        # FIXED_PIPS
-        pip_value = 0.0001 if "JPY" not in "" else 0.01  # TODO: get from pair
-        sl_distance = self.config.trade.default_sl_pips * pip_value
-        if direction == TradeDirection.BUY:
-            return current_price - sl_distance
-        else:
-            return current_price + sl_distance
+        return result.sl_price
     
-    def _calculate_tp_price(self, entry_price: float, sl_price: float, 
-                            direction: TradeDirection, atr: float) -> float:
+    def _calculate_tp_prices(self, pair: str, entry_price: float, sl_price: float, 
+                              direction: TradeDirection) -> list:
         """
-        محاسبه قیمت Take Profit بر اساس تنظیمات
+        محاسبه قیمت‌های Take Profit با استفاده از MultiTargetTP
         
         Args:
+            pair: جفت ارز
             entry_price: قیمت ورود
             sl_price: قیمت SL
             direction: جهت معامله
-            atr: مقدار ATR
             
         Returns:
-            قیمت TP
+            لیست TPResult برای هر سطح
         """
-        tp_mode = self.config.trade.tp_mode
+        tp_direction = TPDirection.BUY if direction == TradeDirection.BUY else TPDirection.SELL
         
-        if tp_mode == TPMode.RISK_REWARD:
-            return calculate_tp_from_rr(
-                entry_price, 
-                sl_price, 
-                self.config.trade.risk_reward_ratio
-            )
+        # محاسبه همه سطوح TP
+        tp_results = self.tp_strategy.calculate_all(entry_price, sl_price, tp_direction)
         
-        if tp_mode == TPMode.ATR_BASED:
-            tp_distance = atr * self.config.trade.atr_tp_multiplier
-            if direction == TradeDirection.BUY:
-                return entry_price + tp_distance
-            else:
-                return entry_price - tp_distance
+        # ذخیره برای استفاده بعدی
+        self.tp_levels[pair] = tp_results
         
-        # FIXED_PIPS
-        pip_value = 0.0001
-        tp_distance = self.config.trade.default_tp_pips * pip_value
-        if direction == TradeDirection.BUY:
-            return entry_price + tp_distance
-        else:
-            return entry_price - tp_distance
+        # لاگ
+        for i, tp in enumerate(tp_results, 1):
+            self.logger.info(f"TP{i}: {tp.tp_price:.5f} (R:R {tp.risk_reward_ratio})")
+        
+        return tp_results
+    
+    def _get_primary_tp(self, pair: str, entry_price: float, sl_price: float,
+                        direction: TradeDirection) -> float:
+        """
+        دریافت اولین TP (برای سازگاری با Signal)
+        
+        Returns:
+            قیمت TP اول
+        """
+        tp_results = self._calculate_tp_prices(pair, entry_price, sl_price, direction)
+        return tp_results[0].tp_price if tp_results else entry_price
+    
+    def _format_tp_info(self, pair: str) -> str:
+        """
+        فرمت اطلاعات همه سطوح TP برای نمایش
+        
+        Returns:
+            متن فرمت شده TPها
+        """
+        if pair not in self.tp_levels:
+            return ""
+        
+        lines = ["📊 سطوح حد سود:"]
+        for i, tp in enumerate(self.tp_levels[pair], 1):
+            lines.append(f"  TP{i}: {tp.tp_price:.5f} (R:R 1:{tp.risk_reward_ratio:.0f}) - بستن {self.tp_strategy.targets[i-1][1]}%")
+        
+        return "\n".join(lines)
+    
+    def get_tp_levels(self, pair: str) -> list:
+        """
+        دریافت همه سطوح TP برای یک جفت ارز
+        
+        Returns:
+            لیست TPResult
+        """
+        return self.tp_levels.get(pair, [])
     
     def _calculate_lot_size(self, sl_pips: float) -> float:
         """
@@ -386,8 +438,11 @@ class RSIBot(BaseStrategyBot):
             # محاسبه SL بر اساس Pin Bar
             sl_price = self._calculate_sl_price(candles, direction, current_price, atr)
             
-            # محاسبه TP بر اساس R:R
-            tp_price = self._calculate_tp_price(current_price, sl_price, direction, atr)
+            # محاسبه TP با MultiTarget (اولین TP برای Signal)
+            tp_price = self._get_primary_tp(pair, current_price, sl_price, direction)
+            
+            # ساخت reason با اطلاعات همه TPها
+            tp_info = self._format_tp_info(pair)
             
             signal = Signal(
                 pair=pair,
@@ -396,10 +451,10 @@ class RSIBot(BaseStrategyBot):
                 entry_price=current_price,
                 tp_price=tp_price,
                 sl_price=sl_price,
-                reason=f"RSI خروج از اشباع فروش (RSI: {prev_rsi:.1f} → {current_rsi:.1f})",
+                reason=f"RSI خروج از اشباع فروش (RSI: {prev_rsi:.1f} → {current_rsi:.1f})\n{tp_info}",
                 probability=65
             )
-            self.logger.info(f"BUY Signal: {pair} - Entry: {current_price:.5f}, SL: {sl_price:.5f}, TP: {tp_price:.5f}")
+            self.logger.info(f"BUY Signal: {pair} - Entry: {current_price:.5f}, SL: {sl_price:.5f}")
         
         # === سیگنال SELL ===
         # RSI از بالای overbought به پایین کراس کند
@@ -409,8 +464,11 @@ class RSIBot(BaseStrategyBot):
             # محاسبه SL بر اساس Pin Bar
             sl_price = self._calculate_sl_price(candles, direction, current_price, atr)
             
-            # محاسبه TP بر اساس R:R
-            tp_price = self._calculate_tp_price(current_price, sl_price, direction, atr)
+            # محاسبه TP با MultiTarget (اولین TP برای Signal)
+            tp_price = self._get_primary_tp(pair, current_price, sl_price, direction)
+            
+            # ساخت reason با اطلاعات همه TPها
+            tp_info = self._format_tp_info(pair)
             
             signal = Signal(
                 pair=pair,
@@ -419,10 +477,10 @@ class RSIBot(BaseStrategyBot):
                 entry_price=current_price,
                 tp_price=tp_price,
                 sl_price=sl_price,
-                reason=f"RSI خروج از اشباع خرید (RSI: {prev_rsi:.1f} → {current_rsi:.1f})",
+                reason=f"RSI خروج از اشباع خرید (RSI: {prev_rsi:.1f} → {current_rsi:.1f})\n{tp_info}",
                 probability=65
             )
-            self.logger.info(f"SELL Signal: {pair} - Entry: {current_price:.5f}, SL: {sl_price:.5f}, TP: {tp_price:.5f}")
+            self.logger.info(f"SELL Signal: {pair} - Entry: {current_price:.5f}, SL: {sl_price:.5f}")
         
         return signal
     
