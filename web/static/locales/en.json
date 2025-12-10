@@ -74,5 +74,16 @@
   "ai_analyzing": "AI is analyzing the market news...",
   "neutral": "Neutral",
   "bullish": "Bullish",
-  "bearish": "Bearish"
+  "bearish": "Bearish",
+  "add_chart_title": "Add Chart",
+  "pair_symbol": "Pair Symbol",
+  "pair_placeholder": "e.g., EURUSD",
+  "volatility": "Volatility",
+  "volatility_low": "Low",
+  "volatility_medium": "Medium",
+  "volatility_high": "High",
+  "default_sl": "Default SL (pips)",
+  "default_tp": "Default TP (pips)",
+  "cancel": "Cancel",
+  "add_chart_btn": "Add Chart"
 }

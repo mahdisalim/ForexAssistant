@@ -74,5 +74,16 @@
   "ai_analyzing": "AI बाजार समाचार का विश्लेषण कर रहा है...",
   "neutral": "तटस्थ",
   "bullish": "तेजी",
-  "bearish": "मंदी"
+  "bearish": "मंदी",
+  "add_chart_title": "चार्ट जोड़ें",
+  "pair_symbol": "जोड़ी प्रतीक",
+  "pair_placeholder": "उदा. EURUSD",
+  "volatility": "अस्थिरता",
+  "volatility_low": "कम",
+  "volatility_medium": "मध्यम",
+  "volatility_high": "उच्च",
+  "default_sl": "डिफ़ॉल्ट SL (पिप्स)",
+  "default_tp": "डिफ़ॉल्ट TP (पिप्स)",
+  "cancel": "रद्द करें",
+  "add_chart_btn": "चार्ट जोड़ें"
 }

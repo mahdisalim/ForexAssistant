@@ -160,14 +160,6 @@
                     </select>
                     <i data-lucide="chevron-down" class="w-4 h-4 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400"></i>
                 </div>
-                <button onclick="refreshData()" class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition">
-                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
-                    <span data-i18n="refresh">بروزرسانی</span>
-                </button>
-                <button onclick="openAddPairModal()" class="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg transition">
-                    <i data-lucide="plus" class="w-4 h-4"></i>
-                    <span data-i18n="add_pair">افزودن جفت‌ارز</span>
-                </button>
             </div>
         </div>
     </header>
@@ -352,7 +344,13 @@
                     <!-- Charts Analysis Grid -->
                     <section>
                         <div class="flex items-center justify-between mb-6">
-                            <h2 class="text-xl font-semibold" data-i18n="charts_analysis">تحلیل چارت‌ها</h2>
+                            <div class="flex items-center gap-3">
+                                <h2 class="text-xl font-semibold" data-i18n="charts_analysis">تحلیل چارت‌ها</h2>
+                                <button onclick="openAddPairModal()" class="flex items-center gap-2 px-3 py-1.5 bg-green-600 hover:bg-green-700 rounded-lg text-sm transition">
+                                    <i data-lucide="plus" class="w-4 h-4"></i>
+                                    <span data-i18n="add_pair">افزودن چارت</span>
+                                </button>
+                            </div>
                             <span id="last-update" class="text-sm text-gray-400"></span>
                         </div>
                     
@@ -411,83 +409,19 @@
                     </section>
                 </div>
                 
-                <!-- Strategy Tab Content (with clocks only) -->
+                <!-- Strategy Tab Content (coming soon) -->
                 <div id="content-strategy" class="tab-content">
-                    <div class="card-glass rounded-xl p-6">
-                        <div class="flex items-center gap-2 mb-4">
-                            <i data-lucide="settings" class="w-5 h-5 text-blue-400"></i>
-                            <h2 class="text-xl font-semibold" data-i18n="strategy">Strategy</h2>
-                        </div>
-                        <p class="text-gray-400 mb-6" data-i18n="coming_soon">Coming soon...</p>
-                        
-                        <!-- World Clocks in Strategy -->
-                        <div class="mt-6">
-                            <h3 class="text-sm font-semibold text-gray-400 mb-4" data-i18n="world_clocks">World Clocks</h3>
-                            <div class="grid grid-cols-4 gap-4">
-                                <div class="text-center">
-                                    <div class="clock-container mx-auto mb-1" id="clock-tehran-strategy">
-                                        <div class="clock-face">
-                                            <div class="clock-center"></div>
-                                            <div class="clock-hand hour-hand" id="hour-tehran-strategy"></div>
-                                            <div class="clock-hand minute-hand" id="minute-tehran-strategy"></div>
-                                            <div class="clock-hand second-hand" id="second-tehran-strategy"></div>
-                                        </div>
-                                    </div>
-                                    <div class="text-xs text-blue-400 font-medium" data-i18n="tehran">Tehran</div>
-                                    <div class="text-sm font-mono" id="time-tehran-strategy">--:--</div>
-                                </div>
-                                <div class="text-center">
-                                    <div class="clock-container mx-auto mb-1" id="clock-london-strategy">
-                                        <div class="clock-face">
-                                            <div class="clock-center"></div>
-                                            <div class="clock-hand hour-hand" id="hour-london-strategy"></div>
-                                            <div class="clock-hand minute-hand" id="minute-london-strategy"></div>
-                                            <div class="clock-hand second-hand" id="second-london-strategy"></div>
-                                        </div>
-                                    </div>
-                                    <div class="text-xs text-purple-400 font-medium" data-i18n="london">London</div>
-                                    <div class="text-sm font-mono" id="time-london-strategy">--:--</div>
-                                    <span class="market-status text-[10px]" id="london-status-strategy">Closed</span>
-                                </div>
-                                <div class="text-center">
-                                    <div class="clock-container mx-auto mb-1" id="clock-newyork-strategy">
-                                        <div class="clock-face">
-                                            <div class="clock-center"></div>
-                                            <div class="clock-hand hour-hand" id="hour-newyork-strategy"></div>
-                                            <div class="clock-hand minute-hand" id="minute-newyork-strategy"></div>
-                                            <div class="clock-hand second-hand" id="second-newyork-strategy"></div>
-                                        </div>
-                                    </div>
-                                    <div class="text-xs text-yellow-400 font-medium" data-i18n="newyork">New York</div>
-                                    <div class="text-sm font-mono" id="time-newyork-strategy">--:--</div>
-                                    <span class="market-status text-[10px]" id="newyork-status-strategy">Closed</span>
-                                </div>
-                                <div class="text-center">
-                                    <div class="clock-container mx-auto mb-1" id="clock-tokyo-strategy">
-                                        <div class="clock-face">
-                                            <div class="clock-center"></div>
-                                            <div class="clock-hand hour-hand" id="hour-tokyo-strategy"></div>
-                                            <div class="clock-hand minute-hand" id="minute-tokyo-strategy"></div>
-                                            <div class="clock-hand second-hand" id="second-tokyo-strategy"></div>
-                                        </div>
-                                    </div>
-                                    <div class="text-xs text-red-400 font-medium" data-i18n="tokyo">Tokyo</div>
-                                    <div class="text-sm font-mono" id="time-tokyo-strategy">--:--</div>
-                                    <span class="market-status text-[10px]" id="tokyo-status-strategy">Closed</span>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="card-glass rounded-xl p-6 text-center">
+                        <div class="text-6xl mb-4">⚙️</div>
+                        <p class="text-xl text-gray-400" data-i18n="coming_soon">Coming soon...</p>
                     </div>
                 </div>
                 
-                <!-- Account Tab Content (empty) -->
+                <!-- Account Tab Content (coming soon only) -->
                 <div id="content-account" class="tab-content">
-                    <div class="card-glass rounded-xl p-6">
-                        <div class="flex items-center gap-2 mb-4">
-                            <i data-lucide="wallet" class="w-5 h-5 text-green-400"></i>
-                            <h2 class="text-xl font-semibold" data-i18n="account">Account</h2>
-                        </div>
-                        <p class="text-gray-400" data-i18n="coming_soon">Coming soon...</p>
+                    <div class="card-glass rounded-xl p-6 text-center">
+                        <div class="text-6xl mb-4">🚧</div>
+                        <p class="text-xl text-gray-400" data-i18n="coming_soon">Coming soon...</p>
                     </div>
                 </div>
             </div>
@@ -497,42 +431,42 @@
     <!-- Add Pair Modal -->
     <div id="add-pair-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
         <div class="card-glass rounded-xl p-6 w-full max-w-md mx-4">
-            <h3 class="text-xl font-bold mb-4">Add Currency Pair</h3>
+            <h3 class="text-xl font-bold mb-4" data-i18n="add_chart_title">افزودن چارت</h3>
             <form onsubmit="addPair(event)">
                 <div class="mb-4">
-                    <label class="block text-sm text-gray-400 mb-2">Pair Symbol</label>
-                    <input type="text" id="new-pair" placeholder="e.g., EURUSD" 
-                           class="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:border-blue-500"
-                           required pattern="[A-Za-z]{6}">
+                    <label class="block text-sm text-gray-400 mb-2" data-i18n="pair_symbol">نماد جفت ارز</label>
+                    <input type="text" id="new-pair" data-i18n-placeholder="pair_placeholder" placeholder="مثلاً EURUSD"
+                           class="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:border-blue-500 text-white"
+                           required pattern="[A-Za-z]{3,10}">
                 </div>
                 <div class="mb-4">
-                    <label class="block text-sm text-gray-400 mb-2">Volatility</label>
-                    <select id="new-volatility" class="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:border-blue-500">
-                        <option value="low">Low</option>
-                        <option value="medium" selected>Medium</option>
-                        <option value="high">High</option>
+                    <label class="block text-sm text-gray-400 mb-2" data-i18n="volatility">نوسان</label>
+                    <select id="new-volatility" class="w-full px-4 py-2 bg-slate-700 border border-white/20 rounded-lg focus:outline-none focus:border-blue-500 text-white">
+                        <option value="low" data-i18n-opt="volatility_low">کم</option>
+                        <option value="medium" selected data-i18n-opt="volatility_medium">متوسط</option>
+                        <option value="high" data-i18n-opt="volatility_high">زیاد</option>
                     </select>
                 </div>
                 <div class="grid grid-cols-2 gap-4 mb-4">
                     <div>
-                        <label class="block text-sm text-gray-400 mb-2">Default SL (pips)</label>
+                        <label class="block text-sm text-gray-400 mb-2" data-i18n="default_sl">SL پیش‌فرض (پیپ)</label>
                         <input type="number" id="new-sl" value="30" 
-                               class="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:border-blue-500">
+                               class="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:border-blue-500 text-white">
                     </div>
                     <div>
-                        <label class="block text-sm text-gray-400 mb-2">Default TP (pips)</label>
+                        <label class="block text-sm text-gray-400 mb-2" data-i18n="default_tp">TP پیش‌فرض (پیپ)</label>
                         <input type="number" id="new-tp" value="60" 
-                               class="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:border-blue-500">
+                               class="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:border-blue-500 text-white">
                     </div>
                 </div>
                 <div class="flex gap-4">
                     <button type="button" onclick="closeAddPairModal()" 
-                            class="flex-1 px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition">
-                        Cancel
+                            class="flex-1 px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition" data-i18n="cancel">
+                        انصراف
                     </button>
                     <button type="submit" 
-                            class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition">
-                        Add Pair
+                            class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition" data-i18n="add_chart_btn">
+                        افزودن چارت
                     </button>
                 </div>
             </form>
@@ -672,7 +606,19 @@
             // Sentiments
             neutral: 'Neutral',
             bullish: 'Bullish',
-            bearish: 'Bearish'
+            bearish: 'Bearish',
+            // Add Chart Modal
+            add_chart_title: 'Add Chart',
+            pair_symbol: 'Pair Symbol',
+            pair_placeholder: 'e.g., EURUSD',
+            volatility: 'Volatility',
+            volatility_low: 'Low',
+            volatility_medium: 'Medium',
+            volatility_high: 'High',
+            default_sl: 'Default SL (pips)',
+            default_tp: 'Default TP (pips)',
+            cancel: 'Cancel',
+            add_chart_btn: 'Add Chart'
         };
         
         // Initialize translations with baseTranslations as fallback
@@ -783,6 +729,12 @@
             document.querySelectorAll('[data-i18n-asset]').forEach(opt => {
                 const key = opt.getAttribute('data-i18n-asset');
                 opt.textContent = t(key);
+            });
+            
+            // Update placeholders with data-i18n-placeholder
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                el.placeholder = t(key);
             });
             
             // Update optgroup labels
@@ -1052,6 +1004,16 @@
             // Show selected tab content
             document.getElementById(`content-${tabName}`).classList.add('active');
             document.getElementById(`tab-${tabName}`).classList.add('active');
+            
+            // Show/hide right sidebar based on tab
+            const rightSidebar = document.getElementById('right-sidebar');
+            if (rightSidebar) {
+                if (tabName === 'ai') {
+                    rightSidebar.classList.remove('hidden');
+                } else {
+                    rightSidebar.classList.add('hidden');
+                }
+            }
         }
 
         // Update trade signals panel
@@ -1265,8 +1227,23 @@
         }
 
         function openAddPairModal() {
-            document.getElementById('add-pair-modal').classList.remove('hidden');
-            document.getElementById('add-pair-modal').classList.add('flex');
+            const modal = document.getElementById('add-pair-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            // Apply translations to modal elements
+            modal.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                el.textContent = t(key);
+            });
+            modal.querySelectorAll('[data-i18n-opt]').forEach(opt => {
+                const key = opt.getAttribute('data-i18n-opt');
+                opt.textContent = t(key);
+            });
+            modal.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                el.placeholder = t(key);
+            });
         }
 
         function closeAddPairModal() {

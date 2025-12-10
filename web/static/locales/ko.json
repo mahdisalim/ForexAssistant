@@ -74,5 +74,16 @@
   "ai_analyzing": "AI가 시장 뉴스를 분석 중...",
   "neutral": "중립",
   "bullish": "강세",
-  "bearish": "약세"
+  "bearish": "약세",
+  "add_chart_title": "차트 추가",
+  "pair_symbol": "페어 심볼",
+  "pair_placeholder": "예: EURUSD",
+  "volatility": "변동성",
+  "volatility_low": "낮음",
+  "volatility_medium": "보통",
+  "volatility_high": "높음",
+  "default_sl": "기본 SL (핍)",
+  "default_tp": "기본 TP (핍)",
+  "cancel": "취소",
+  "add_chart_btn": "차트 추가"
 }

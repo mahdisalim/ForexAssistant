@@ -74,5 +74,16 @@
   "ai_analyzing": "AIが市場ニュースを分析中...",
   "neutral": "中立",
   "bullish": "強気",
-  "bearish": "弱気"
+  "bearish": "弱気",
+  "add_chart_title": "チャートを追加",
+  "pair_symbol": "ペアシンボル",
+  "pair_placeholder": "例: EURUSD",
+  "volatility": "ボラティリティ",
+  "volatility_low": "低",
+  "volatility_medium": "中",
+  "volatility_high": "高",
+  "default_sl": "デフォルトSL (pips)",
+  "default_tp": "デフォルトTP (pips)",
+  "cancel": "キャンセル",
+  "add_chart_btn": "チャートを追加"
 }

@@ -74,5 +74,16 @@
   "ai_analyzing": "ИИ анализирует новости рынка...",
   "neutral": "Нейтральный",
   "bullish": "Бычий",
-  "bearish": "Медвежий"
+  "bearish": "Медвежий",
+  "add_chart_title": "Добавить график",
+  "pair_symbol": "Символ пары",
+  "pair_placeholder": "напр. EURUSD",
+  "volatility": "Волатильность",
+  "volatility_low": "Низкая",
+  "volatility_medium": "Средняя",
+  "volatility_high": "Высокая",
+  "default_sl": "SL по умолчанию (пипсы)",
+  "default_tp": "TP по умолчанию (пипсы)",
+  "cancel": "Отмена",
+  "add_chart_btn": "Добавить график"
 }

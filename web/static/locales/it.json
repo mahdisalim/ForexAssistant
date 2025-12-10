@@ -74,5 +74,16 @@
   "ai_analyzing": "L'IA sta analizzando le notizie di mercato...",
   "neutral": "Neutrale",
   "bullish": "Rialzista",
-  "bearish": "Ribassista"
+  "bearish": "Ribassista",
+  "add_chart_title": "Aggiungi grafico",
+  "pair_symbol": "Simbolo coppia",
+  "pair_placeholder": "es. EURUSD",
+  "volatility": "Volatilità",
+  "volatility_low": "Bassa",
+  "volatility_medium": "Media",
+  "volatility_high": "Alta",
+  "default_sl": "SL predefinito (pips)",
+  "default_tp": "TP predefinito (pips)",
+  "cancel": "Annulla",
+  "add_chart_btn": "Aggiungi grafico"
 }

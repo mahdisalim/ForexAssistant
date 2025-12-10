@@ -74,5 +74,16 @@
   "ai_analyzing": "هوش مصنوعی در حال تحلیل اخبار بازار است...",
   "neutral": "خنثی",
   "bullish": "صعودی",
-  "bearish": "نزولی"
+  "bearish": "نزولی",
+  "add_chart_title": "افزودن چارت",
+  "pair_symbol": "نماد جفت ارز",
+  "pair_placeholder": "مثلاً EURUSD",
+  "volatility": "نوسان",
+  "volatility_low": "کم",
+  "volatility_medium": "متوسط",
+  "volatility_high": "زیاد",
+  "default_sl": "SL پیش‌فرض (پیپ)",
+  "default_tp": "TP پیش‌فرض (پیپ)",
+  "cancel": "انصراف",
+  "add_chart_btn": "افزودن چارت"
 }

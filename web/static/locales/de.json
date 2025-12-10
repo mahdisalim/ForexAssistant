@@ -74,5 +74,16 @@
   "ai_analyzing": "KI analysiert die Marktnachrichten...",
   "neutral": "Neutral",
   "bullish": "Bullisch",
-  "bearish": "Bärisch"
+  "bearish": "Bärisch",
+  "add_chart_title": "Chart hinzufügen",
+  "pair_symbol": "Paar-Symbol",
+  "pair_placeholder": "z.B. EURUSD",
+  "volatility": "Volatilität",
+  "volatility_low": "Niedrig",
+  "volatility_medium": "Mittel",
+  "volatility_high": "Hoch",
+  "default_sl": "Standard SL (Pips)",
+  "default_tp": "Standard TP (Pips)",
+  "cancel": "Abbrechen",
+  "add_chart_btn": "Chart hinzufügen"
 }

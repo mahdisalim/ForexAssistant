@@ -74,5 +74,16 @@
   "ai_analyzing": "AI piyasa haberlerini analiz ediyor...",
   "neutral": "Nötr",
   "bullish": "Yükseliş",
-  "bearish": "Düşüş"
+  "bearish": "Düşüş",
+  "add_chart_title": "Grafik Ekle",
+  "pair_symbol": "Çift Sembolü",
+  "pair_placeholder": "örn. EURUSD",
+  "volatility": "Volatilite",
+  "volatility_low": "Düşük",
+  "volatility_medium": "Orta",
+  "volatility_high": "Yüksek",
+  "default_sl": "Varsayılan SL (pip)",
+  "default_tp": "Varsayılan TP (pip)",
+  "cancel": "İptal",
+  "add_chart_btn": "Grafik Ekle"
 }

@@ -74,5 +74,16 @@
   "ai_analyzing": "AI正在分析市场新闻...",
   "neutral": "中性",
   "bullish": "看涨",
-  "bearish": "看跌"
+  "bearish": "看跌",
+  "add_chart_title": "添加图表",
+  "pair_symbol": "货币对符号",
+  "pair_placeholder": "例如 EURUSD",
+  "volatility": "波动性",
+  "volatility_low": "低",
+  "volatility_medium": "中",
+  "volatility_high": "高",
+  "default_sl": "默认止损 (点)",
+  "default_tp": "默认止盈 (点)",
+  "cancel": "取消",
+  "add_chart_btn": "添加图表"
 }

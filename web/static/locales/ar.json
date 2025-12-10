@@ -74,5 +74,16 @@
   "ai_analyzing": "الذكاء الاصطناعي يحلل أخبار السوق...",
   "neutral": "محايد",
   "bullish": "صاعد",
-  "bearish": "هابط"
+  "bearish": "هابط",
+  "add_chart_title": "إضافة رسم بياني",
+  "pair_symbol": "رمز الزوج",
+  "pair_placeholder": "مثال: EURUSD",
+  "volatility": "التقلب",
+  "volatility_low": "منخفض",
+  "volatility_medium": "متوسط",
+  "volatility_high": "مرتفع",
+  "default_sl": "SL الافتراضي (نقاط)",
+  "default_tp": "TP الافتراضي (نقاط)",
+  "cancel": "إلغاء",
+  "add_chart_btn": "إضافة رسم بياني"
 }
