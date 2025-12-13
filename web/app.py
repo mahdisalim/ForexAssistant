@@ -788,6 +788,17 @@ async def update_account_risk(account_id: str, request: Request, data: UpdateRis
 
 
 # ============== Trading Robots API ==============
+# Try unified system first, then fallback to individual modules
+try:
+    from trading.unified_robots import (
+        UnifiedRobotManager, UnifiedRobotRegistry,
+        UnifiedSLFactory, UnifiedTPFactory,
+        create_unified_manager
+    )
+    UNIFIED_ROBOTS_AVAILABLE = True
+except ImportError:
+    UNIFIED_ROBOTS_AVAILABLE = False
+
 try:
     from trading import (
         RobotManager, UserSubscription, create_robot_manager,
@@ -796,19 +807,32 @@ try:
     ROBOTS_AVAILABLE = True
 except ImportError:
     ROBOTS_AVAILABLE = False
-    logger.warning("Trading robots module not available")
+
+if not UNIFIED_ROBOTS_AVAILABLE and not ROBOTS_AVAILABLE:
+    logger.warning("Trading robots modules not available")
 
 # Store robot managers per user
 _robot_managers: dict = {}
+_unified_managers: dict = {}
 
 
 def get_robot_manager(user_email: str, subscription_plan: str = "free"):
     """Get or create robot manager for user"""
-    if not ROBOTS_AVAILABLE:
-        return None
-    if user_email not in _robot_managers:
-        _robot_managers[user_email] = create_robot_manager(user_email, subscription_plan)
-    return _robot_managers[user_email]
+    is_premium = subscription_plan == "premium"
+    
+    # Prefer unified manager
+    if UNIFIED_ROBOTS_AVAILABLE:
+        if user_email not in _unified_managers:
+            _unified_managers[user_email] = create_unified_manager(user_email, is_premium)
+        return _unified_managers[user_email]
+    
+    # Fallback to old manager
+    if ROBOTS_AVAILABLE:
+        if user_email not in _robot_managers:
+            _robot_managers[user_email] = create_robot_manager(user_email, subscription_plan)
+        return _robot_managers[user_email]
+    
+    return None
 
 
 class CreateRobotRequest(BaseModel):
@@ -833,11 +857,12 @@ class UpdateRobotRequest(BaseModel):
 @app.get("/api/robots/available")
 async def get_available_robots(request: Request):
     """Get available robots and strategies for the user"""
-    if not ROBOTS_AVAILABLE:
+    if not UNIFIED_ROBOTS_AVAILABLE and not ROBOTS_AVAILABLE:
         return {"robots": [], "sl_strategies": [], "tp_strategies": [], "timeframes": []}
     
     auth_header = request.headers.get("Authorization", "")
     subscription_plan = "free"
+    is_premium = False
     
     if auth_header.startswith("Bearer "):
         token = auth_header[7:]
@@ -845,7 +870,19 @@ async def get_available_robots(request: Request):
         if user_email:
             # TODO: Get actual subscription from database
             subscription_plan = "free"
+            is_premium = subscription_plan == "premium"
     
+    # Use unified system if available
+    if UNIFIED_ROBOTS_AVAILABLE:
+        return {
+            "robots": UnifiedRobotRegistry.get_all(),
+            "sl_strategies": UnifiedSLFactory.get_available(is_premium),
+            "tp_strategies": UnifiedTPFactory.get_available(is_premium),
+            "timeframes": ["M1", "M5", "M15", "M30", "H1", "H4", "D1", "W1", "MN"],
+            "subscription": subscription_plan
+        }
+    
+    # Fallback to old system
     subscription = UserSubscription(subscription_plan)
     
     return {
@@ -867,7 +904,7 @@ async def get_available_robots(request: Request):
 @app.post("/api/robots")
 async def create_robot(request: Request, data: CreateRobotRequest):
     """Create a new trading robot"""
-    if not ROBOTS_AVAILABLE:
+    if not UNIFIED_ROBOTS_AVAILABLE and not ROBOTS_AVAILABLE:
         raise HTTPException(status_code=503, detail="Trading robots not available")
     
     auth_header = request.headers.get("Authorization", "")
@@ -904,7 +941,7 @@ async def create_robot(request: Request, data: CreateRobotRequest):
 @app.get("/api/robots")
 async def get_user_robots(request: Request):
     """Get user's active robots"""
-    if not ROBOTS_AVAILABLE:
+    if not UNIFIED_ROBOTS_AVAILABLE and not ROBOTS_AVAILABLE:
         return {"robots": []}
     
     auth_header = request.headers.get("Authorization", "")
@@ -930,7 +967,7 @@ async def get_user_robots(request: Request):
 @app.patch("/api/robots/{robot_id}")
 async def update_robot(robot_id: str, request: Request, data: UpdateRobotRequest):
     """Update robot configuration"""
-    if not ROBOTS_AVAILABLE:
+    if not UNIFIED_ROBOTS_AVAILABLE and not ROBOTS_AVAILABLE:
         raise HTTPException(status_code=503, detail="Trading robots not available")
     
     auth_header = request.headers.get("Authorization", "")
@@ -959,7 +996,7 @@ async def update_robot(robot_id: str, request: Request, data: UpdateRobotRequest
 @app.delete("/api/robots/{robot_id}")
 async def delete_robot(robot_id: str, request: Request):
     """Delete a robot"""
-    if not ROBOTS_AVAILABLE:
+    if not UNIFIED_ROBOTS_AVAILABLE and not ROBOTS_AVAILABLE:
         raise HTTPException(status_code=503, detail="Trading robots not available")
     
     auth_header = request.headers.get("Authorization", "")
