@@ -869,14 +869,6 @@
                            placeholder="MetaQuotes-Demo">
                 </div>
                 
-                <!-- Balance -->
-                <div class="mb-4">
-                    <label class="block text-sm text-gray-400 mb-2" data-i18n="account_balance">Account Balance ($)</label>
-                    <input type="number" id="account-balance" step="0.01" min="0"
-                           class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:border-blue-500 text-white"
-                           placeholder="10000.00">
-                </div>
-                
                 <!-- Risk Percentage -->
                 <div class="mb-6">
                     <label class="block text-sm text-gray-400 mb-2" data-i18n="risk_per_trade">Risk Per Trade (%)</label>
@@ -2760,7 +2752,6 @@
                 document.getElementById('account-number').value = '';
                 document.getElementById('account-password').value = '';
                 document.getElementById('account-server').value = '';
-                document.getElementById('account-balance').value = '';
                 document.getElementById('account-risk').value = '2';
                 document.getElementById('account-nickname').value = '';
                 document.getElementById('add-account-error').classList.add('hidden');
@@ -2798,34 +2789,150 @@
             document.getElementById('risk-display').textContent = risk + '%';
         }
 
-        // Add trading account
-        function addTradingAccount(event) {
-            event.preventDefault();
-            
-            const account = {
-                id: Date.now().toString(),
-                broker: document.getElementById('account-broker').value,
-                number: document.getElementById('account-number').value,
-                password: document.getElementById('account-password').value,
-                server: document.getElementById('account-server').value,
-                balance: parseFloat(document.getElementById('account-balance').value) || 0,
-                risk: parseFloat(document.getElementById('account-risk').value),
-                nickname: document.getElementById('account-nickname').value || `Account ${tradingAccounts.length + 1}`,
-                createdAt: new Date().toISOString()
-            };
-            
-            tradingAccounts.push(account);
-            saveTradingAccounts();
-            renderTradingAccounts();
-            closeAddAccountModal();
+        // Get auth token
+        function getAuthToken() {
+            return localStorage.getItem('token');
         }
 
-        // Delete trading account
-        function deleteTradingAccount(accountId) {
-            if (confirm(t('confirm_delete_account') || 'Are you sure you want to delete this account?')) {
-                tradingAccounts = tradingAccounts.filter(a => a.id !== accountId);
-                saveTradingAccounts();
-                renderTradingAccounts();
+        // Add trading account via secure API
+        async function addTradingAccount(event) {
+            event.preventDefault();
+            
+            const token = getAuthToken();
+            if (!token) {
+                alert(t('login_required') || 'Please login first');
+                return;
+            }
+            
+            const errorEl = document.getElementById('add-account-error');
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            
+            // Show loading
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white mx-auto"></div>';
+            }
+            
+            const accountData = {
+                broker: document.getElementById('account-broker').value,
+                login: document.getElementById('account-number').value,
+                password: document.getElementById('account-password').value,
+                server: document.getElementById('account-server').value,
+                risk_percent: parseFloat(document.getElementById('account-risk').value),
+                nickname: document.getElementById('account-nickname').value || ''
+            };
+            
+            try {
+                const response = await fetch('/api/trading-accounts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(accountData)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    // Add to local list with account info from server
+                    const newAccount = {
+                        ...data.account,
+                        account_info: data.account_info
+                    };
+                    tradingAccounts.push(newAccount);
+                    renderTradingAccounts();
+                    closeAddAccountModal();
+                } else {
+                    if (errorEl) {
+                        errorEl.textContent = data.detail || data.error || t('connection_error');
+                        errorEl.classList.remove('hidden');
+                    }
+                }
+            } catch (error) {
+                console.error('Add account error:', error);
+                if (errorEl) {
+                    errorEl.textContent = t('connection_error') || 'Connection error';
+                    errorEl.classList.remove('hidden');
+                }
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = `<i data-lucide="plus" class="w-4 h-4"></i><span data-i18n="add_account">${t('add_account')}</span>`;
+                    lucide.createIcons();
+                }
+            }
+        }
+
+        // Delete trading account via secure API
+        async function deleteTradingAccount(accountId) {
+            if (!confirm(t('confirm_delete_account') || 'Are you sure you want to delete this account?')) {
+                return;
+            }
+            
+            const token = getAuthToken();
+            if (!token) {
+                alert(t('login_required') || 'Please login first');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/trading-accounts/${accountId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    tradingAccounts = tradingAccounts.filter(a => a.id !== accountId);
+                    renderTradingAccounts();
+                } else {
+                    const data = await response.json();
+                    alert(data.detail || t('error_deleting_account') || 'Failed to delete account');
+                }
+            } catch (error) {
+                console.error('Delete account error:', error);
+                alert(t('connection_error') || 'Connection error');
+            }
+        }
+
+        // Refresh account info from broker
+        async function refreshTradingAccount(accountId) {
+            const token = getAuthToken();
+            if (!token) return;
+            
+            const accountCard = document.querySelector(`[data-account-id="${accountId}"]`);
+            const refreshBtn = accountCard?.querySelector('.refresh-btn');
+            
+            if (refreshBtn) {
+                refreshBtn.classList.add('animate-spin');
+            }
+            
+            try {
+                const response = await fetch(`/api/trading-accounts/${accountId}/refresh`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    // Update account info in local list
+                    const account = tradingAccounts.find(a => a.id === accountId);
+                    if (account && data.account_info) {
+                        account.account_info = data.account_info;
+                        renderTradingAccounts();
+                    }
+                }
+            } catch (error) {
+                console.error('Refresh account error:', error);
+            } finally {
+                if (refreshBtn) {
+                    refreshBtn.classList.remove('animate-spin');
+                }
             }
         }
 
@@ -2843,43 +2950,112 @@
                 listEl.classList.remove('hidden');
                 noAccountsEl.classList.add('hidden');
                 
-                listEl.innerHTML = tradingAccounts.map(account => `
-                    <div class="bg-slate-800/50 border border-white/10 rounded-xl p-4 hover:border-white/20 transition">
+                listEl.innerHTML = tradingAccounts.map(account => {
+                    const info = account.account_info || {};
+                    const balance = info.balance || 0;
+                    const equity = info.equity || balance;
+                    const leverage = info.leverage || 100;
+                    const currency = info.currency || 'USD';
+                    const connected = info.connected !== false;
+                    
+                    return `
+                    <div class="bg-slate-800/50 border border-white/10 rounded-xl p-4 hover:border-white/20 transition" data-account-id="${account.id}">
                         <div class="flex items-start justify-between mb-3">
                             <div class="flex items-center gap-3">
-                                <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
+                                <div class="w-12 h-12 bg-gradient-to-br ${connected ? 'from-green-500 to-emerald-600' : 'from-gray-500 to-gray-600'} rounded-xl flex items-center justify-center">
                                     <i data-lucide="wallet" class="w-6 h-6"></i>
                                 </div>
                                 <div>
-                                    <h4 class="font-bold text-lg">${account.nickname}</h4>
-                                    <p class="text-sm text-gray-400">${account.broker.toUpperCase()} • ${account.number}</p>
+                                    <h4 class="font-bold text-lg">${account.nickname || 'Account ' + account.login}</h4>
+                                    <p class="text-sm text-gray-400">${(account.broker || '').toUpperCase()} • ${account.login}</p>
+                                    <p class="text-xs ${connected ? 'text-green-400' : 'text-red-400'}">${connected ? '● Connected' : '○ Disconnected'}</p>
                                 </div>
                             </div>
-                            <button onclick="deleteTradingAccount('${account.id}')" class="text-gray-400 hover:text-red-400 transition p-2">
-                                <i data-lucide="trash-2" class="w-5 h-5"></i>
-                            </button>
+                            <div class="flex items-center gap-2">
+                                <button onclick="refreshTradingAccount('${account.id}')" class="refresh-btn text-gray-400 hover:text-blue-400 transition p-2" title="Refresh">
+                                    <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+                                </button>
+                                <button onclick="deleteTradingAccount('${account.id}')" class="text-gray-400 hover:text-red-400 transition p-2" title="Delete">
+                                    <i data-lucide="trash-2" class="w-5 h-5"></i>
+                                </button>
+                            </div>
                         </div>
-                        <div class="grid grid-cols-3 gap-4 mt-4">
+                        <div class="grid grid-cols-4 gap-3 mt-4">
                             <div class="bg-white/5 rounded-lg p-3">
-                                <p class="text-xs text-gray-400 mb-1" data-i18n="balance">Balance</p>
-                                <p class="text-lg font-bold text-green-400">$${account.balance.toLocaleString()}</p>
+                                <p class="text-xs text-gray-400 mb-1">${t('balance') || 'Balance'}</p>
+                                <p class="text-lg font-bold text-green-400">${currency} ${balance.toLocaleString()}</p>
                             </div>
                             <div class="bg-white/5 rounded-lg p-3">
-                                <p class="text-xs text-gray-400 mb-1" data-i18n="risk">Risk</p>
-                                <p class="text-lg font-bold text-blue-400">${account.risk}%</p>
+                                <p class="text-xs text-gray-400 mb-1">${t('equity') || 'Equity'}</p>
+                                <p class="text-lg font-bold text-blue-400">${currency} ${equity.toLocaleString()}</p>
                             </div>
                             <div class="bg-white/5 rounded-lg p-3">
-                                <p class="text-xs text-gray-400 mb-1" data-i18n="server">Server</p>
-                                <p class="text-sm font-medium truncate">${account.server || '-'}</p>
+                                <p class="text-xs text-gray-400 mb-1">${t('leverage') || 'Leverage'}</p>
+                                <p class="text-lg font-bold text-purple-400">1:${leverage}</p>
                             </div>
+                            <div class="bg-white/5 rounded-lg p-3">
+                                <p class="text-xs text-gray-400 mb-1">${t('risk') || 'Risk'}</p>
+                                <p class="text-lg font-bold text-orange-400">${account.risk_percent || 2}%</p>
+                            </div>
+                        </div>
+                        <div class="mt-3 pt-3 border-t border-white/10 flex items-center justify-between text-xs text-gray-500">
+                            <span>${t('server') || 'Server'}: ${account.server || '-'}</span>
+                            <span>${info.company || ''}</span>
                         </div>
                     </div>
-                `).join('');
+                `}).join('');
                 
                 lucide.createIcons();
             }
         }
 
+        // Load trading accounts from server
+        async function loadTradingAccountsFromServer() {
+            const token = getAuthToken();
+            if (!token) {
+                tradingAccounts = [];
+                renderTradingAccounts();
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/trading-accounts', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    tradingAccounts = data.accounts || [];
+                    renderTradingAccounts();
+                }
+            } catch (error) {
+                console.error('Load accounts error:', error);
+            }
+        }
+
+        // Override loadTradingAccounts to use server
+        function loadTradingAccounts() {
+            loadTradingAccountsFromServer();
+        }
+
+        // No longer save to localStorage - all data is on server
+        function saveTradingAccounts() {
+            // Data is saved on server, not localStorage
+        }
+
+        // Render trading accounts - continued (equity, leverage, risk)
+        // This section is now handled in the main renderTradingAccounts function above
+
+        // Old render code removed - replaced with secure version above
+        
+        // Placeholder for old code compatibility
+        const _oldRenderPlaceholder = true; // Keep for compatibility
+        
+        // End of trading accounts section
+        // ================================
+        
         // ============== Profile Management ==============
         function toggleEditProfile() {
             const viewEl = document.getElementById('profile-view');

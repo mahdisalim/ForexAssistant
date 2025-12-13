@@ -141,5 +141,10 @@
   "account_nickname": "نام مستعار حساب (اختیاری)",
   "balance": "موجودی",
   "risk": "ریسک",
-  "confirm_delete_account": "آیا مطمئن هستید که می‌خواهید این حساب را حذف کنید؟"
+  "equity": "اکوئیتی",
+  "leverage": "لوریج",
+  "connected": "متصل",
+  "disconnected": "قطع",
+  "confirm_delete_account": "آیا مطمئن هستید که می‌خواهید این حساب را حذف کنید؟",
+  "connecting_to_broker": "در حال اتصال به بروکر..."
 }

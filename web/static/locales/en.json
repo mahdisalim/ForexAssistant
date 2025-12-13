@@ -141,5 +141,10 @@
   "account_nickname": "Account Nickname (optional)",
   "balance": "Balance",
   "risk": "Risk",
-  "confirm_delete_account": "Are you sure you want to delete this account?"
+  "equity": "Equity",
+  "leverage": "Leverage",
+  "connected": "Connected",
+  "disconnected": "Disconnected",
+  "confirm_delete_account": "Are you sure you want to delete this account?",
+  "connecting_to_broker": "Connecting to broker..."
 }
