@@ -428,6 +428,18 @@ import secrets
 
 USERS_FILE = DATA_DIR / "users.json"
 
+# Import session cache for persistent sessions
+try:
+    from web.services.session_cache import get_session_cache
+except ImportError:
+    try:
+        from services.session_cache import get_session_cache
+    except ImportError:
+        get_session_cache = None
+
+# Initialize session cache
+session_cache = get_session_cache() if get_session_cache else None
+
 
 def load_users() -> dict:
     """Load users from file"""
@@ -451,6 +463,23 @@ def hash_password(password: str) -> str:
 def generate_token() -> str:
     """Generate a random token"""
     return secrets.token_hex(32)
+
+
+def get_user_email_from_token(token: str) -> str:
+    """Get user email from token, checking cache first then users file"""
+    # First check session cache (survives server restarts)
+    if session_cache:
+        cached_user = session_cache.get_user_by_token(token)
+        if cached_user:
+            return cached_user.get("email")
+    
+    # Fallback to users file
+    users = load_users()
+    for email, user in users.items():
+        if user.get("token") == token:
+            return email
+    
+    return None
 
 
 class SignInRequest(BaseModel):
@@ -488,6 +517,17 @@ async def sign_in(request: SignInRequest):
     user["token"] = token
     users[email] = user
     save_users(users)
+    
+    # Store session in cache for persistence across restarts
+    if session_cache:
+        session_cache.create_session(
+            token=token,
+            user_email=email,
+            user_data={
+                "name": user.get("name", email.split("@")[0]),
+                "created_at": user.get("created_at")
+            }
+        )
     
     return {
         "user": {
@@ -531,6 +571,17 @@ async def sign_up(request: SignUpRequest):
     
     logger.info(f"New user registered: {email}")
     
+    # Store session in cache for persistence across restarts
+    if session_cache:
+        session_cache.create_session(
+            token=token,
+            user_email=email,
+            user_data={
+                "name": request.name.strip(),
+                "created_at": users[email]["created_at"]
+            }
+        )
+    
     return {
         "user": {
             "email": email,
@@ -542,8 +593,12 @@ async def sign_up(request: SignUpRequest):
 
 
 @app.post("/api/auth/logout")
-async def logout():
-    """Logout user"""
+async def logout(request: Request):
+    """Logout user and invalidate session"""
+    auth_header = request.headers.get("Authorization", "")
+    if auth_header.startswith("Bearer ") and session_cache:
+        token = auth_header[7:]
+        session_cache.invalidate_session(token)
     return {"message": "Logged out successfully"}
 
 
@@ -555,6 +610,14 @@ async def get_current_user(request: Request):
         raise HTTPException(status_code=401, detail="Not authenticated")
     
     token = auth_header[7:]
+    
+    # First check session cache (survives server restarts)
+    if session_cache:
+        cached_user = session_cache.get_user_by_token(token)
+        if cached_user:
+            return cached_user
+    
+    # Fallback to users file
     users = load_users()
     
     for email, user in users.items():
@@ -605,13 +668,7 @@ async def add_trading_account(request: Request, data: AddTradingAccountRequest):
         raise HTTPException(status_code=401, detail="Not authenticated")
     
     token = auth_header[7:]
-    users = load_users()
-    
-    user_email = None
-    for email, user in users.items():
-        if user.get("token") == token:
-            user_email = email
-            break
+    user_email = get_user_email_from_token(token)
     
     if not user_email:
         raise HTTPException(status_code=401, detail="Invalid token")
@@ -643,13 +700,7 @@ async def get_trading_accounts(request: Request):
         raise HTTPException(status_code=401, detail="Not authenticated")
     
     token = auth_header[7:]
-    users = load_users()
-    
-    user_email = None
-    for email, user in users.items():
-        if user.get("token") == token:
-            user_email = email
-            break
+    user_email = get_user_email_from_token(token)
     
     if not user_email:
         raise HTTPException(status_code=401, detail="Invalid token")
@@ -669,13 +720,7 @@ async def refresh_trading_account(account_id: str, request: Request):
         raise HTTPException(status_code=401, detail="Not authenticated")
     
     token = auth_header[7:]
-    users = load_users()
-    
-    user_email = None
-    for email, user in users.items():
-        if user.get("token") == token:
-            user_email = email
-            break
+    user_email = get_user_email_from_token(token)
     
     if not user_email:
         raise HTTPException(status_code=401, detail="Invalid token")
@@ -699,13 +744,7 @@ async def delete_trading_account(account_id: str, request: Request):
         raise HTTPException(status_code=401, detail="Not authenticated")
     
     token = auth_header[7:]
-    users = load_users()
-    
-    user_email = None
-    for email, user in users.items():
-        if user.get("token") == token:
-            user_email = email
-            break
+    user_email = get_user_email_from_token(token)
     
     if not user_email:
         raise HTTPException(status_code=401, detail="Invalid token")
@@ -744,6 +783,203 @@ async def update_account_risk(account_id: str, request: Request, data: UpdateRis
     
     if not result.get("success"):
         raise HTTPException(status_code=400, detail=result.get("error", "Failed to update risk"))
+    
+    return result
+
+
+# ============== Trading Robots API ==============
+try:
+    from trading import (
+        RobotManager, UserSubscription, create_robot_manager,
+        RobotRegistry, Timeframe, SLStrategy, TPStrategy
+    )
+    ROBOTS_AVAILABLE = True
+except ImportError:
+    ROBOTS_AVAILABLE = False
+    logger.warning("Trading robots module not available")
+
+# Store robot managers per user
+_robot_managers: dict = {}
+
+
+def get_robot_manager(user_email: str, subscription_plan: str = "free"):
+    """Get or create robot manager for user"""
+    if not ROBOTS_AVAILABLE:
+        return None
+    if user_email not in _robot_managers:
+        _robot_managers[user_email] = create_robot_manager(user_email, subscription_plan)
+    return _robot_managers[user_email]
+
+
+class CreateRobotRequest(BaseModel):
+    robot_name: str
+    symbol: str = "EURUSD"
+    timeframe: str = "1h"
+    sl_strategy: str = "atr"
+    tp_strategy: str = "risk_reward"
+    sl_params: dict = {}
+    tp_params: dict = {}
+    risk_percent: float = 1.0
+
+
+class UpdateRobotRequest(BaseModel):
+    sl_strategy: Optional[str] = None
+    tp_strategy: Optional[str] = None
+    sl_params: Optional[dict] = None
+    tp_params: Optional[dict] = None
+    risk_percent: Optional[float] = None
+
+
+@app.get("/api/robots/available")
+async def get_available_robots(request: Request):
+    """Get available robots and strategies for the user"""
+    if not ROBOTS_AVAILABLE:
+        return {"robots": [], "sl_strategies": [], "tp_strategies": [], "timeframes": []}
+    
+    auth_header = request.headers.get("Authorization", "")
+    subscription_plan = "free"
+    
+    if auth_header.startswith("Bearer "):
+        token = auth_header[7:]
+        user_email = get_user_email_from_token(token)
+        if user_email:
+            # TODO: Get actual subscription from database
+            subscription_plan = "free"
+    
+    subscription = UserSubscription(subscription_plan)
+    
+    return {
+        "robots": [
+            {
+                "name": r["name"],
+                "description": r["description"],
+                "available": subscription.can_use_robot(r["name"])
+            }
+            for r in RobotRegistry.list_all()
+        ],
+        "sl_strategies": subscription.get_available_sl_strategies(),
+        "tp_strategies": subscription.get_available_tp_strategies(),
+        "timeframes": [tf.value for tf in Timeframe],
+        "subscription": subscription_plan
+    }
+
+
+@app.post("/api/robots")
+async def create_robot(request: Request, data: CreateRobotRequest):
+    """Create a new trading robot"""
+    if not ROBOTS_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Trading robots not available")
+    
+    auth_header = request.headers.get("Authorization", "")
+    if not auth_header.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    
+    token = auth_header[7:]
+    user_email = get_user_email_from_token(token)
+    
+    if not user_email:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    
+    manager = get_robot_manager(user_email)
+    if not manager:
+        raise HTTPException(status_code=503, detail="Robot manager not available")
+    
+    result = manager.create_robot(
+        robot_name=data.robot_name,
+        symbol=data.symbol,
+        timeframe=data.timeframe,
+        sl_strategy=data.sl_strategy,
+        tp_strategy=data.tp_strategy,
+        sl_params=data.sl_params or {},
+        tp_params=data.tp_params or {},
+        risk_percent=data.risk_percent
+    )
+    
+    if not result.get("success"):
+        raise HTTPException(status_code=400, detail=result.get("error", "Failed to create robot"))
+    
+    return result
+
+
+@app.get("/api/robots")
+async def get_user_robots(request: Request):
+    """Get user's active robots"""
+    if not ROBOTS_AVAILABLE:
+        return {"robots": []}
+    
+    auth_header = request.headers.get("Authorization", "")
+    if not auth_header.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    
+    token = auth_header[7:]
+    user_email = get_user_email_from_token(token)
+    
+    if not user_email:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    
+    manager = get_robot_manager(user_email)
+    if not manager:
+        return {"robots": []}
+    
+    return {
+        "robots": manager.get_active_robots(),
+        "options": manager.get_available_options()
+    }
+
+
+@app.patch("/api/robots/{robot_id}")
+async def update_robot(robot_id: str, request: Request, data: UpdateRobotRequest):
+    """Update robot configuration"""
+    if not ROBOTS_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Trading robots not available")
+    
+    auth_header = request.headers.get("Authorization", "")
+    if not auth_header.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    
+    token = auth_header[7:]
+    user_email = get_user_email_from_token(token)
+    
+    if not user_email:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    
+    manager = get_robot_manager(user_email)
+    if not manager:
+        raise HTTPException(status_code=503, detail="Robot manager not available")
+    
+    update_data = {k: v for k, v in data.dict().items() if v is not None}
+    result = manager.update_robot_config(robot_id, **update_data)
+    
+    if not result.get("success"):
+        raise HTTPException(status_code=400, detail=result.get("error", "Failed to update robot"))
+    
+    return result
+
+
+@app.delete("/api/robots/{robot_id}")
+async def delete_robot(robot_id: str, request: Request):
+    """Delete a robot"""
+    if not ROBOTS_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Trading robots not available")
+    
+    auth_header = request.headers.get("Authorization", "")
+    if not auth_header.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    
+    token = auth_header[7:]
+    user_email = get_user_email_from_token(token)
+    
+    if not user_email:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    
+    manager = get_robot_manager(user_email)
+    if not manager:
+        raise HTTPException(status_code=503, detail="Robot manager not available")
+    
+    result = manager.delete_robot(robot_id)
+    
+    if not result.get("success"):
+        raise HTTPException(status_code=400, detail=result.get("error", "Failed to delete robot"))
     
     return result
 

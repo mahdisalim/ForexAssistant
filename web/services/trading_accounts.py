@@ -86,9 +86,16 @@ class TradingAccount:
 # Import the improved encryption service
 from .encryption import EncryptionService
 
+# Import universal broker connector
+try:
+    from .broker_connectors import universal_connector, BrokerType as ConnectorBrokerType
+    USE_UNIVERSAL_CONNECTOR = True
+except ImportError:
+    USE_UNIVERSAL_CONNECTOR = False
+
 
 class MetaTraderConnector:
-    """Connector for MetaTrader 4/5 accounts"""
+    """Connector for MetaTrader 4/5 accounts - now uses UniversalBrokerConnector"""
     
     def __init__(self):
         self.api_token = os.getenv("METAAPI_TOKEN")
@@ -97,6 +104,10 @@ class MetaTraderConnector:
     async def connect(self, login: str, password: str, server: str, broker_type: BrokerType) -> Dict[str, Any]:
         """Connect to MT4/MT5 account and retrieve account information"""
         logger.info(f"Attempting to connect to {broker_type.value} account {login} on {server}")
+        
+        # Use universal connector if available
+        if USE_UNIVERSAL_CONNECTOR:
+            return await universal_connector.connect(broker_type.value, login, password, server)
         
         if self.api_token:
             return await self._connect_via_metaapi(login, password, server, broker_type)

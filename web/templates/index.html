@@ -2844,6 +2844,13 @@
                     renderTradingAccounts();
                     closeAddAccountModal();
                 } else {
+                    // If token is invalid, logout and show login modal
+                    if (response.status === 401) {
+                        logout();
+                        closeAddAccountModal();
+                        openAuthModal();
+                        return;
+                    }
                     if (errorEl) {
                         errorEl.textContent = data.detail || data.error || t('connection_error');
                         errorEl.classList.remove('hidden');
@@ -2887,6 +2894,9 @@
                 if (response.ok) {
                     tradingAccounts = tradingAccounts.filter(a => a.id !== accountId);
                     renderTradingAccounts();
+                } else if (response.status === 401) {
+                    logout();
+                    openAuthModal();
                 } else {
                     const data = await response.json();
                     alert(data.detail || t('error_deleting_account') || 'Failed to delete account');
@@ -2926,6 +2936,9 @@
                         account.account_info = data.account_info;
                         renderTradingAccounts();
                     }
+                } else if (response.status === 401) {
+                    logout();
+                    openAuthModal();
                 }
             } catch (error) {
                 console.error('Refresh account error:', error);
