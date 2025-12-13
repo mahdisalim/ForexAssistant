@@ -23,7 +23,9 @@ async def monitor_dashboard(request: Request):
     # Get system stats
     cpu_percent = psutil.cpu_percent()
     memory = psutil.virtual_memory()
-    disk = psutil.disk_usage('C:')
+    # Use project drive for disk usage
+    project_drive = str(PROJECT_DIR.resolve())[:2] if str(PROJECT_DIR.resolve())[1] == ':' else '/'
+    disk = psutil.disk_usage(project_drive)
     
     # Get trade log
     trade_log_file = DATA_DIR / "trade_log.json"

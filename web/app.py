@@ -103,6 +103,24 @@ async def home(request: Request):
     })
 
 
+@app.get("/signup", response_class=HTMLResponse)
+async def signup_page(request: Request):
+    """Sign up page"""
+    return templates.TemplateResponse("signup.html", {"request": request})
+
+
+@app.get("/signin", response_class=HTMLResponse)
+async def signin_page(request: Request):
+    """Sign in page"""
+    return templates.TemplateResponse("signin.html", {"request": request})
+
+
+@app.get("/chart", response_class=HTMLResponse)
+async def chart_view(request: Request):
+    """Chart view page for viewing charts in new tab"""
+    return templates.TemplateResponse("chart_view.html", {"request": request})
+
+
 @app.get("/api/pairs")
 async def list_pairs():
     """List all configured currency pairs"""
@@ -402,6 +420,157 @@ async def get_timeframe_analysis(
         "analysis": result,
         "generated_at": datetime.now().isoformat()
     }
+
+
+# ============== Authentication System ==============
+# Simple file-based user storage (for demo purposes)
+# In production, use a proper database and password hashing
+import hashlib
+import secrets
+
+USERS_FILE = DATA_DIR / "users.json"
+
+
+def load_users() -> dict:
+    """Load users from file"""
+    if USERS_FILE.exists():
+        with open(USERS_FILE, "r") as f:
+            return json.load(f)
+    return {}
+
+
+def save_users(users: dict):
+    """Save users to file"""
+    with open(USERS_FILE, "w") as f:
+        json.dump(users, f, indent=2)
+
+
+def hash_password(password: str) -> str:
+    """Hash password with SHA256"""
+    return hashlib.sha256(password.encode()).hexdigest()
+
+
+def generate_token() -> str:
+    """Generate a random token"""
+    return secrets.token_hex(32)
+
+
+class SignInRequest(BaseModel):
+    email: str
+    password: str
+    remember_me: bool = False
+
+
+class SignUpRequest(BaseModel):
+    name: str
+    email: str
+    password: str
+
+
+@app.post("/api/auth/signin")
+async def sign_in(request: SignInRequest):
+    """Sign in user"""
+    users = load_users()
+    
+    email = request.email.lower().strip()
+    password_hash = hash_password(request.password)
+    
+    if email not in users:
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+    
+    user = users[email]
+    if user.get("password") != password_hash:
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+    
+    # Generate token
+    token = generate_token()
+    
+    # Update last login
+    user["last_login"] = datetime.now().isoformat()
+    user["token"] = token
+    users[email] = user
+    save_users(users)
+    
+    return {
+        "user": {
+            "email": email,
+            "name": user.get("name", email.split("@")[0]),
+            "created_at": user.get("created_at")
+        },
+        "token": token
+    }
+
+
+@app.post("/api/auth/signup")
+async def sign_up(request: SignUpRequest):
+    """Sign up new user"""
+    users = load_users()
+    
+    email = request.email.lower().strip()
+    
+    # Validate email format
+    if "@" not in email or "." not in email:
+        raise HTTPException(status_code=400, detail="Invalid email format")
+    
+    # Check if user exists
+    if email in users:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    
+    # Validate password
+    if len(request.password) < 8:
+        raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
+    
+    # Create user
+    token = generate_token()
+    users[email] = {
+        "name": request.name.strip(),
+        "password": hash_password(request.password),
+        "created_at": datetime.now().isoformat(),
+        "last_login": datetime.now().isoformat(),
+        "token": token
+    }
+    save_users(users)
+    
+    logger.info(f"New user registered: {email}")
+    
+    return {
+        "user": {
+            "email": email,
+            "name": request.name.strip(),
+            "created_at": users[email]["created_at"]
+        },
+        "token": token
+    }
+
+
+@app.post("/api/auth/logout")
+async def logout():
+    """Logout user"""
+    # In a real app, you would invalidate the token
+    return {"message": "Logged out successfully"}
+
+
+@app.get("/api/auth/me")
+async def get_current_user(request: Request):
+    """Get current user info"""
+    # Get token from header
+    auth_header = request.headers.get("Authorization", "")
+    if not auth_header.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    
+    token = auth_header[7:]
+    users = load_users()
+    
+    # Find user by token
+    for email, user in users.items():
+        if user.get("token") == token:
+            return {
+                "email": email,
+                "name": user.get("name", email.split("@")[0]),
+                "created_at": user.get("created_at")
+            }
+    
+    raise HTTPException(status_code=401, detail="Invalid token")
 
 
 def create_app():

@@ -3,10 +3,11 @@
 ## پیش‌نیازها
 
 - Windows Server 2019/2022 یا Windows 10/11
-- Python 3.10+
+- Python 3.10+ (توصیه: 3.11)
 - MetaTrader 5
 - حداقل 2GB RAM
 - اتصال اینترنت پایدار
+- دسترسی به PyPI (یا VPN در صورت محدودیت)
 
 ---
 
@@ -17,9 +18,22 @@
 PowerShell را به عنوان Administrator باز کنید و اجرا کنید:
 
 ```powershell
+# به پوشه پروژه بروید
+cd <مسیر-پروژه>
+
+# اجازه اجرای اسکریپت
 Set-ExecutionPolicy Bypass -Scope Process -Force
+
+# اجرای نصب
 .\deploy\install_windows.ps1
 ```
+
+> ⚠️ **نکته:** اسکریپت نصب به صورت خودکار:
+> - Python را نصب می‌کند (اگر نباشد)
+> - محیط مجازی (venv) ایجاد می‌کند
+> - وابستگی‌ها را نصب می‌کند
+> - فایل `.env` را از `.env.example` کپی می‌کند
+> - Task Scheduler را تنظیم می‌کند
 
 ### 2. نصب دستی
 
@@ -33,11 +47,29 @@ winget install Python.Python.3.11
 
 #### ج) نصب وابستگی‌ها
 ```powershell
-cd C:\ForexAssistant
+# به پوشه پروژه بروید (هرجا که فایل‌ها را قرار داده‌اید)
+cd <مسیر-پروژه>
+
+# ایجاد محیط مجازی
 python -m venv venv
+
+# فعال‌سازی محیط مجازی
 .\venv\Scripts\Activate.ps1
+
+# نصب وابستگی‌ها
 pip install -r requirements.txt
-pip install MetaTrader5 pywin32 psutil
+```
+
+> 💡 **اگر PyPI مسدود است:**
+> ```powershell
+> pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple --trusted-host pypi.tuna.tsinghua.edu.cn
+> ```
+> یا از VPN استفاده کنید.
+
+#### د) ایجاد فایل تنظیمات
+```powershell
+copy .env.example .env
+# سپس فایل .env را ویرایش کنید
 ```
 
 ---
@@ -81,23 +113,29 @@ PORT=8000
 
 ## اجرا
 
-### روش 1: اجرای ساده
-```batch
-deploy\start_all.bat
+### روش 1: اجرای ساده (توصیه شده)
+```powershell
+# از پوشه پروژه
+.\deploy\start_all.bat
 ```
 
-### روش 2: اجرای جداگانه
+### روش 2: اجرای دستی
 
 ```powershell
+# ابتدا محیط مجازی را فعال کنید
+.\venv\Scripts\Activate.ps1
+
 # Terminal 1 - Web Server
 python main.py
 
-# Terminal 2 - Trading Bot
+# Terminal 2 - Trading Bot (در ترمینال جدید)
 python trading_bot.py
 
 # Terminal 3 - Monitor (اختیاری)
 python deploy\monitor.py
 ```
+
+> 📌 **مهم:** حتماً قبل از اجرا، محیط مجازی را فعال کنید!
 
 ### روش 3: نصب به عنوان Windows Service
 
@@ -188,9 +226,14 @@ Restart-Service ForexAssistant
 ## پشتیبان‌گیری
 
 ```powershell
-# پشتیبان‌گیری روزانه
+# پشتیبان‌گیری روزانه (از پوشه پروژه اجرا کنید)
 $date = Get-Date -Format "yyyyMMdd"
-Compress-Archive -Path "C:\ForexAssistant\data" -DestinationPath "C:\Backups\forex_$date.zip"
+
+# ایجاد پوشه backups اگر وجود ندارد
+if (-not (Test-Path "backups")) { New-Item -ItemType Directory -Path "backups" }
+
+# فشرده‌سازی
+Compress-Archive -Path "data", ".env", "logs" -DestinationPath "backups\forex_$date.zip" -Force
 ```
 
 ---
@@ -198,9 +241,34 @@ Compress-Archive -Path "C:\ForexAssistant\data" -DestinationPath "C:\Backups\for
 ## به‌روزرسانی
 
 ```powershell
-cd C:\ForexAssistant
+# از پوشه پروژه اجرا کنید
 git pull
+
+# فعال‌سازی محیط مجازی
 .\venv\Scripts\Activate.ps1
+
+# به‌روزرسانی وابستگی‌ها
 pip install -r requirements.txt --upgrade
-Restart-Service ForexAssistant
+
+# ری‌استارت سرویس (اگر به عنوان سرویس نصب شده)
+Restart-Service ForexAssistant -ErrorAction SilentlyContinue
+
+# یا ری‌استارت دستی
+# Ctrl+C برای توقف و دوباره: python main.py
 ```
+
+---
+
+## ❓ سوالات متداول
+
+### چرا وابستگی‌ها نصب نمی‌شوند؟
+احتمالاً PyPI مسدود است. از VPN یا mirror استفاده کنید.
+
+### چرا سایت باز نمی‌شود؟
+1. مطمئن شوید سرور در حال اجراست (`python main.py`)
+2. آدرس `http://localhost:8000` را باز کنید
+3. فایروال را بررسی کنید
+
+### چرا تحلیل کار نمی‌کند؟
+1. کلید OpenAI را در `.env` وارد کنید
+2. اعتبار حساب OpenAI را بررسی کنید
