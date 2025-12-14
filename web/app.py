@@ -92,15 +92,28 @@ async def background_scrape():
 
 
 # API Endpoints
+
 @app.get("/", response_class=HTMLResponse)
-async def home(request: Request):
-    """Home page with dashboard"""
+async def landing_page(request: Request):
+    """Landing page - shown before login"""
+    return templates.TemplateResponse("landing.html", {"request": request})
+
+
+@app.get("/dashboard", response_class=HTMLResponse)
+async def dashboard(request: Request):
+    """Main dashboard - shown after login"""
     pairs = load_pairs()
     return templates.TemplateResponse("index.html", {
         "request": request,
         "pairs": list(pairs.keys()),
         "title": "Forex Analysis Assistant"
     })
+
+
+@app.get("/pricing", response_class=HTMLResponse)
+async def pricing_page(request: Request):
+    """Pricing page"""
+    return templates.TemplateResponse("pricing.html", {"request": request})
 
 
 @app.get("/signup", response_class=HTMLResponse)

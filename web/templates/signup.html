@@ -245,7 +245,7 @@
                     if (data.token) {
                         localStorage.setItem('token', data.token);
                     }
-                    window.location.href = '/';
+                    window.location.href = '/dashboard';
                 } else {
                     errorEl.textContent = data.detail || 'Sign up failed. Please try again.';
                     errorEl.classList.remove('hidden');

@@ -213,29 +213,32 @@
                     </div>
                 </div>
                 
-                <!-- Try Now Button - Show when NOT logged in -->
-                <div id="auth-buttons" class="flex items-center gap-2">
-                    <a href="/signup" class="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-full text-sm font-medium transition shadow-lg hover:shadow-xl">
-                        <i data-lucide="rocket" class="w-4 h-4"></i>
-                        <span data-i18n="try_now">Try Now</span>
-                    </a>
-                </div>
-                
-                <!-- User Menu - Show when logged in -->
-                <div id="user-menu" class="hidden relative">
+                <!-- User Menu - Always show when on dashboard (user is logged in) -->
+                <div id="user-menu" class="relative">
                     <button onclick="toggleUserDropdown()" class="flex items-center gap-2 px-3 py-2 bg-slate-700 hover:bg-slate-600 border border-white/20 rounded-lg text-sm transition">
                         <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
                             <span id="user-avatar-letter" class="text-sm font-bold">U</span>
                         </div>
-                        <span id="user-display-name" class="max-w-24 truncate">User</span>
+                        <div class="flex flex-col items-start">
+                            <span id="user-display-name" class="max-w-24 truncate text-sm">User</span>
+                            <span id="user-subscription-badge" class="text-xs px-1.5 py-0.5 bg-gray-600 rounded text-gray-300">Free</span>
+                        </div>
                         <i data-lucide="chevron-down" class="w-4 h-4"></i>
                     </button>
                     <!-- Dropdown Menu -->
-                    <div id="user-dropdown" class="hidden absolute top-full right-0 mt-2 w-48 card-glass rounded-lg shadow-xl z-50">
+                    <div id="user-dropdown" class="hidden absolute top-full right-0 mt-2 w-56 card-glass rounded-xl shadow-xl z-50">
                         <div class="p-3 border-b border-white/10">
                             <p id="user-email-display" class="text-sm text-gray-400 truncate">user@example.com</p>
+                            <div class="flex items-center gap-2 mt-2">
+                                <span id="subscription-plan-display" class="text-xs px-2 py-1 bg-gray-600 rounded-full text-gray-300">Free Plan</span>
+                                <a href="/pricing" class="text-xs text-blue-400 hover:text-blue-300" data-i18n="upgrade">Upgrade</a>
+                            </div>
                         </div>
                         <div class="p-2">
+                            <a href="/pricing" class="w-full flex items-center gap-2 px-3 py-2 hover:bg-white/10 rounded-lg text-sm transition">
+                                <i data-lucide="crown" class="w-4 h-4 text-yellow-400"></i>
+                                <span data-i18n="subscription">Subscription</span>
+                            </a>
                             <button onclick="goToAccount()" class="w-full flex items-center gap-2 px-3 py-2 hover:bg-white/10 rounded-lg text-sm transition">
                                 <i data-lucide="user" class="w-4 h-4"></i>
                                 <span data-i18n="my_account">My Account</span>
@@ -347,6 +350,10 @@
                         <button onclick="switchTab('strategy')" id="tab-strategy" class="tab-btn w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-white/10">
                             <i data-lucide="settings" class="w-4 h-4 text-blue-400"></i>
                             <span data-i18n="strategy">Strategy</span>
+                        </button>
+                        <button onclick="switchTab('robots')" id="tab-robots" class="tab-btn w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-white/10">
+                            <i data-lucide="bot" class="w-4 h-4 text-yellow-400"></i>
+                            <span data-i18n="robots">Robots</span>
                         </button>
                         <button onclick="switchTab('account')" id="tab-account" class="tab-btn w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-white/10">
                             <i data-lucide="wallet" class="w-4 h-4 text-green-400"></i>
@@ -646,6 +653,39 @@
                                 </button>
                             </div>
                         </div>
+                    </div>
+                </div>
+                
+                <!-- Robots Tab Content -->
+                <div id="content-robots" class="tab-content">
+                    <div class="card-glass rounded-xl p-8 text-center">
+                        <div class="w-20 h-20 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i data-lucide="bot" class="w-10 h-10"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold mb-3" data-i18n="coming_soon">Coming Soon</h2>
+                        <p class="text-gray-400 mb-6" data-i18n="robots_coming_soon_desc">Trading robots with automated strategies are coming soon. Stay tuned!</p>
+                        <div class="flex flex-wrap justify-center gap-4">
+                            <div class="card-glass rounded-xl p-4 w-48">
+                                <div class="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center mx-auto mb-3">
+                                    <i data-lucide="trending-up" class="w-6 h-6 text-blue-400"></i>
+                                </div>
+                                <h3 class="font-semibold mb-1">RSI Robot</h3>
+                                <p class="text-xs text-gray-400">RSI-based signals</p>
+                                <span class="inline-block mt-2 text-xs px-2 py-1 bg-green-500/20 text-green-400 rounded-full">Free</span>
+                            </div>
+                            <div class="card-glass rounded-xl p-4 w-48">
+                                <div class="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center mx-auto mb-3">
+                                    <i data-lucide="activity" class="w-6 h-6 text-purple-400"></i>
+                                </div>
+                                <h3 class="font-semibold mb-1">Stochastic Robot</h3>
+                                <p class="text-xs text-gray-400">Stochastic oscillator</p>
+                                <span class="inline-block mt-2 text-xs px-2 py-1 bg-green-500/20 text-green-400 rounded-full">Free</span>
+                            </div>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-6">
+                            <i data-lucide="info" class="w-4 h-4 inline mr-1"></i>
+                            <span data-i18n="robots_premium_note">Premium users will have access to custom SL/TP strategies</span>
+                        </p>
                     </div>
                 </div>
                 
@@ -2677,8 +2717,7 @@
             currentUser = null;
             localStorage.removeItem('user');
             localStorage.removeItem('token');
-            updateUIForLoggedOutUser();
-            closeUserDropdown();
+            window.location.href = '/';
         }
 
         // Toggle user dropdown
