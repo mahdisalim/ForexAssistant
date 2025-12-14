@@ -216,13 +216,11 @@
                 <!-- User Menu - Always show when on dashboard (user is logged in) -->
                 <div id="user-menu" class="relative">
                     <button onclick="toggleUserDropdown()" class="flex items-center gap-2 px-3 py-2 bg-slate-700 hover:bg-slate-600 border border-white/20 rounded-lg text-sm transition">
-                        <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                        <!-- Avatar with dynamic color based on subscription -->
+                        <div id="user-avatar" class="w-8 h-8 rounded-full flex items-center justify-center bg-gradient-to-br from-gray-500 to-gray-600">
                             <span id="user-avatar-letter" class="text-sm font-bold">U</span>
                         </div>
-                        <div class="flex flex-col items-start">
-                            <span id="user-display-name" class="max-w-24 truncate text-sm">User</span>
-                            <span id="user-subscription-badge" class="text-xs px-1.5 py-0.5 bg-gray-600 rounded text-gray-300">Free</span>
-                        </div>
+                        <span id="user-display-name" class="max-w-28 truncate text-sm">User</span>
                         <i data-lucide="chevron-down" class="w-4 h-4"></i>
                     </button>
                     <!-- Dropdown Menu -->
@@ -230,14 +228,14 @@
                         <div class="p-3 border-b border-white/10">
                             <p id="user-email-display" class="text-sm text-gray-400 truncate">user@example.com</p>
                             <div class="flex items-center gap-2 mt-2">
-                                <span id="subscription-plan-display" class="text-xs px-2 py-1 bg-gray-600 rounded-full text-gray-300">Free Plan</span>
-                                <a href="/pricing" class="text-xs text-blue-400 hover:text-blue-300" data-i18n="upgrade">Upgrade</a>
+                                <span id="subscription-plan-display" class="text-xs px-2 py-1 rounded-full bg-gray-600 text-gray-300">Free</span>
                             </div>
                         </div>
                         <div class="p-2">
-                            <a href="/pricing" class="w-full flex items-center gap-2 px-3 py-2 hover:bg-white/10 rounded-lg text-sm transition">
-                                <i data-lucide="crown" class="w-4 h-4 text-yellow-400"></i>
-                                <span data-i18n="subscription">Subscription</span>
+                            <!-- Upgrade button - only shown for Free users -->
+                            <a id="upgrade-btn" href="/pricing" class="w-full flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 hover:from-yellow-500/30 hover:to-orange-500/30 rounded-lg text-sm transition mb-1">
+                                <i data-lucide="sparkles" class="w-4 h-4 text-yellow-400"></i>
+                                <span class="text-yellow-400 font-medium" data-i18n="upgrade_now">Upgrade Now</span>
                             </a>
                             <button onclick="goToAccount()" class="w-full flex items-center gap-2 px-3 py-2 hover:bg-white/10 rounded-lg text-sm transition">
                                 <i data-lucide="user" class="w-4 h-4"></i>
@@ -2494,9 +2492,12 @@
                 userMenu.classList.remove('hidden');
                 
                 // Update user info
+                const avatar = document.getElementById('user-avatar');
                 const avatarLetter = document.getElementById('user-avatar-letter');
                 const displayName = document.getElementById('user-display-name');
                 const emailDisplay = document.getElementById('user-email-display');
+                const subscriptionDisplay = document.getElementById('subscription-plan-display');
+                const upgradeBtn = document.getElementById('upgrade-btn');
                 
                 if (avatarLetter && currentUser.name) {
                     avatarLetter.textContent = currentUser.name.charAt(0).toUpperCase();
@@ -2506,6 +2507,39 @@
                 }
                 if (emailDisplay) {
                     emailDisplay.textContent = currentUser.email;
+                }
+                
+                // Update avatar color and subscription display based on plan
+                const subscription = currentUser.subscription || 'free';
+                if (avatar) {
+                    // Remove all gradient classes first
+                    avatar.className = 'w-8 h-8 rounded-full flex items-center justify-center';
+                    
+                    if (subscription === 'ultra') {
+                        // Ultra - Purple/Pink gradient
+                        avatar.classList.add('bg-gradient-to-br', 'from-purple-500', 'to-pink-500');
+                        if (subscriptionDisplay) {
+                            subscriptionDisplay.textContent = 'Ultra';
+                            subscriptionDisplay.className = 'text-xs px-2 py-1 rounded-full bg-purple-500/20 text-purple-400';
+                        }
+                        if (upgradeBtn) upgradeBtn.classList.add('hidden');
+                    } else if (subscription === 'pro') {
+                        // Pro - Blue/Cyan gradient
+                        avatar.classList.add('bg-gradient-to-br', 'from-blue-500', 'to-cyan-500');
+                        if (subscriptionDisplay) {
+                            subscriptionDisplay.textContent = 'Pro';
+                            subscriptionDisplay.className = 'text-xs px-2 py-1 rounded-full bg-blue-500/20 text-blue-400';
+                        }
+                        if (upgradeBtn) upgradeBtn.classList.add('hidden');
+                    } else {
+                        // Free - Gray gradient
+                        avatar.classList.add('bg-gradient-to-br', 'from-gray-500', 'to-gray-600');
+                        if (subscriptionDisplay) {
+                            subscriptionDisplay.textContent = 'Free';
+                            subscriptionDisplay.className = 'text-xs px-2 py-1 rounded-full bg-gray-600 text-gray-300';
+                        }
+                        if (upgradeBtn) upgradeBtn.classList.remove('hidden');
+                    }
                 }
             }
             
