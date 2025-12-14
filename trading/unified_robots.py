@@ -2,11 +2,11 @@
 Unified Trading Robots Module
 یکپارچه‌سازی سیستم‌های مختلف ربات‌های معاملاتی
 
-این ماژول دو سیستم را به هم متصل می‌کند:
-1. strategy_bots - سیستم قدیمی با RSI Bot و SL/TP strategies
-2. trading - سیستم جدید با Stochastic Robot
+این ماژول تمام سیستم‌های ربات و استراتژی‌های SL/TP را یکپارچه می‌کند:
+1. strategy_bots - سیستم قدیمی با RSI Bot
+2. trading - سیستم جدید با Stochastic Robot و Advanced SL/TP
 
-همه ربات‌ها از طریق این ماژول قابل دسترسی هستند.
+همه ربات‌ها و استراتژی‌ها از طریق این ماژول قابل دسترسی هستند.
 """
 
 import logging
@@ -15,36 +15,36 @@ from enum import Enum
 
 logger = logging.getLogger(__name__)
 
-# ============== Import from strategy_bots ==============
+# ============== Import from strategy_bots (Legacy) ==============
 try:
     from strategy_bots import (
-        # Bots
         RSIBot, BaseStrategyBot,
-        # Models
         Signal, Trade, PendingSetup, BotAnalysis,
         SignalType, TradeDirection, TradeStatus,
-        # Config
         AccountConfig, TradeConfig, BotConfig,
         RiskMode, SLMode, TPMode, DEFAULT_CONFIG,
-        # SL Strategies
-        PinBarSL, ATRSL, SwingPointSL, CompositeSL, SLResult,
-        # TP Strategies
-        RiskRewardTP, MultiTargetTP, ATRTP, FixedPipsTP, CompositeTP, TPResult
     )
     STRATEGY_BOTS_AVAILABLE = True
 except ImportError as e:
     logger.warning(f"strategy_bots module not available: {e}")
     STRATEGY_BOTS_AVAILABLE = False
 
-# ============== Import from trading ==============
+# ============== Import from trading (New System) ==============
 try:
     from trading import (
         # Robots
         StochasticRobot, StochasticDivergenceRobot,
-        # Base
         BaseRobot, RobotConfig, TradeSignal, Timeframe,
-        # SL/TP
+        # Legacy SL/TP
         SLStrategy, TPStrategy, SLTPManager,
+        # Advanced SL Strategies
+        AdvancedSLType, AdvancedSLFactory, AdvancedSLManager,
+        SL_DISPLAY_NAMES,
+        # Advanced TP Strategies
+        AdvancedTPType, AdvancedTPFactory, AdvancedTPManager,
+        TP_DISPLAY_NAMES,
+        # Support/Resistance
+        SupportResistanceDetector, LevelStrength,
         # Manager
         RobotManager, UserSubscription, create_robot_manager
     )
@@ -61,27 +61,32 @@ class RobotType(str, Enum):
     STOCHASTIC_DIVERGENCE = "stochastic_divergence"
 
 
-class SLType(str, Enum):
-    """انواع استراتژی‌های SL"""
-    FIXED_PIPS = "fixed_pips"
-    ATR = "atr"
-    PIN_BAR = "pin_bar"
-    PREVIOUS_LEG = "previous_leg"
-    FVG_START = "fvg_start"
-    SESSION_OPEN = "session_open"
-    LEG_START_PIN_BAR = "leg_start_pin_bar"
-    # Legacy
-    SWING_POINT = "swing_point"
-    COMPOSITE = "composite"
+# Use AdvancedSLType if available, otherwise define locally
+if TRADING_MODULE_AVAILABLE:
+    SLType = AdvancedSLType
+    TPType = AdvancedTPType
+else:
+    class SLType(str, Enum):
+        """انواع استراتژی‌های SL"""
+        FIXED_PIPS = "fixed_pips"
+        ATR = "atr"
+        PIN_BAR = "pin_bar"
+        PREVIOUS_LEG = "previous_leg"
+        FVG_START = "fvg_start"
+        SESSION_OPEN = "session_open"
+        LEG_START_PIN_BAR = "leg_start_pin_bar"
+        KEY_LEVELS_NEAREST = "key_levels_nearest"
+        KEY_LEVELS_SELECTABLE = "key_levels_selectable"
 
-
-class TPType(str, Enum):
-    """انواع استراتژی‌های TP"""
-    RISK_REWARD = "risk_reward"
-    MULTI_TARGET = "multi_target"
-    ATR = "atr"
-    FIXED_PIPS = "fixed_pips"
-    COMPOSITE = "composite"
+    class TPType(str, Enum):
+        """انواع استراتژی‌های TP"""
+        FIXED_PIPS = "fixed_pips"
+        ATR_BASED = "atr_based"
+        KEY_LEVELS_NEAREST = "key_levels_nearest"
+        KEY_LEVELS_SELECTABLE = "key_levels_selectable"
+        RISK_REWARD_FIXED = "risk_reward_fixed"
+        STEPPED_RR = "stepped_rr"
+        LEG_BASED = "leg_based"
 
 
 # ============== Unified Robot Registry ==============
@@ -104,11 +109,11 @@ class UnifiedRobotRegistry:
                 "class": RSIBot,
                 "module": "strategy_bots",
                 "description": "ربات RSI با سیگنال‌های کراس از مناطق اشباع",
-                "default_sl": SLType.ATR,
-                "default_tp": TPType.RISK_REWARD,
-                "premium": False,  # ربات رایگان
-                "available_sl": [SLType.ATR, SLType.FIXED_PIPS],  # SL های رایگان
-                "available_tp": [TPType.RISK_REWARD, TPType.FIXED_PIPS]  # TP های رایگان
+                "default_sl": "atr",
+                "default_tp": "risk_reward_fixed",
+                "premium": False,
+                "available_sl": ["atr", "fixed_pips"],
+                "available_tp": ["risk_reward_fixed", "fixed_pips"]
             }
         
         # Stochastic Robot from trading - رایگان
@@ -118,11 +123,11 @@ class UnifiedRobotRegistry:
                 "class": StochasticRobot,
                 "module": "trading",
                 "description": "ربات Stochastic با سیگنال‌های کراس در مناطق اشباع",
-                "default_sl": SLType.ATR,
-                "default_tp": TPType.RISK_REWARD,
-                "premium": False,  # ربات رایگان
-                "available_sl": [SLType.ATR, SLType.FIXED_PIPS],  # SL های رایگان
-                "available_tp": [TPType.RISK_REWARD, TPType.FIXED_PIPS]  # TP های رایگان
+                "default_sl": "atr",
+                "default_tp": "risk_reward_fixed",
+                "premium": False,
+                "available_sl": ["atr", "fixed_pips", "key_levels_nearest"],
+                "available_tp": ["risk_reward_fixed", "fixed_pips", "atr_based", "key_levels_nearest"]
             }
             
             # این ربات هنوز ساخته نشده - برای آینده
@@ -139,8 +144,8 @@ class UnifiedRobotRegistry:
                 "name": name,
                 "type": info["type"].value,
                 "description": info["description"],
-                "default_sl": info["default_sl"].value,
-                "default_tp": info["default_tp"].value,
+                "default_sl": info["default_sl"],
+                "default_tp": info["default_tp"],
                 "free": True,  # همه ربات‌ها رایگان هستند
                 "module": info["module"]
             }
@@ -174,120 +179,71 @@ class UnifiedRobotRegistry:
 class UnifiedSLFactory:
     """
     فکتوری یکپارچه برای استراتژی‌های SL
+    از سیستم جدید AdvancedSLFactory استفاده می‌کند
     """
     
     @classmethod
     def create(cls, sl_type: SLType, **kwargs) -> Any:
         """ایجاد استراتژی SL"""
-        if not STRATEGY_BOTS_AVAILABLE:
-            logger.warning("strategy_bots not available, using fallback")
-            return None
-        
-        if sl_type == SLType.ATR:
-            return ATRSL(
-                atr_period=kwargs.get("atr_period", 14),
-                multiplier=kwargs.get("multiplier", 1.5)
-            )
-        elif sl_type == SLType.PIN_BAR:
-            return PinBarSL(
-                buffer_pips=kwargs.get("buffer_pips", 5.0),
-                min_shadow_ratio=kwargs.get("min_shadow_ratio", 2.0)
-            )
-        elif sl_type == SLType.SWING_POINT:
-            return SwingPointSL(
-                buffer_pips=kwargs.get("buffer_pips", 5.0),
-                lookback=kwargs.get("lookback", 20)
-            )
-        elif sl_type == SLType.COMPOSITE:
-            return CompositeSL(
-                strategies=[PinBarSL(), SwingPointSL()],
-                fallback_strategy=ATRSL()
-            )
-        else:
-            return ATRSL()
+        if TRADING_MODULE_AVAILABLE:
+            try:
+                return AdvancedSLFactory.create(sl_type, **kwargs)
+            except Exception as e:
+                logger.warning(f"Failed to create SL strategy: {e}")
+        return None
     
     @classmethod
     def get_available(cls, premium: bool = False) -> List[Dict[str, Any]]:
-        """
-        لیست استراتژی‌های SL موجود
+        """لیست استراتژی‌های SL موجود"""
+        if TRADING_MODULE_AVAILABLE:
+            strategies = AdvancedSLFactory.get_available_strategies()
+            for s in strategies:
+                s["selectable"] = not s.get("premium", False) or premium
+                s["display_name"] = SL_DISPLAY_NAMES.get(
+                    AdvancedSLType(s["id"]), s["name"]
+                ) if s["id"] in [t.value for t in AdvancedSLType] else s["name"]
+            return strategies
         
-        در حالت رایگان: فقط پیش‌فرض ربات استفاده می‌شود
-        در حالت پولی: کاربر می‌تواند هر کدام را انتخاب کند
-        """
-        strategies = [
-            {"id": "atr", "name": "ATR-Based", "description": "بر اساس نوسانات بازار"},
-            {"id": "fixed_pips", "name": "Fixed Pips", "description": "فاصله ثابت"},
-            {"id": "pin_bar", "name": "Pin Bar", "description": "پشت آخرین پین بار"},
-            {"id": "swing_point", "name": "Swing Point", "description": "پشت آخرین سوینگ"},
-            {"id": "composite", "name": "Composite", "description": "ترکیبی از چند روش"},
+        # Fallback
+        return [
+            {"id": "fixed_pips", "name": "Smart Shield", "description": "فاصله ثابت", "premium": False, "selectable": True},
+            {"id": "atr", "name": "Volatility Guard", "description": "بر اساس نوسانات", "premium": False, "selectable": True},
         ]
-        
-        # در حالت پولی همه قابل انتخاب هستند
-        # در حالت رایگان فقط نمایش داده می‌شوند ولی قابل انتخاب نیستند
-        for s in strategies:
-            s["selectable"] = premium  # فقط کاربران پولی می‌توانند انتخاب کنند
-        
-        return strategies
 
 
 class UnifiedTPFactory:
     """
     فکتوری یکپارچه برای استراتژی‌های TP
+    از سیستم جدید AdvancedTPFactory استفاده می‌کند
     """
     
     @classmethod
     def create(cls, tp_type: TPType, **kwargs) -> Any:
         """ایجاد استراتژی TP"""
-        if not STRATEGY_BOTS_AVAILABLE:
-            logger.warning("strategy_bots not available, using fallback")
-            return None
-        
-        if tp_type == TPType.RISK_REWARD:
-            return RiskRewardTP(
-                ratio=kwargs.get("ratio", 2.0)
-            )
-        elif tp_type == TPType.MULTI_TARGET:
-            return MultiTargetTP(
-                targets=kwargs.get("targets", [(1.0, 50), (2.0, 30), (3.0, 20)])
-            )
-        elif tp_type == TPType.ATR:
-            return ATRTP(
-                atr_period=kwargs.get("atr_period", 14),
-                multiplier=kwargs.get("multiplier", 3.0)
-            )
-        elif tp_type == TPType.FIXED_PIPS:
-            return FixedPipsTP(
-                pips=kwargs.get("pips", 100)
-            )
-        elif tp_type == TPType.COMPOSITE:
-            return CompositeTP(
-                strategies=[RiskRewardTP(ratio=2.0), MultiTargetTP()]
-            )
-        else:
-            return RiskRewardTP()
+        if TRADING_MODULE_AVAILABLE:
+            try:
+                return AdvancedTPFactory.create(tp_type, **kwargs)
+            except Exception as e:
+                logger.warning(f"Failed to create TP strategy: {e}")
+        return None
     
     @classmethod
     def get_available(cls, premium: bool = False) -> List[Dict[str, Any]]:
-        """
-        لیست استراتژی‌های TP موجود
+        """لیست استراتژی‌های TP موجود"""
+        if TRADING_MODULE_AVAILABLE:
+            strategies = AdvancedTPFactory.get_available_strategies()
+            for s in strategies:
+                s["selectable"] = not s.get("premium", False) or premium
+                s["display_name"] = TP_DISPLAY_NAMES.get(
+                    AdvancedTPType(s["type"]), s["name"]
+                ) if s["type"] in [t.value for t in AdvancedTPType] else s["name"]
+            return strategies
         
-        در حالت رایگان: فقط پیش‌فرض ربات استفاده می‌شود
-        در حالت پولی: کاربر می‌تواند هر کدام را انتخاب کند
-        """
-        strategies = [
-            {"id": "risk_reward", "name": "Risk/Reward", "description": "نسبت ریسک به ریوارد"},
-            {"id": "fixed_pips", "name": "Fixed Pips", "description": "فاصله ثابت"},
-            {"id": "multi_target", "name": "Multi-Target", "description": "چند هدف با بستن تدریجی"},
-            {"id": "atr", "name": "ATR-Based", "description": "بر اساس نوسانات"},
-            {"id": "composite", "name": "Composite", "description": "ترکیبی از چند روش"},
+        # Fallback
+        return [
+            {"type": "fixed_pips", "name": "Smart Pips", "description": "فاصله ثابت", "premium": False, "selectable": True},
+            {"type": "risk_reward_fixed", "name": "Classic R/R", "description": "نسبت ریسک به ریوارد", "premium": False, "selectable": True},
         ]
-        
-        # در حالت پولی همه قابل انتخاب هستند
-        # در حالت رایگان فقط نمایش داده می‌شوند ولی قابل انتخاب نیستند
-        for s in strategies:
-            s["selectable"] = premium  # فقط کاربران پولی می‌توانند انتخاب کنند
-        
-        return strategies
 
 
 # ============== Unified Robot Manager ==============

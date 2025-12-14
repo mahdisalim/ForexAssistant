@@ -37,6 +37,10 @@ wheels/
 data/*.json
 !data/.gitkeep
 
+# User data (sensitive)
+web/data/
+**/users.json
+
 # Logs
 logs/*.log
 !logs/.gitkeep

@@ -26,6 +26,7 @@ from .pattern_detection import (
     Pattern, Leg, FVG, PatternType
 )
 from .market_sessions import MarketSessionDetector, MarketSession, SessionCandle
+from .support_resistance import SupportResistanceDetector, SRLevel, LevelStrength
 
 
 class AdvancedSLType(str, Enum):
@@ -37,6 +38,22 @@ class AdvancedSLType(str, Enum):
     FVG_START = "fvg_start"
     SESSION_OPEN = "session_open"
     LEG_START_PIN_BAR = "leg_start_pin_bar"
+    KEY_LEVELS_NEAREST = "key_levels_nearest"      # Nearest S/R level (FREE)
+    KEY_LEVELS_SELECTABLE = "key_levels_selectable"  # User selects level (PREMIUM)
+
+
+# Display names for UI
+SL_DISPLAY_NAMES = {
+    AdvancedSLType.FIXED_PIPS: "Smart Shield",
+    AdvancedSLType.ATR: "Volatility Guard",
+    AdvancedSLType.PIN_BAR: "Pin Bar Protector",
+    AdvancedSLType.PREVIOUS_LEG: "Leg Guardian",
+    AdvancedSLType.FVG_START: "Gap Shield",
+    AdvancedSLType.SESSION_OPEN: "Session Anchor",
+    AdvancedSLType.LEG_START_PIN_BAR: "Origin Shield",
+    AdvancedSLType.KEY_LEVELS_NEAREST: "Level Guard",
+    AdvancedSLType.KEY_LEVELS_SELECTABLE: "Level Selector Pro",
+}
 
 
 @dataclass
@@ -669,6 +686,240 @@ class LegStartPinBarSL(BaseAdvancedSLStrategy):
         return result
 
 
+# ============== Key Levels SL Strategies ==============
+
+class KeyLevelsNearestSL(BaseAdvancedSLStrategy):
+    """
+    Key Levels - Nearest Stop Loss (FREE)
+    استاپ بر اساس نزدیک‌ترین سطح حمایت/مقاومت مهم
+    
+    Display Name: "Level Guard"
+    """
+    
+    STRATEGY_TYPE = AdvancedSLType.KEY_LEVELS_NEAREST
+    DISPLAY_NAME = "Level Guard"
+    DESCRIPTION = "SL behind the nearest significant support/resistance level"
+    IS_PREMIUM = False
+    
+    def __init__(
+        self,
+        buffer_pips: float = 5.0,
+        min_distance_pips: float = 10.0,
+        fallback_pips: float = 30.0
+    ):
+        self.buffer_pips = buffer_pips
+        self.min_distance_pips = min_distance_pips
+        self.fallback_pips = fallback_pips
+        self.sr_detector = SupportResistanceDetector()
+    
+    def calculate(
+        self,
+        entry_price: float,
+        is_buy: bool,
+        data: Dict[str, Any],
+        pip_value: float = 0.0001
+    ) -> SLCalculationResult:
+        
+        open_prices = data.get("open", np.array([]))
+        high = data.get("high", np.array([]))
+        low = data.get("low", np.array([]))
+        close = data.get("close", np.array([]))
+        
+        if len(close) < 20:
+            return self._fallback(entry_price, is_buy, pip_value)
+        
+        # Detect S/R levels
+        levels = self.sr_detector.detect_all_levels(
+            open_prices, high, low, close,
+            pip_value=pip_value,
+            current_price=entry_price
+        )
+        
+        # For buy: find nearest support below entry
+        # For sell: find nearest resistance above entry
+        target_level = self.sr_detector.get_nearest_level(
+            levels, entry_price, is_support=is_buy, pip_value=pip_value
+        )
+        
+        if target_level is None:
+            return self._fallback(entry_price, is_buy, pip_value)
+        
+        # Check minimum distance
+        distance = abs(entry_price - target_level.price) / pip_value
+        if distance < self.min_distance_pips:
+            return self._fallback(entry_price, is_buy, pip_value)
+        
+        # Apply buffer
+        if is_buy:
+            stop_loss = target_level.price - (self.buffer_pips * pip_value)
+        else:
+            stop_loss = target_level.price + (self.buffer_pips * pip_value)
+        
+        sl_pips = abs(entry_price - stop_loss) / pip_value
+        
+        return SLCalculationResult(
+            stop_loss=stop_loss,
+            sl_pips=sl_pips,
+            strategy_used=self.STRATEGY_TYPE,
+            confidence=target_level.strength_score / 100,
+            pattern_info={
+                "level_price": target_level.price,
+                "level_type": target_level.level_type.value,
+                "strength": target_level.strength_class.value,
+                "strength_score": target_level.strength_score,
+                "touches": target_level.touches
+            },
+            fallback_used=False
+        )
+    
+    def _fallback(self, entry_price: float, is_buy: bool, pip_value: float) -> SLCalculationResult:
+        if is_buy:
+            stop_loss = entry_price - (self.fallback_pips * pip_value)
+        else:
+            stop_loss = entry_price + (self.fallback_pips * pip_value)
+        
+        return SLCalculationResult(
+            stop_loss=stop_loss,
+            sl_pips=self.fallback_pips,
+            strategy_used=self.STRATEGY_TYPE,
+            confidence=0.5,
+            pattern_info={"reason": "No suitable level found, using fixed pips fallback"},
+            fallback_used=True
+        )
+
+
+class KeyLevelsSelectableSL(BaseAdvancedSLStrategy):
+    """
+    Key Levels - Selectable Stop Loss (PREMIUM)
+    استاپ با قابلیت انتخاب سطح از روی چارت بر اساس اعتبار
+    
+    Display Name: "Level Selector Pro"
+    """
+    
+    STRATEGY_TYPE = AdvancedSLType.KEY_LEVELS_SELECTABLE
+    DISPLAY_NAME = "Level Selector Pro"
+    DESCRIPTION = "Select your SL level from chart based on strength"
+    IS_PREMIUM = True
+    
+    def __init__(
+        self,
+        selected_level_price: Optional[float] = None,
+        min_strength: LevelStrength = LevelStrength.MODERATE,
+        buffer_pips: float = 5.0,
+        fallback_pips: float = 30.0
+    ):
+        self.selected_level_price = selected_level_price
+        self.min_strength = min_strength
+        self.buffer_pips = buffer_pips
+        self.fallback_pips = fallback_pips
+        self.sr_detector = SupportResistanceDetector()
+    
+    def get_available_levels(
+        self,
+        data: Dict[str, Any],
+        entry_price: float,
+        is_buy: bool,
+        pip_value: float = 0.0001
+    ) -> List[Dict[str, Any]]:
+        """
+        Get list of available levels for user selection.
+        Returns levels formatted for UI display.
+        """
+        open_prices = data.get("open", np.array([]))
+        high = data.get("high", np.array([]))
+        low = data.get("low", np.array([]))
+        close = data.get("close", np.array([]))
+        
+        if len(close) < 20:
+            return []
+        
+        levels = self.sr_detector.detect_all_levels(
+            open_prices, high, low, close,
+            pip_value=pip_value,
+            current_price=entry_price
+        )
+        
+        # Filter by direction and minimum strength
+        strength_order = {
+            LevelStrength.WEAK: 0,
+            LevelStrength.MODERATE: 1,
+            LevelStrength.STRONG: 2,
+            LevelStrength.VERY_STRONG: 3
+        }
+        min_strength_val = strength_order[self.min_strength]
+        
+        if is_buy:
+            # Support levels below entry for buy SL
+            filtered = [
+                l for l in levels 
+                if l.is_support 
+                and l.price < entry_price
+                and strength_order[l.strength_class] >= min_strength_val
+            ]
+        else:
+            # Resistance levels above entry for sell SL
+            filtered = [
+                l for l in levels 
+                if not l.is_support 
+                and l.price > entry_price
+                and strength_order[l.strength_class] >= min_strength_val
+            ]
+        
+        # Sort by strength (strongest first)
+        filtered.sort(key=lambda x: x.strength_score, reverse=True)
+        
+        # Format for UI
+        return [
+            {
+                "price": l.price,
+                "display_name": l.display_name,
+                "strength": l.strength_class.value,
+                "strength_score": l.strength_score,
+                "distance_pips": abs(l.price - entry_price) / pip_value,
+                "level_type": l.level_type.value,
+                "touches": l.touches,
+                "has_pin_bar": l.has_pin_bar,
+                "has_leg_rejection": l.has_leg_rejection
+            }
+            for l in filtered[:10]  # Max 10 levels
+        ]
+    
+    def calculate(
+        self,
+        entry_price: float,
+        is_buy: bool,
+        data: Dict[str, Any],
+        pip_value: float = 0.0001
+    ) -> SLCalculationResult:
+        
+        if self.selected_level_price is None:
+            # If no level selected, use nearest level strategy
+            return KeyLevelsNearestSL(
+                buffer_pips=self.buffer_pips,
+                fallback_pips=self.fallback_pips
+            ).calculate(entry_price, is_buy, data, pip_value)
+        
+        # Use selected level
+        if is_buy:
+            stop_loss = self.selected_level_price - (self.buffer_pips * pip_value)
+        else:
+            stop_loss = self.selected_level_price + (self.buffer_pips * pip_value)
+        
+        sl_pips = abs(entry_price - stop_loss) / pip_value
+        
+        return SLCalculationResult(
+            stop_loss=stop_loss,
+            sl_pips=sl_pips,
+            strategy_used=self.STRATEGY_TYPE,
+            confidence=0.9,  # High confidence since user selected
+            pattern_info={
+                "selected_price": self.selected_level_price,
+                "buffer_pips": self.buffer_pips
+            },
+            fallback_used=False
+        )
+
+
 # ============== Strategy Factory ==============
 
 class AdvancedSLFactory:
@@ -682,6 +933,8 @@ class AdvancedSLFactory:
         AdvancedSLType.FVG_START: FVGStartSL,
         AdvancedSLType.SESSION_OPEN: SessionOpenSL,
         AdvancedSLType.LEG_START_PIN_BAR: LegStartPinBarSL,
+        AdvancedSLType.KEY_LEVELS_NEAREST: KeyLevelsNearestSL,
+        AdvancedSLType.KEY_LEVELS_SELECTABLE: KeyLevelsSelectableSL,
     }
     
     @classmethod
@@ -754,6 +1007,20 @@ class AdvancedSLFactory:
                 "description": "Behind the pin bar that started the current leg",
                 "params": ["min_shadow_ratio", "swing_lookback"],
                 "premium": True
+            },
+            {
+                "id": AdvancedSLType.KEY_LEVELS_NEAREST.value,
+                "name": "Level Guard",
+                "description": "SL behind the nearest significant support/resistance level",
+                "params": ["buffer_pips", "min_distance_pips"],
+                "premium": False
+            },
+            {
+                "id": AdvancedSLType.KEY_LEVELS_SELECTABLE.value,
+                "name": "Level Selector Pro",
+                "description": "Select your SL level from chart based on strength",
+                "params": ["selected_level_price", "min_strength", "buffer_pips"],
+                "premium": True
             }
         ]
 
@@ -767,7 +1034,7 @@ class AdvancedSLManager:
     """
     
     # Free strategies
-    FREE_STRATEGIES = {AdvancedSLType.FIXED_PIPS, AdvancedSLType.ATR}
+    FREE_STRATEGIES = {AdvancedSLType.FIXED_PIPS, AdvancedSLType.ATR, AdvancedSLType.KEY_LEVELS_NEAREST}
     
     def __init__(self, is_premium: bool = False):
         self.is_premium = is_premium
