@@ -8,66 +8,104 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        .gradient-bg {
-            background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
-        }
-        .card-glass {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-        .glow-blue {
-            box-shadow: 0 0 40px rgba(59, 130, 246, 0.3);
-        }
-        .pricing-card:hover {
-            transform: translateY(-8px);
-            border-color: rgba(99, 102, 241, 0.5);
-        }
-        .pricing-card {
-            transition: all 0.3s ease;
-        }
-        .feature-row:hover {
-            background: rgba(255, 255, 255, 0.03);
-        }
+        .gradient-bg { background: linear-gradient(135deg, #0a0a12 0%, #12121f 50%, #0d1a2d 100%); }
+        .hero-gradient { background: radial-gradient(ellipse at center top, rgba(59, 130, 246, 0.12) 0%, transparent 60%); }
+        .card-glass { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.06); }
+        .card-glass:hover { background: rgba(255, 255, 255, 0.04); border-color: rgba(255, 255, 255, 0.1); }
+        .glow-blue { box-shadow: 0 0 60px rgba(59, 130, 246, 0.2); }
+        .pricing-card:hover { transform: translateY(-8px); border-color: rgba(99, 102, 241, 0.4); }
+        .pricing-card { transition: all 0.3s ease; }
+        .feature-row:hover { background: rgba(255, 255, 255, 0.03); }
+        .dropdown-menu { opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.2s ease 0.15s; pointer-events: none; }
+        .dropdown:hover .dropdown-menu { opacity: 1; visibility: visible; transform: translateY(0); pointer-events: auto; transition-delay: 0s; }
+        .faq-item.active .faq-answer { max-height: 500px; opacity: 1; }
+        .faq-item .faq-answer { max-height: 0; opacity: 0; overflow: hidden; transition: all 0.3s ease; }
+        .faq-item.active .faq-icon { transform: rotate(180deg); }
+        .toggle-btn.active { background: linear-gradient(90deg, #3b82f6, #8b5cf6); }
     </style>
 </head>
 <body class="gradient-bg min-h-screen text-white">
     <!-- Navigation -->
-    <nav class="fixed top-0 left-0 right-0 z-50 bg-slate-900/80 backdrop-blur-xl border-b border-white/10">
-        <div class="max-w-7xl mx-auto px-6 py-4">
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-slate-900/90 backdrop-blur-xl border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-6 py-3">
             <div class="flex items-center justify-between">
                 <a href="/" class="flex items-center gap-3">
                     <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
                         <i data-lucide="trending-up" class="w-6 h-6"></i>
                     </div>
-                    <span class="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                        Forex Assistant
-                    </span>
+                    <span class="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Forex Assistant</span>
                 </a>
-                
-                <div class="hidden md:flex items-center gap-8">
-                    <a href="/#features" class="text-gray-300 hover:text-white transition">Features</a>
-                    <a href="/pricing" class="text-white font-medium">Pricing</a>
-                    <a href="/#how-it-works" class="text-gray-300 hover:text-white transition">How It Works</a>
+                <div class="hidden lg:flex items-center gap-1">
+                    <div class="dropdown relative">
+                        <a href="/features" class="flex items-center gap-1 px-4 py-2 text-gray-300 hover:text-white transition rounded-lg hover:bg-white/5">Features<i data-lucide="chevron-down" class="w-4 h-4 ml-1"></i></a>
+                        <div class="dropdown-menu absolute top-full left-0 mt-2 w-80 card-glass rounded-xl shadow-2xl p-4">
+                            <a href="/features#ai-analysis" class="flex items-start gap-3 p-3 rounded-lg hover:bg-white/5 transition">
+                                <div class="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="brain" class="w-5 h-5 text-purple-400"></i></div>
+                                <div><div class="font-medium">AI Analysis</div><div class="text-sm text-gray-400">Advanced AI-powered market analysis</div></div>
+                            </a>
+                            <a href="/features#signals" class="flex items-start gap-3 p-3 rounded-lg hover:bg-white/5 transition">
+                                <div class="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="zap" class="w-5 h-5 text-blue-400"></i></div>
+                                <div><div class="font-medium">Trade Signals</div><div class="text-sm text-gray-400">Real-time buy/sell signals</div></div>
+                            </a>
+                            <a href="/features#robots" class="flex items-start gap-3 p-3 rounded-lg hover:bg-white/5 transition">
+                                <div class="w-10 h-10 bg-yellow-500/20 rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="bot" class="w-5 h-5 text-yellow-400"></i></div>
+                                <div><div class="font-medium">Trading Robots</div><div class="text-sm text-gray-400">Automated RSI, Stochastic strategies</div></div>
+                            </a>
+                            <a href="/features#mtf" class="flex items-start gap-3 p-3 rounded-lg hover:bg-white/5 transition">
+                                <div class="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="layers" class="w-5 h-5 text-green-400"></i></div>
+                                <div><div class="font-medium">Multi-Timeframe</div><div class="text-sm text-gray-400">M1 to Monthly analysis</div></div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="dropdown relative">
+                        <a href="/resources" class="flex items-center gap-1 px-4 py-2 text-gray-300 hover:text-white transition rounded-lg hover:bg-white/5">Resources<i data-lucide="chevron-down" class="w-4 h-4 ml-1"></i></a>
+                        <div class="dropdown-menu absolute top-full left-0 mt-2 w-80 card-glass rounded-xl shadow-2xl p-4">
+                            <a href="/resources#tradingview" class="flex items-start gap-3 p-3 rounded-lg hover:bg-white/5 transition">
+                                <div class="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="line-chart" class="w-5 h-5 text-blue-400"></i></div>
+                                <div><div class="font-medium">TradingView Charts</div><div class="text-sm text-gray-400">Professional charts integration</div></div>
+                            </a>
+                            <a href="/resources#news" class="flex items-start gap-3 p-3 rounded-lg hover:bg-white/5 transition">
+                                <div class="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="newspaper" class="w-5 h-5 text-green-400"></i></div>
+                                <div><div class="font-medium">News Aggregator</div><div class="text-sm text-gray-400">ForexFactory, Investing.com feeds</div></div>
+                            </a>
+                            <a href="/resources#ai-models" class="flex items-start gap-3 p-3 rounded-lg hover:bg-white/5 transition">
+                                <div class="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="sparkles" class="w-5 h-5 text-purple-400"></i></div>
+                                <div><div class="font-medium">AI Models</div><div class="text-sm text-gray-400">GPT-4, Claude, Gemini powered</div></div>
+                            </a>
+                            <a href="/resources#faq" class="flex items-start gap-3 p-3 rounded-lg hover:bg-white/5 transition">
+                                <div class="w-10 h-10 bg-orange-500/20 rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="help-circle" class="w-5 h-5 text-orange-400"></i></div>
+                                <div><div class="font-medium">FAQs</div><div class="text-sm text-gray-400">Frequently asked questions</div></div>
+                            </a>
+                        </div>
+                    </div>
+                    <a href="/pricing" class="px-4 py-2 text-white font-medium transition rounded-lg bg-white/5">Pricing</a>
+                    <a href="/assets" class="px-4 py-2 text-gray-300 hover:text-white transition rounded-lg hover:bg-white/5">Assets</a>
                 </div>
-                
                 <div class="flex items-center gap-3">
-                    <a href="/signin" class="px-4 py-2 text-gray-300 hover:text-white transition">Sign In</a>
-                    <a href="/signup" class="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-full font-medium transition">
-                        Try Free
-                    </a>
+                    <a href="/signin" class="hidden sm:block px-4 py-2 text-gray-300 hover:text-white transition">Sign In</a>
+                    <a href="/signup" class="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-full font-medium transition shadow-lg text-sm">Try Free</a>
                 </div>
             </div>
         </div>
     </nav>
 
     <!-- Header -->
-    <section class="pt-32 pb-12 px-6">
+    <section class="pt-28 pb-12 px-6 hero-gradient">
         <div class="max-w-4xl mx-auto text-center">
+            <div class="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full text-blue-400 text-sm mb-6">
+                <i data-lucide="sparkles" class="w-4 h-4"></i>
+                Simple & Transparent Pricing
+            </div>
             <h1 class="text-4xl md:text-5xl font-bold mb-4">Choose Your Plan</h1>
-            <p class="text-xl text-gray-400">
-                Start free and upgrade as you grow. All plans include a 7-day free trial.
-            </p>
+            <p class="text-xl text-gray-400 mb-8">Start free and upgrade as you grow. All paid plans include a 7-day free trial.</p>
+            
+            <!-- Billing Toggle -->
+            <div class="inline-flex items-center gap-4 p-1.5 bg-white/5 rounded-full">
+                <button onclick="setBilling('monthly')" id="btn-monthly" class="toggle-btn active px-6 py-2 rounded-full text-sm font-medium transition">Monthly</button>
+                <button onclick="setBilling('yearly')" id="btn-yearly" class="toggle-btn px-6 py-2 rounded-full text-sm font-medium transition">
+                    Yearly <span class="text-green-400 text-xs ml-1">Save 20%</span>
+                </button>
+            </div>
         </div>
     </section>
 
@@ -95,44 +133,47 @@
                     
                     <ul class="space-y-4 mb-8">
                         <li class="flex items-start gap-3">
-                            <i data-lucide="check-circle" class="w-5 h-5 text-green-400 mt-0.5"></i>
+                            <i data-lucide="check-circle" class="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0"></i>
                             <div>
                                 <span class="font-medium">AI Market Analysis</span>
-                                <p class="text-sm text-gray-400">Real-time market insights</p>
+                                <p class="text-sm text-gray-400">Real-time market insights powered by GPT-4, Claude & Gemini</p>
                             </div>
                         </li>
                         <li class="flex items-start gap-3">
-                            <i data-lucide="check-circle" class="w-5 h-5 text-green-400 mt-0.5"></i>
+                            <i data-lucide="check-circle" class="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0"></i>
                             <div>
                                 <span class="font-medium">Basic Trade Signals</span>
-                                <p class="text-sm text-gray-400">Entry, SL & TP levels</p>
+                                <p class="text-sm text-gray-400">Entry, Stop Loss & Take Profit levels</p>
                             </div>
                         </li>
                         <li class="flex items-start gap-3">
-                            <i data-lucide="check-circle" class="w-5 h-5 text-green-400 mt-0.5"></i>
+                            <i data-lucide="check-circle" class="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0"></i>
                             <div>
                                 <span class="font-medium">2 Trading Robots</span>
-                                <p class="text-sm text-gray-400">RSI & Stochastic robots</p>
+                                <p class="text-sm text-gray-400">RSI & Stochastic automated strategies</p>
                             </div>
                         </li>
                         <li class="flex items-start gap-3">
-                            <i data-lucide="check-circle" class="w-5 h-5 text-green-400 mt-0.5"></i>
+                            <i data-lucide="check-circle" class="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0"></i>
                             <div>
-                                <span class="font-medium">Default SL/TP</span>
-                                <p class="text-sm text-gray-400">ATR & Risk/Reward based</p>
+                                <span class="font-medium">Default SL/TP Settings</span>
+                                <p class="text-sm text-gray-400">ATR & Risk/Reward based calculations</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i data-lucide="check-circle" class="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0"></i>
+                            <div>
+                                <span class="font-medium">Multi-Language Support</span>
+                                <p class="text-sm text-gray-400">14+ languages including RTL</p>
                             </div>
                         </li>
                         <li class="flex items-start gap-3 opacity-50">
-                            <i data-lucide="x-circle" class="w-5 h-5 text-gray-500 mt-0.5"></i>
-                            <div>
-                                <span>Custom SL/TP Strategies</span>
-                            </div>
+                            <i data-lucide="x-circle" class="w-5 h-5 text-gray-500 mt-0.5 flex-shrink-0"></i>
+                            <span>Custom SL/TP Strategies</span>
                         </li>
                         <li class="flex items-start gap-3 opacity-50">
-                            <i data-lucide="x-circle" class="w-5 h-5 text-gray-500 mt-0.5"></i>
-                            <div>
-                                <span>Premium Features</span>
-                            </div>
+                            <i data-lucide="x-circle" class="w-5 h-5 text-gray-500 mt-0.5 flex-shrink-0"></i>
+                            <span>Premium Robots & API</span>
                         </li>
                     </ul>
                     
@@ -157,58 +198,62 @@
                             </div>
                         </div>
                         <div class="flex items-baseline gap-1">
-                            <span class="text-5xl font-bold">$29</span>
-                            <span class="text-gray-400">/month</span>
+                            <span class="text-5xl font-bold" id="pro-price">$29</span>
+                            <span class="text-gray-400" id="pro-period">/month</span>
                         </div>
+                        <p class="text-sm text-green-400 mt-1" id="pro-savings" style="display:none;">Save $70/year</p>
                     </div>
                     
                     <ul class="space-y-4 mb-8">
                         <li class="flex items-start gap-3">
-                            <i data-lucide="check-circle" class="w-5 h-5 text-green-400 mt-0.5"></i>
+                            <i data-lucide="check-circle" class="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0"></i>
                             <div>
                                 <span class="font-medium">Everything in Free</span>
                                 <p class="text-sm text-gray-400">All basic features included</p>
                             </div>
                         </li>
                         <li class="flex items-start gap-3">
-                            <i data-lucide="check-circle" class="w-5 h-5 text-blue-400 mt-0.5"></i>
+                            <i data-lucide="check-circle" class="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0"></i>
                             <div>
                                 <span class="font-medium text-blue-400">Custom SL Strategies</span>
-                                <p class="text-sm text-gray-400">Pin Bar, Swing Point, Composite</p>
+                                <p class="text-sm text-gray-400">Pin Bar, Swing Point, Composite SL</p>
                             </div>
                         </li>
                         <li class="flex items-start gap-3">
-                            <i data-lucide="check-circle" class="w-5 h-5 text-blue-400 mt-0.5"></i>
+                            <i data-lucide="check-circle" class="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0"></i>
                             <div>
                                 <span class="font-medium text-blue-400">Custom TP Strategies</span>
-                                <p class="text-sm text-gray-400">Multi-Target, ATR-Based</p>
+                                <p class="text-sm text-gray-400">Multi-Target, ATR-Based, Composite TP</p>
                             </div>
                         </li>
                         <li class="flex items-start gap-3">
-                            <i data-lucide="check-circle" class="w-5 h-5 text-green-400 mt-0.5"></i>
+                            <i data-lucide="check-circle" class="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0"></i>
                             <div>
                                 <span class="font-medium">Advanced Analysis</span>
-                                <p class="text-sm text-gray-400">Deeper market insights</p>
+                                <p class="text-sm text-gray-400">Deeper market insights & predictions</p>
                             </div>
                         </li>
                         <li class="flex items-start gap-3">
-                            <i data-lucide="check-circle" class="w-5 h-5 text-green-400 mt-0.5"></i>
+                            <i data-lucide="check-circle" class="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0"></i>
                             <div>
                                 <span class="font-medium">Priority Support</span>
-                                <p class="text-sm text-gray-400">Fast response time</p>
+                                <p class="text-sm text-gray-400">Fast response within 24 hours</p>
                             </div>
                         </li>
                         <li class="flex items-start gap-3 opacity-50">
-                            <i data-lucide="x-circle" class="w-5 h-5 text-gray-500 mt-0.5"></i>
-                            <div>
-                                <span>Premium Robots</span>
-                            </div>
+                            <i data-lucide="x-circle" class="w-5 h-5 text-gray-500 mt-0.5 flex-shrink-0"></i>
+                            <span>Premium Robots</span>
+                        </li>
+                        <li class="flex items-start gap-3 opacity-50">
+                            <i data-lucide="x-circle" class="w-5 h-5 text-gray-500 mt-0.5 flex-shrink-0"></i>
+                            <span>API Access</span>
                         </li>
                     </ul>
                     
                     <a href="/signup?plan=pro" class="block w-full py-3.5 text-center bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-xl font-medium transition">
                         Start 7-Day Free Trial
                     </a>
+                    <p class="text-center text-xs text-gray-500 mt-3">No credit card required</p>
                 </div>
                 
                 <!-- Ultra Plan -->
@@ -224,52 +269,53 @@
                             </div>
                         </div>
                         <div class="flex items-baseline gap-1">
-                            <span class="text-5xl font-bold">$79</span>
-                            <span class="text-gray-400">/month</span>
+                            <span class="text-5xl font-bold" id="ultra-price">$79</span>
+                            <span class="text-gray-400" id="ultra-period">/month</span>
                         </div>
+                        <p class="text-sm text-green-400 mt-1" id="ultra-savings" style="display:none;">Save $190/year</p>
                     </div>
                     
                     <ul class="space-y-4 mb-8">
                         <li class="flex items-start gap-3">
-                            <i data-lucide="check-circle" class="w-5 h-5 text-green-400 mt-0.5"></i>
+                            <i data-lucide="check-circle" class="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0"></i>
                             <div>
                                 <span class="font-medium">Everything in Pro</span>
                                 <p class="text-sm text-gray-400">All Pro features included</p>
                             </div>
                         </li>
                         <li class="flex items-start gap-3">
-                            <i data-lucide="check-circle" class="w-5 h-5 text-purple-400 mt-0.5"></i>
+                            <i data-lucide="check-circle" class="w-5 h-5 text-purple-400 mt-0.5 flex-shrink-0"></i>
                             <div>
                                 <span class="font-medium text-purple-400">All Premium Robots</span>
-                                <p class="text-sm text-gray-400">Divergence, Advanced strategies</p>
+                                <p class="text-sm text-gray-400">Divergence, MACD, Advanced strategies</p>
                             </div>
                         </li>
                         <li class="flex items-start gap-3">
-                            <i data-lucide="check-circle" class="w-5 h-5 text-purple-400 mt-0.5"></i>
+                            <i data-lucide="check-circle" class="w-5 h-5 text-purple-400 mt-0.5 flex-shrink-0"></i>
                             <div>
-                                <span class="font-medium text-purple-400">API Access</span>
-                                <p class="text-sm text-gray-400">Integrate with your tools</p>
+                                <span class="font-medium text-purple-400">Full API Access</span>
+                                <p class="text-sm text-gray-400">Integrate with your trading tools</p>
                             </div>
                         </li>
                         <li class="flex items-start gap-3">
-                            <i data-lucide="check-circle" class="w-5 h-5 text-green-400 mt-0.5"></i>
+                            <i data-lucide="check-circle" class="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0"></i>
                             <div>
                                 <span class="font-medium">1-on-1 Support</span>
-                                <p class="text-sm text-gray-400">Personal assistance</p>
+                                <p class="text-sm text-gray-400">Personal trading assistance</p>
                             </div>
                         </li>
                         <li class="flex items-start gap-3">
-                            <i data-lucide="check-circle" class="w-5 h-5 text-green-400 mt-0.5"></i>
+                            <i data-lucide="check-circle" class="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0"></i>
                             <div>
                                 <span class="font-medium">Early Access</span>
-                                <p class="text-sm text-gray-400">New features first</p>
+                                <p class="text-sm text-gray-400">New features before anyone else</p>
                             </div>
                         </li>
                         <li class="flex items-start gap-3">
-                            <i data-lucide="check-circle" class="w-5 h-5 text-green-400 mt-0.5"></i>
+                            <i data-lucide="check-circle" class="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0"></i>
                             <div>
                                 <span class="font-medium">Custom Strategies</span>
-                                <p class="text-sm text-gray-400">Tailored to your needs</p>
+                                <p class="text-sm text-gray-400">Tailored to your trading style</p>
                             </div>
                         </li>
                     </ul>
@@ -277,6 +323,7 @@
                     <a href="/signup?plan=ultra" class="block w-full py-3.5 text-center bg-white/10 hover:bg-white/20 rounded-xl font-medium transition">
                         Start 7-Day Free Trial
                     </a>
+                    <p class="text-center text-xs text-gray-500 mt-3">No credit card required</p>
                 </div>
             </div>
         </div>
@@ -285,69 +332,119 @@
     <!-- Feature Comparison Table -->
     <section class="py-16 px-6">
         <div class="max-w-5xl mx-auto">
-            <h2 class="text-2xl font-bold text-center mb-12">Feature Comparison</h2>
+            <h2 class="text-2xl font-bold text-center mb-4">Compare All Features</h2>
+            <p class="text-gray-400 text-center mb-12">See exactly what you get with each plan</p>
             
             <div class="card-glass rounded-2xl overflow-hidden">
                 <table class="w-full">
                     <thead>
-                        <tr class="border-b border-white/10">
-                            <th class="text-left p-4 font-medium text-gray-400">Feature</th>
-                            <th class="p-4 text-center font-medium">Free</th>
-                            <th class="p-4 text-center font-medium text-blue-400">Pro</th>
-                            <th class="p-4 text-center font-medium text-purple-400">Ultra</th>
+                        <tr class="border-b border-white/10 bg-white/5">
+                            <th class="text-left p-5 font-medium text-gray-400">Feature</th>
+                            <th class="p-5 text-center font-medium w-28">Free</th>
+                            <th class="p-5 text-center font-medium text-blue-400 w-28">Pro</th>
+                            <th class="p-5 text-center font-medium text-purple-400 w-28">Ultra</th>
                         </tr>
                     </thead>
                     <tbody>
+                        <tr class="border-b border-white/5"><td colspan="4" class="p-3 bg-white/5 font-semibold text-sm">AI & Analysis</td></tr>
                         <tr class="feature-row border-b border-white/5">
-                            <td class="p-4">AI Market Analysis</td>
+                            <td class="p-4 pl-6">AI Market Analysis (GPT-4, Claude, Gemini)</td>
                             <td class="p-4 text-center"><i data-lucide="check" class="w-5 h-5 text-green-400 mx-auto"></i></td>
                             <td class="p-4 text-center"><i data-lucide="check" class="w-5 h-5 text-green-400 mx-auto"></i></td>
                             <td class="p-4 text-center"><i data-lucide="check" class="w-5 h-5 text-green-400 mx-auto"></i></td>
                         </tr>
                         <tr class="feature-row border-b border-white/5">
-                            <td class="p-4">Trade Signals</td>
+                            <td class="p-4 pl-6">Real-time Trade Signals</td>
                             <td class="p-4 text-center"><i data-lucide="check" class="w-5 h-5 text-green-400 mx-auto"></i></td>
                             <td class="p-4 text-center"><i data-lucide="check" class="w-5 h-5 text-green-400 mx-auto"></i></td>
                             <td class="p-4 text-center"><i data-lucide="check" class="w-5 h-5 text-green-400 mx-auto"></i></td>
                         </tr>
                         <tr class="feature-row border-b border-white/5">
-                            <td class="p-4">Free Trading Robots (RSI, Stochastic)</td>
+                            <td class="p-4 pl-6">Multi-Timeframe Analysis</td>
                             <td class="p-4 text-center"><i data-lucide="check" class="w-5 h-5 text-green-400 mx-auto"></i></td>
                             <td class="p-4 text-center"><i data-lucide="check" class="w-5 h-5 text-green-400 mx-auto"></i></td>
                             <td class="p-4 text-center"><i data-lucide="check" class="w-5 h-5 text-green-400 mx-auto"></i></td>
                         </tr>
                         <tr class="feature-row border-b border-white/5">
-                            <td class="p-4">Custom SL Strategies (Pin Bar, Swing Point)</td>
+                            <td class="p-4 pl-6">Advanced Predictions</td>
+                            <td class="p-4 text-center"><i data-lucide="x" class="w-5 h-5 text-gray-500 mx-auto"></i></td>
+                            <td class="p-4 text-center"><i data-lucide="check" class="w-5 h-5 text-green-400 mx-auto"></i></td>
+                            <td class="p-4 text-center"><i data-lucide="check" class="w-5 h-5 text-green-400 mx-auto"></i></td>
+                        </tr>
+                        
+                        <tr class="border-b border-white/5"><td colspan="4" class="p-3 bg-white/5 font-semibold text-sm">Trading Robots</td></tr>
+                        <tr class="feature-row border-b border-white/5">
+                            <td class="p-4 pl-6">RSI Robot</td>
+                            <td class="p-4 text-center"><i data-lucide="check" class="w-5 h-5 text-green-400 mx-auto"></i></td>
+                            <td class="p-4 text-center"><i data-lucide="check" class="w-5 h-5 text-green-400 mx-auto"></i></td>
+                            <td class="p-4 text-center"><i data-lucide="check" class="w-5 h-5 text-green-400 mx-auto"></i></td>
+                        </tr>
+                        <tr class="feature-row border-b border-white/5">
+                            <td class="p-4 pl-6">Stochastic Robot</td>
+                            <td class="p-4 text-center"><i data-lucide="check" class="w-5 h-5 text-green-400 mx-auto"></i></td>
+                            <td class="p-4 text-center"><i data-lucide="check" class="w-5 h-5 text-green-400 mx-auto"></i></td>
+                            <td class="p-4 text-center"><i data-lucide="check" class="w-5 h-5 text-green-400 mx-auto"></i></td>
+                        </tr>
+                        <tr class="feature-row border-b border-white/5">
+                            <td class="p-4 pl-6">Premium Robots (MACD, Divergence, etc.)</td>
+                            <td class="p-4 text-center"><i data-lucide="x" class="w-5 h-5 text-gray-500 mx-auto"></i></td>
+                            <td class="p-4 text-center"><i data-lucide="x" class="w-5 h-5 text-gray-500 mx-auto"></i></td>
+                            <td class="p-4 text-center"><i data-lucide="check" class="w-5 h-5 text-green-400 mx-auto"></i></td>
+                        </tr>
+                        
+                        <tr class="border-b border-white/5"><td colspan="4" class="p-3 bg-white/5 font-semibold text-sm">Risk Management</td></tr>
+                        <tr class="feature-row border-b border-white/5">
+                            <td class="p-4 pl-6">Default SL (ATR, Fixed Pips)</td>
+                            <td class="p-4 text-center"><i data-lucide="check" class="w-5 h-5 text-green-400 mx-auto"></i></td>
+                            <td class="p-4 text-center"><i data-lucide="check" class="w-5 h-5 text-green-400 mx-auto"></i></td>
+                            <td class="p-4 text-center"><i data-lucide="check" class="w-5 h-5 text-green-400 mx-auto"></i></td>
+                        </tr>
+                        <tr class="feature-row border-b border-white/5">
+                            <td class="p-4 pl-6">Custom SL (Pin Bar, Swing Point, Composite)</td>
                             <td class="p-4 text-center"><i data-lucide="x" class="w-5 h-5 text-gray-500 mx-auto"></i></td>
                             <td class="p-4 text-center"><i data-lucide="check" class="w-5 h-5 text-green-400 mx-auto"></i></td>
                             <td class="p-4 text-center"><i data-lucide="check" class="w-5 h-5 text-green-400 mx-auto"></i></td>
                         </tr>
                         <tr class="feature-row border-b border-white/5">
-                            <td class="p-4">Custom TP Strategies (Multi-Target)</td>
+                            <td class="p-4 pl-6">Default TP (Risk/Reward, Fixed Pips)</td>
+                            <td class="p-4 text-center"><i data-lucide="check" class="w-5 h-5 text-green-400 mx-auto"></i></td>
+                            <td class="p-4 text-center"><i data-lucide="check" class="w-5 h-5 text-green-400 mx-auto"></i></td>
+                            <td class="p-4 text-center"><i data-lucide="check" class="w-5 h-5 text-green-400 mx-auto"></i></td>
+                        </tr>
+                        <tr class="feature-row border-b border-white/5">
+                            <td class="p-4 pl-6">Custom TP (Multi-Target, ATR, Composite)</td>
+                            <td class="p-4 text-center"><i data-lucide="x" class="w-5 h-5 text-gray-500 mx-auto"></i></td>
+                            <td class="p-4 text-center"><i data-lucide="check" class="w-5 h-5 text-green-400 mx-auto"></i></td>
+                            <td class="p-4 text-center"><i data-lucide="check" class="w-5 h-5 text-green-400 mx-auto"></i></td>
+                        </tr>
+                        
+                        <tr class="border-b border-white/5"><td colspan="4" class="p-3 bg-white/5 font-semibold text-sm">Support & Extras</td></tr>
+                        <tr class="feature-row border-b border-white/5">
+                            <td class="p-4 pl-6">Community Support</td>
+                            <td class="p-4 text-center"><i data-lucide="check" class="w-5 h-5 text-green-400 mx-auto"></i></td>
+                            <td class="p-4 text-center"><i data-lucide="check" class="w-5 h-5 text-green-400 mx-auto"></i></td>
+                            <td class="p-4 text-center"><i data-lucide="check" class="w-5 h-5 text-green-400 mx-auto"></i></td>
+                        </tr>
+                        <tr class="feature-row border-b border-white/5">
+                            <td class="p-4 pl-6">Priority Support (24h response)</td>
                             <td class="p-4 text-center"><i data-lucide="x" class="w-5 h-5 text-gray-500 mx-auto"></i></td>
                             <td class="p-4 text-center"><i data-lucide="check" class="w-5 h-5 text-green-400 mx-auto"></i></td>
                             <td class="p-4 text-center"><i data-lucide="check" class="w-5 h-5 text-green-400 mx-auto"></i></td>
                         </tr>
                         <tr class="feature-row border-b border-white/5">
-                            <td class="p-4">Premium Trading Robots</td>
+                            <td class="p-4 pl-6">1-on-1 Personal Support</td>
                             <td class="p-4 text-center"><i data-lucide="x" class="w-5 h-5 text-gray-500 mx-auto"></i></td>
                             <td class="p-4 text-center"><i data-lucide="x" class="w-5 h-5 text-gray-500 mx-auto"></i></td>
                             <td class="p-4 text-center"><i data-lucide="check" class="w-5 h-5 text-green-400 mx-auto"></i></td>
                         </tr>
                         <tr class="feature-row border-b border-white/5">
-                            <td class="p-4">API Access</td>
+                            <td class="p-4 pl-6">API Access</td>
                             <td class="p-4 text-center"><i data-lucide="x" class="w-5 h-5 text-gray-500 mx-auto"></i></td>
                             <td class="p-4 text-center"><i data-lucide="x" class="w-5 h-5 text-gray-500 mx-auto"></i></td>
-                            <td class="p-4 text-center"><i data-lucide="check" class="w-5 h-5 text-green-400 mx-auto"></i></td>
-                        </tr>
-                        <tr class="feature-row border-b border-white/5">
-                            <td class="p-4">Priority Support</td>
-                            <td class="p-4 text-center"><i data-lucide="x" class="w-5 h-5 text-gray-500 mx-auto"></i></td>
-                            <td class="p-4 text-center"><i data-lucide="check" class="w-5 h-5 text-green-400 mx-auto"></i></td>
                             <td class="p-4 text-center"><i data-lucide="check" class="w-5 h-5 text-green-400 mx-auto"></i></td>
                         </tr>
                         <tr class="feature-row">
-                            <td class="p-4">1-on-1 Support</td>
+                            <td class="p-4 pl-6">Early Access to New Features</td>
                             <td class="p-4 text-center"><i data-lucide="x" class="w-5 h-5 text-gray-500 mx-auto"></i></td>
                             <td class="p-4 text-center"><i data-lucide="x" class="w-5 h-5 text-gray-500 mx-auto"></i></td>
                             <td class="p-4 text-center"><i data-lucide="check" class="w-5 h-5 text-green-400 mx-auto"></i></td>
@@ -359,48 +456,138 @@
     </section>
 
     <!-- FAQ -->
-    <section class="py-16 px-6 bg-slate-900/50">
+    <section id="faq" class="py-16 px-6 bg-slate-900/30">
         <div class="max-w-3xl mx-auto">
-            <h2 class="text-2xl font-bold text-center mb-12">Frequently Asked Questions</h2>
+            <h2 class="text-2xl font-bold text-center mb-4">Frequently Asked Questions</h2>
+            <p class="text-gray-400 text-center mb-12">Everything you need to know about our pricing</p>
             
             <div class="space-y-4">
-                <div class="card-glass rounded-xl p-6">
-                    <h3 class="font-semibold mb-2">Can I cancel anytime?</h3>
-                    <p class="text-gray-400">Yes, you can cancel your subscription at any time. Your access will continue until the end of your billing period.</p>
+                <div class="faq-item card-glass rounded-xl overflow-hidden">
+                    <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between p-6 text-left">
+                        <span class="font-semibold">Can I cancel my subscription anytime?</span>
+                        <i data-lucide="chevron-down" class="faq-icon w-5 h-5 transition-transform flex-shrink-0"></i>
+                    </button>
+                    <div class="faq-answer px-6 pb-6"><p class="text-gray-400">Yes, you can cancel your subscription at any time with no questions asked. Your access will continue until the end of your current billing period. We don't believe in locking you in.</p></div>
                 </div>
-                <div class="card-glass rounded-xl p-6">
-                    <h3 class="font-semibold mb-2">Is there a free trial?</h3>
-                    <p class="text-gray-400">Yes! Pro and Ultra plans come with a 7-day free trial. No credit card required to start.</p>
+                <div class="faq-item card-glass rounded-xl overflow-hidden">
+                    <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between p-6 text-left">
+                        <span class="font-semibold">Is there a free trial for paid plans?</span>
+                        <i data-lucide="chevron-down" class="faq-icon w-5 h-5 transition-transform flex-shrink-0"></i>
+                    </button>
+                    <div class="faq-answer px-6 pb-6"><p class="text-gray-400">Yes! Both Pro and Ultra plans come with a 7-day free trial. No credit card is required to start your trial. You'll only be charged if you decide to continue after the trial period.</p></div>
                 </div>
-                <div class="card-glass rounded-xl p-6">
-                    <h3 class="font-semibold mb-2">What payment methods do you accept?</h3>
-                    <p class="text-gray-400">We accept all major credit cards, PayPal, and cryptocurrency payments.</p>
+                <div class="faq-item card-glass rounded-xl overflow-hidden">
+                    <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between p-6 text-left">
+                        <span class="font-semibold">What payment methods do you accept?</span>
+                        <i data-lucide="chevron-down" class="faq-icon w-5 h-5 transition-transform flex-shrink-0"></i>
+                    </button>
+                    <div class="faq-answer px-6 pb-6"><p class="text-gray-400">We accept all major credit cards (Visa, MasterCard, American Express), PayPal, and cryptocurrency payments (Bitcoin, Ethereum, USDT). All payments are processed securely.</p></div>
                 </div>
-                <div class="card-glass rounded-xl p-6">
-                    <h3 class="font-semibold mb-2">Can I upgrade or downgrade my plan?</h3>
-                    <p class="text-gray-400">Yes, you can change your plan at any time. Changes take effect immediately.</p>
+                <div class="faq-item card-glass rounded-xl overflow-hidden">
+                    <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between p-6 text-left">
+                        <span class="font-semibold">Can I upgrade or downgrade my plan?</span>
+                        <i data-lucide="chevron-down" class="faq-icon w-5 h-5 transition-transform flex-shrink-0"></i>
+                    </button>
+                    <div class="faq-answer px-6 pb-6"><p class="text-gray-400">Yes, you can change your plan at any time. When upgrading, you'll be charged the prorated difference. When downgrading, the change takes effect at the start of your next billing cycle.</p></div>
+                </div>
+                <div class="faq-item card-glass rounded-xl overflow-hidden">
+                    <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between p-6 text-left">
+                        <span class="font-semibold">Do you offer refunds?</span>
+                        <i data-lucide="chevron-down" class="faq-icon w-5 h-5 transition-transform flex-shrink-0"></i>
+                    </button>
+                    <div class="faq-answer px-6 pb-6"><p class="text-gray-400">We offer a 30-day money-back guarantee for all paid plans. If you're not satisfied with our service, contact our support team within 30 days of your purchase for a full refund.</p></div>
+                </div>
+                <div class="faq-item card-glass rounded-xl overflow-hidden">
+                    <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between p-6 text-left">
+                        <span class="font-semibold">What's the difference between Free and Pro?</span>
+                        <i data-lucide="chevron-down" class="faq-icon w-5 h-5 transition-transform flex-shrink-0"></i>
+                    </button>
+                    <div class="faq-answer px-6 pb-6"><p class="text-gray-400">Free users get access to AI analysis, basic signals, and 2 trading robots with default SL/TP settings. Pro users unlock the ability to customize SL/TP strategies (Pin Bar, Swing Point, Multi-Target), get advanced analysis, and priority support.</p></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 px-6">
+        <div class="max-w-4xl mx-auto text-center">
+            <div class="card-glass rounded-3xl p-12 glow-blue">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">Ready to Start Trading Smarter?</h2>
+                <p class="text-gray-400 mb-8 max-w-xl mx-auto">Join thousands of traders who use Forex Assistant to make better trading decisions. Start your free trial today.</p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="/signup" class="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-xl font-semibold text-lg transition shadow-xl flex items-center justify-center gap-2">
+                        <i data-lucide="rocket" class="w-5 h-5"></i>
+                        Start Free Trial
+                    </a>
+                    <a href="/#features" class="px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl font-semibold text-lg transition flex items-center justify-center gap-2">
+                        <i data-lucide="info" class="w-5 h-5"></i>
+                        Learn More
+                    </a>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer class="py-12 px-6 border-t border-white/10">
+    <footer class="py-16 px-6 border-t border-white/5 bg-slate-900/50">
         <div class="max-w-7xl mx-auto">
-            <div class="flex flex-col md:flex-row items-center justify-between gap-6">
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                        <i data-lucide="trending-up" class="w-4 h-4"></i>
+            <div class="grid md:grid-cols-2 lg:grid-cols-5 gap-8 mb-12">
+                <div class="lg:col-span-1">
+                    <a href="/" class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center"><i data-lucide="trending-up" class="w-6 h-6"></i></div>
+                        <span class="text-xl font-bold">Forex Assistant</span>
+                    </a>
+                    <p class="text-gray-400 text-sm">AI-powered trading analysis platform for forex, commodities, indices, and crypto.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Forex Assistant</h4>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="/#features" class="hover:text-white transition">Features</a></li>
+                        <li><a href="/pricing" class="hover:text-white transition">Pricing</a></li>
+                        <li><a href="/#assets" class="hover:text-white transition">Assets</a></li>
+                        <li><a href="#" class="hover:text-white transition">Community</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Company</h4>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="#" class="hover:text-white transition">About</a></li>
+                        <li><a href="#" class="hover:text-white transition">Blog</a></li>
+                        <li><a href="#" class="hover:text-white transition">Careers</a></li>
+                        <li><a href="#" class="hover:text-white transition">Contact</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Help Center</h4>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="#faq" class="hover:text-white transition">FAQs</a></li>
+                        <li><a href="#" class="hover:text-white transition">Support</a></li>
+                        <li><a href="#" class="hover:text-white transition">Documentation</a></li>
+                        <li><a href="#" class="hover:text-white transition">API Reference</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Legal</h4>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="#" class="hover:text-white transition">Privacy Policy</a></li>
+                        <li><a href="#" class="hover:text-white transition">Terms of Service</a></li>
+                        <li><a href="#" class="hover:text-white transition">Cookie Policy</a></li>
+                        <li><a href="#" class="hover:text-white transition">Risk Disclosure</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="pt-8 border-t border-white/5">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                    <p class="text-sm text-gray-500">Tools for futures, currency, and options involves substantial risk and is not appropriate for everyone. Only risk capital should be used for trading.</p>
+                </div>
+                <div class="flex flex-col md:flex-row items-center justify-between gap-4 mt-6">
+                    <div class="flex items-center gap-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition"><i data-lucide="twitter" class="w-5 h-5"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition"><i data-lucide="youtube" class="w-5 h-5"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition"><i data-lucide="instagram" class="w-5 h-5"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition"><i data-lucide="facebook" class="w-5 h-5"></i></a>
                     </div>
-                    <span class="font-semibold">Forex Assistant</span>
-                </div>
-                <div class="flex items-center gap-6 text-sm text-gray-400">
-                    <a href="#" class="hover:text-white transition">Terms</a>
-                    <a href="#" class="hover:text-white transition">Privacy</a>
-                    <a href="#" class="hover:text-white transition">Contact</a>
-                </div>
-                <div class="text-sm text-gray-500">
-                    © 2024 Forex Assistant. All rights reserved.
+                    <p class="text-sm text-gray-500">© 2024 Forex Assistant. All rights reserved. Charts by <a href="https://tradingview.com" class="text-blue-400 hover:text-blue-300">TradingView</a></p>
                 </div>
             </div>
         </div>
@@ -408,6 +595,45 @@
 
     <script>
         lucide.createIcons();
+        
+        function toggleFaq(btn) {
+            const item = btn.parentElement;
+            item.classList.toggle('active');
+        }
+        
+        let currentBilling = 'monthly';
+        
+        function setBilling(type) {
+            currentBilling = type;
+            const btnMonthly = document.getElementById('btn-monthly');
+            const btnYearly = document.getElementById('btn-yearly');
+            const proPrice = document.getElementById('pro-price');
+            const proPeriod = document.getElementById('pro-period');
+            const proSavings = document.getElementById('pro-savings');
+            const ultraPrice = document.getElementById('ultra-price');
+            const ultraPeriod = document.getElementById('ultra-period');
+            const ultraSavings = document.getElementById('ultra-savings');
+            
+            if (type === 'monthly') {
+                btnMonthly.classList.add('active');
+                btnYearly.classList.remove('active');
+                proPrice.textContent = '$29';
+                proPeriod.textContent = '/month';
+                proSavings.style.display = 'none';
+                ultraPrice.textContent = '$79';
+                ultraPeriod.textContent = '/month';
+                ultraSavings.style.display = 'none';
+            } else {
+                btnMonthly.classList.remove('active');
+                btnYearly.classList.add('active');
+                proPrice.textContent = '$278';
+                proPeriod.textContent = '/year';
+                proSavings.style.display = 'block';
+                ultraPrice.textContent = '$758';
+                ultraPeriod.textContent = '/year';
+                ultraSavings.style.display = 'block';
+            }
+        }
     </script>
 </body>
 </html>

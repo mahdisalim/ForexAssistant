@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Features - Forex Assistant</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon32.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .gradient-bg { background: linear-gradient(135deg, #0a0a12 0%, #12121f 50%, #0d1a2d 100%); }
+        .hero-gradient { background: radial-gradient(ellipse at center top, rgba(59, 130, 246, 0.12) 0%, transparent 60%); }
+        .card-glass { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.06); }
+        .card-glass:hover { background: rgba(255, 255, 255, 0.04); border-color: rgba(255, 255, 255, 0.1); }
+        .glow-blue { box-shadow: 0 0 60px rgba(59, 130, 246, 0.2); }
+        .dropdown-menu { opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.2s ease 0.15s; pointer-events: none; }
+        .dropdown:hover .dropdown-menu { opacity: 1; visibility: visible; transform: translateY(0); pointer-events: auto; transition-delay: 0s; }
+        .feature-card { transition: all 0.3s ease; }
+        .feature-card:hover { transform: translateY(-4px); border-color: rgba(99, 102, 241, 0.3); }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen text-white">
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-slate-900/90 backdrop-blur-xl border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-6 py-3">
+            <div class="flex items-center justify-between">
+                <a href="/" class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                        <i data-lucide="trending-up" class="w-6 h-6"></i>
+                    </div>
+                    <span class="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Forex Assistant</span>
+                </a>
+                <div class="hidden lg:flex items-center gap-1">
+                    <div class="dropdown relative">
+                        <a href="/features" class="flex items-center gap-1 px-4 py-2 text-white font-medium transition rounded-lg bg-white/5">Features<i data-lucide="chevron-down" class="w-4 h-4 ml-1"></i></a>
+                        <div class="dropdown-menu absolute top-full left-0 mt-2 w-80 card-glass rounded-xl shadow-2xl p-4">
+                            <a href="/features#ai-analysis" class="flex items-start gap-3 p-3 rounded-lg hover:bg-white/5 transition">
+                                <div class="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="brain" class="w-5 h-5 text-purple-400"></i></div>
+                                <div><div class="font-medium">AI Analysis</div><div class="text-sm text-gray-400">Advanced AI-powered market analysis</div></div>
+                            </a>
+                            <a href="/features#signals" class="flex items-start gap-3 p-3 rounded-lg hover:bg-white/5 transition">
+                                <div class="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="zap" class="w-5 h-5 text-blue-400"></i></div>
+                                <div><div class="font-medium">Trade Signals</div><div class="text-sm text-gray-400">Real-time buy/sell signals</div></div>
+                            </a>
+                            <a href="/features#robots" class="flex items-start gap-3 p-3 rounded-lg hover:bg-white/5 transition">
+                                <div class="w-10 h-10 bg-yellow-500/20 rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="bot" class="w-5 h-5 text-yellow-400"></i></div>
+                                <div><div class="font-medium">Trading Robots</div><div class="text-sm text-gray-400">Automated RSI, Stochastic strategies</div></div>
+                            </a>
+                            <a href="/features#mtf" class="flex items-start gap-3 p-3 rounded-lg hover:bg-white/5 transition">
+                                <div class="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="layers" class="w-5 h-5 text-green-400"></i></div>
+                                <div><div class="font-medium">Multi-Timeframe</div><div class="text-sm text-gray-400">M1 to Monthly analysis</div></div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="dropdown relative">
+                        <a href="/resources" class="flex items-center gap-1 px-4 py-2 text-gray-300 hover:text-white transition rounded-lg hover:bg-white/5">Resources<i data-lucide="chevron-down" class="w-4 h-4 ml-1"></i></a>
+                        <div class="dropdown-menu absolute top-full left-0 mt-2 w-80 card-glass rounded-xl shadow-2xl p-4">
+                            <a href="/resources#tradingview" class="flex items-start gap-3 p-3 rounded-lg hover:bg-white/5 transition">
+                                <div class="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="line-chart" class="w-5 h-5 text-blue-400"></i></div>
+                                <div><div class="font-medium">TradingView Charts</div><div class="text-sm text-gray-400">Professional charts integration</div></div>
+                            </a>
+                            <a href="/resources#news" class="flex items-start gap-3 p-3 rounded-lg hover:bg-white/5 transition">
+                                <div class="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="newspaper" class="w-5 h-5 text-green-400"></i></div>
+                                <div><div class="font-medium">News Aggregator</div><div class="text-sm text-gray-400">ForexFactory, Investing.com feeds</div></div>
+                            </a>
+                            <a href="/resources#ai-models" class="flex items-start gap-3 p-3 rounded-lg hover:bg-white/5 transition">
+                                <div class="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="sparkles" class="w-5 h-5 text-purple-400"></i></div>
+                                <div><div class="font-medium">AI Models</div><div class="text-sm text-gray-400">GPT-4, Claude, Gemini powered</div></div>
+                            </a>
+                            <a href="/resources#faq" class="flex items-start gap-3 p-3 rounded-lg hover:bg-white/5 transition">
+                                <div class="w-10 h-10 bg-orange-500/20 rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="help-circle" class="w-5 h-5 text-orange-400"></i></div>
+                                <div><div class="font-medium">FAQs</div><div class="text-sm text-gray-400">Frequently asked questions</div></div>
+                            </a>
+                        </div>
+                    </div>
+                    <a href="/pricing" class="px-4 py-2 text-gray-300 hover:text-white transition rounded-lg hover:bg-white/5">Pricing</a>
+                    <a href="/assets" class="px-4 py-2 text-gray-300 hover:text-white transition rounded-lg hover:bg-white/5">Assets</a>
+                </div>
+                <div class="flex items-center gap-3">
+                    <a href="/signin" class="hidden sm:block px-4 py-2 text-gray-300 hover:text-white transition">Sign In</a>
+                    <a href="/signup" class="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-full font-medium transition shadow-lg text-sm">Try Free</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <section class="pt-28 pb-12 px-6 hero-gradient">
+        <div class="max-w-4xl mx-auto text-center">
+            <div class="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/10 border border-purple-500/20 rounded-full text-purple-400 text-sm mb-6">
+                <i data-lucide="sparkles" class="w-4 h-4"></i>
+                Powerful Trading Tools
+            </div>
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">Features Built for Traders</h1>
+            <p class="text-xl text-gray-400">Everything you need to analyze markets and make profitable trading decisions</p>
+        </div>
+    </section>
+
+    <!-- AI Analysis Feature -->
+    <section id="ai-analysis" class="py-20 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <div class="inline-flex items-center gap-2 px-3 py-1 bg-purple-500/20 rounded-full text-purple-400 text-sm mb-4">
+                        <i data-lucide="brain" class="w-4 h-4"></i>
+                        AI-Powered
+                    </div>
+                    <h2 class="text-3xl md:text-4xl font-bold mb-6">Advanced AI Market Analysis</h2>
+                    <p class="text-gray-400 text-lg mb-6">Our AI system aggregates data from multiple sources and uses advanced language models to provide you with comprehensive market analysis and actionable insights.</p>
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-start gap-3">
+                            <div class="w-6 h-6 bg-green-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"><i data-lucide="check" class="w-4 h-4 text-green-400"></i></div>
+                            <div><span class="font-medium">Multiple AI Models</span><p class="text-sm text-gray-400">Powered by GPT-4, Claude, and Gemini for diverse perspectives</p></div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <div class="w-6 h-6 bg-green-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"><i data-lucide="check" class="w-4 h-4 text-green-400"></i></div>
+                            <div><span class="font-medium">Sentiment Analysis</span><p class="text-sm text-gray-400">Real-time market sentiment from news and social media</p></div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <div class="w-6 h-6 bg-green-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"><i data-lucide="check" class="w-4 h-4 text-green-400"></i></div>
+                            <div><span class="font-medium">Technical Analysis</span><p class="text-sm text-gray-400">Automated pattern recognition and indicator analysis</p></div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <div class="w-6 h-6 bg-green-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"><i data-lucide="check" class="w-4 h-4 text-green-400"></i></div>
+                            <div><span class="font-medium">Multi-Language Output</span><p class="text-sm text-gray-400">Get analysis in 14+ languages including Persian, Arabic, Turkish</p></div>
+                        </li>
+                    </ul>
+                    <a href="/signup" class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-xl font-medium transition">
+                        <i data-lucide="rocket" class="w-5 h-5"></i>Try AI Analysis Free
+                    </a>
+                </div>
+                <div class="card-glass rounded-2xl p-6 glow-blue">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                        <span class="text-xs text-gray-500 ml-2">AI Analysis Output</span>
+                    </div>
+                    <div class="space-y-4 text-sm">
+                        <div class="p-4 bg-white/5 rounded-lg">
+                            <div class="flex items-center gap-2 mb-2"><i data-lucide="brain" class="w-4 h-4 text-purple-400"></i><span class="font-medium text-purple-400">GPT-4 Analysis</span></div>
+                            <p class="text-gray-300">EUR/USD showing bullish momentum with RSI divergence on H4. Key resistance at 1.0920. Recommend BUY with 85% confidence.</p>
+                        </div>
+                        <div class="p-4 bg-white/5 rounded-lg">
+                            <div class="flex items-center gap-2 mb-2"><i data-lucide="sparkles" class="w-4 h-4 text-blue-400"></i><span class="font-medium text-blue-400">Claude Analysis</span></div>
+                            <p class="text-gray-300">Technical indicators align with fundamental news. ECB hawkish stance supports EUR strength. Risk/Reward: 1:2.5</p>
+                        </div>
+                        <div class="p-4 bg-white/5 rounded-lg">
+                            <div class="flex items-center gap-2 mb-2"><i data-lucide="zap" class="w-4 h-4 text-green-400"></i><span class="font-medium text-green-400">Combined Signal</span></div>
+                            <p class="text-gray-300"><span class="text-green-400 font-bold">BUY EUR/USD</span> @ 1.0856 | SL: 1.0820 | TP: 1.0920</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trade Signals Feature -->
+    <section id="signals" class="py-20 px-6 bg-slate-900/30">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div class="order-2 lg:order-1 card-glass rounded-2xl p-6">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                        <span class="text-xs text-gray-500 ml-2">Live Signals</span>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center"><i data-lucide="trending-up" class="w-6 h-6 text-green-400"></i></div>
+                                <div><div class="font-semibold">EUR/USD</div><div class="text-sm text-gray-400">Entry: 1.0856</div></div>
+                            </div>
+                            <div class="text-right"><div class="text-green-400 font-bold">BUY</div><div class="text-xs text-gray-400">SL: 1.0820 | TP: 1.0920</div></div>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 bg-red-500/20 rounded-xl flex items-center justify-center"><i data-lucide="trending-down" class="w-6 h-6 text-red-400"></i></div>
+                                <div><div class="font-semibold">GBP/USD</div><div class="text-sm text-gray-400">Entry: 1.2650</div></div>
+                            </div>
+                            <div class="text-right"><div class="text-red-400 font-bold">SELL</div><div class="text-xs text-gray-400">SL: 1.2700 | TP: 1.2550</div></div>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 bg-yellow-500/20 rounded-xl flex items-center justify-center"><span class="text-yellow-400 font-bold text-sm">XAU</span></div>
+                                <div><div class="font-semibold">Gold</div><div class="text-sm text-gray-400">Entry: 2,645.30</div></div>
+                            </div>
+                            <div class="text-right"><div class="text-green-400 font-bold">BUY</div><div class="text-xs text-gray-400">SL: 2,630 | TP: 2,680</div></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="order-1 lg:order-2">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 bg-blue-500/20 rounded-full text-blue-400 text-sm mb-4">
+                        <i data-lucide="zap" class="w-4 h-4"></i>
+                        Real-Time
+                    </div>
+                    <h2 class="text-3xl md:text-4xl font-bold mb-6">Precise Trade Signals</h2>
+                    <p class="text-gray-400 text-lg mb-6">Get instant buy/sell signals with precise entry points, stop-loss levels, and take-profit targets based on comprehensive AI analysis.</p>
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-start gap-3">
+                            <div class="w-6 h-6 bg-green-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"><i data-lucide="check" class="w-4 h-4 text-green-400"></i></div>
+                            <div><span class="font-medium">Entry, SL & TP Levels</span><p class="text-sm text-gray-400">Precise price levels for every trade</p></div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <div class="w-6 h-6 bg-green-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"><i data-lucide="check" class="w-4 h-4 text-green-400"></i></div>
+                            <div><span class="font-medium">Confidence Percentage</span><p class="text-sm text-gray-400">Know how confident the AI is in each signal</p></div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <div class="w-6 h-6 bg-green-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"><i data-lucide="check" class="w-4 h-4 text-green-400"></i></div>
+                            <div><span class="font-medium">Risk/Reward Ratio</span><p class="text-sm text-gray-400">Calculated R:R for every signal</p></div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trading Robots Feature -->
+    <section id="robots" class="py-20 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <div class="inline-flex items-center gap-2 px-3 py-1 bg-yellow-500/20 rounded-full text-yellow-400 text-sm mb-4">
+                        <i data-lucide="bot" class="w-4 h-4"></i>
+                        Automated
+                    </div>
+                    <h2 class="text-3xl md:text-4xl font-bold mb-6">Trading Robots</h2>
+                    <p class="text-gray-400 text-lg mb-6">Automated trading robots with proven strategies. Let the bots analyze and trade while you focus on other things.</p>
+                    <div class="grid grid-cols-2 gap-4 mb-8">
+                        <div class="card-glass rounded-xl p-4">
+                            <div class="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center mb-3"><i data-lucide="activity" class="w-5 h-5 text-blue-400"></i></div>
+                            <h4 class="font-semibold mb-1">RSI Robot</h4>
+                            <p class="text-xs text-gray-400">Trades based on RSI overbought/oversold signals</p>
+                            <span class="inline-block mt-2 text-xs px-2 py-1 bg-green-500/20 text-green-400 rounded-full">Free</span>
+                        </div>
+                        <div class="card-glass rounded-xl p-4">
+                            <div class="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center mb-3"><i data-lucide="bar-chart-2" class="w-5 h-5 text-purple-400"></i></div>
+                            <h4 class="font-semibold mb-1">Stochastic Robot</h4>
+                            <p class="text-xs text-gray-400">Stochastic oscillator crossover strategy</p>
+                            <span class="inline-block mt-2 text-xs px-2 py-1 bg-green-500/20 text-green-400 rounded-full">Free</span>
+                        </div>
+                        <div class="card-glass rounded-xl p-4">
+                            <div class="w-10 h-10 bg-orange-500/20 rounded-lg flex items-center justify-center mb-3"><i data-lucide="git-branch" class="w-5 h-5 text-orange-400"></i></div>
+                            <h4 class="font-semibold mb-1">MACD Robot</h4>
+                            <p class="text-xs text-gray-400">MACD crossover and divergence signals</p>
+                            <span class="inline-block mt-2 text-xs px-2 py-1 bg-purple-500/20 text-purple-400 rounded-full">Ultra</span>
+                        </div>
+                        <div class="card-glass rounded-xl p-4">
+                            <div class="w-10 h-10 bg-red-500/20 rounded-lg flex items-center justify-center mb-3"><i data-lucide="split" class="w-5 h-5 text-red-400"></i></div>
+                            <h4 class="font-semibold mb-1">Divergence Robot</h4>
+                            <p class="text-xs text-gray-400">Detects and trades price divergences</p>
+                            <span class="inline-block mt-2 text-xs px-2 py-1 bg-purple-500/20 text-purple-400 rounded-full">Ultra</span>
+                        </div>
+                    </div>
+                    <a href="/signup" class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-xl font-medium transition">
+                        <i data-lucide="bot" class="w-5 h-5"></i>Start Using Robots
+                    </a>
+                </div>
+                <div class="card-glass rounded-2xl p-6">
+                    <h4 class="font-semibold mb-4 flex items-center gap-2"><i data-lucide="settings" class="w-5 h-5 text-gray-400"></i>Robot Configuration</h4>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-white/5 rounded-lg">
+                            <label class="text-sm text-gray-400 mb-2 block">Stop Loss Strategy</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div class="p-2 bg-blue-500/20 border border-blue-500/30 rounded text-sm text-center">ATR-Based</div>
+                                <div class="p-2 bg-white/5 border border-white/10 rounded text-sm text-center text-gray-400">Fixed Pips</div>
+                                <div class="p-2 bg-white/5 border border-white/10 rounded text-sm text-center text-gray-400">Pin Bar <span class="text-xs text-blue-400">Pro</span></div>
+                                <div class="p-2 bg-white/5 border border-white/10 rounded text-sm text-center text-gray-400">Swing Point <span class="text-xs text-blue-400">Pro</span></div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-white/5 rounded-lg">
+                            <label class="text-sm text-gray-400 mb-2 block">Take Profit Strategy</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div class="p-2 bg-green-500/20 border border-green-500/30 rounded text-sm text-center">Risk/Reward</div>
+                                <div class="p-2 bg-white/5 border border-white/10 rounded text-sm text-center text-gray-400">Fixed Pips</div>
+                                <div class="p-2 bg-white/5 border border-white/10 rounded text-sm text-center text-gray-400">Multi-Target <span class="text-xs text-blue-400">Pro</span></div>
+                                <div class="p-2 bg-white/5 border border-white/10 rounded text-sm text-center text-gray-400">ATR-Based <span class="text-xs text-blue-400">Pro</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Multi-Timeframe Feature -->
+    <section id="mtf" class="py-20 px-6 bg-slate-900/30">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12">
+                <div class="inline-flex items-center gap-2 px-3 py-1 bg-green-500/20 rounded-full text-green-400 text-sm mb-4">
+                    <i data-lucide="layers" class="w-4 h-4"></i>
+                    Multi-Timeframe
+                </div>
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">Analyze Across All Timeframes</h2>
+                <p class="text-gray-400 text-lg max-w-2xl mx-auto">Get the complete picture by analyzing markets across multiple timeframes from 1-minute to monthly charts.</p>
+            </div>
+            <div class="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-4">
+                <div class="card-glass rounded-xl p-4 text-center"><div class="text-2xl font-bold text-blue-400">M1</div><div class="text-xs text-gray-400">1 Minute</div></div>
+                <div class="card-glass rounded-xl p-4 text-center"><div class="text-2xl font-bold text-blue-400">M5</div><div class="text-xs text-gray-400">5 Minutes</div></div>
+                <div class="card-glass rounded-xl p-4 text-center"><div class="text-2xl font-bold text-blue-400">M15</div><div class="text-xs text-gray-400">15 Minutes</div></div>
+                <div class="card-glass rounded-xl p-4 text-center"><div class="text-2xl font-bold text-blue-400">M30</div><div class="text-xs text-gray-400">30 Minutes</div></div>
+                <div class="card-glass rounded-xl p-4 text-center"><div class="text-2xl font-bold text-purple-400">H1</div><div class="text-xs text-gray-400">1 Hour</div></div>
+                <div class="card-glass rounded-xl p-4 text-center"><div class="text-2xl font-bold text-purple-400">H4</div><div class="text-xs text-gray-400">4 Hours</div></div>
+                <div class="card-glass rounded-xl p-4 text-center"><div class="text-2xl font-bold text-green-400">D1</div><div class="text-xs text-gray-400">Daily</div></div>
+                <div class="card-glass rounded-xl p-4 text-center"><div class="text-2xl font-bold text-green-400">W1</div><div class="text-xs text-gray-400">Weekly</div></div>
+                <div class="card-glass rounded-xl p-4 text-center"><div class="text-2xl font-bold text-green-400">MN</div><div class="text-xs text-gray-400">Monthly</div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Risk Management Feature -->
+    <section class="py-20 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <div class="inline-flex items-center gap-2 px-3 py-1 bg-red-500/20 rounded-full text-red-400 text-sm mb-4">
+                        <i data-lucide="shield-check" class="w-4 h-4"></i>
+                        Risk Management
+                    </div>
+                    <h2 class="text-3xl md:text-4xl font-bold mb-6">Advanced Risk Management</h2>
+                    <p class="text-gray-400 text-lg mb-6">Protect your capital with our advanced risk management tools. Multiple SL/TP strategies to fit your trading style.</p>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="card-glass rounded-xl p-5">
+                        <h4 class="font-semibold mb-3 text-blue-400">Stop Loss Strategies</h4>
+                        <ul class="space-y-2 text-sm">
+                            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-green-400"></i>ATR-Based</li>
+                            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-green-400"></i>Fixed Pips</li>
+                            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-blue-400"></i>Pin Bar <span class="text-xs text-blue-400">Pro</span></li>
+                            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-blue-400"></i>Swing Point <span class="text-xs text-blue-400">Pro</span></li>
+                            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-blue-400"></i>Composite <span class="text-xs text-blue-400">Pro</span></li>
+                        </ul>
+                    </div>
+                    <div class="card-glass rounded-xl p-5">
+                        <h4 class="font-semibold mb-3 text-green-400">Take Profit Strategies</h4>
+                        <ul class="space-y-2 text-sm">
+                            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-green-400"></i>Risk/Reward</li>
+                            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-green-400"></i>Fixed Pips</li>
+                            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-blue-400"></i>Multi-Target <span class="text-xs text-blue-400">Pro</span></li>
+                            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-blue-400"></i>ATR-Based <span class="text-xs text-blue-400">Pro</span></li>
+                            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-blue-400"></i>Composite <span class="text-xs text-blue-400">Pro</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 px-6 bg-slate-900/30">
+        <div class="max-w-4xl mx-auto text-center">
+            <div class="card-glass rounded-3xl p-12 glow-blue">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">Ready to Start Trading Smarter?</h2>
+                <p class="text-gray-400 mb-8 max-w-xl mx-auto">Join thousands of traders who use Forex Assistant to make better trading decisions.</p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="/signup" class="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-xl font-semibold text-lg transition shadow-xl flex items-center justify-center gap-2">
+                        <i data-lucide="rocket" class="w-5 h-5"></i>Start Free Trial
+                    </a>
+                    <a href="/pricing" class="px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl font-semibold text-lg transition flex items-center justify-center gap-2">
+                        <i data-lucide="credit-card" class="w-5 h-5"></i>View Pricing
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 px-6 border-t border-white/5">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center"><i data-lucide="trending-up" class="w-4 h-4"></i></div>
+                    <span class="font-semibold">Forex Assistant</span>
+                </div>
+                <div class="flex items-center gap-6 text-sm text-gray-400">
+                    <a href="/features" class="hover:text-white transition">Features</a>
+                    <a href="/resources" class="hover:text-white transition">Resources</a>
+                    <a href="/pricing" class="hover:text-white transition">Pricing</a>
+                    <a href="#" class="hover:text-white transition">Contact</a>
+                </div>
+                <div class="text-sm text-gray-500">© 2024 Forex Assistant. All rights reserved.</div>
+            </div>
+        </div>
+    </footer>
+
+    <script>lucide.createIcons();</script>
+</body>
+</html>

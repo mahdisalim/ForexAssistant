@@ -116,6 +116,24 @@ async def pricing_page(request: Request):
     return templates.TemplateResponse("pricing.html", {"request": request})
 
 
+@app.get("/features", response_class=HTMLResponse)
+async def features_page(request: Request):
+    """Features page"""
+    return templates.TemplateResponse("features.html", {"request": request})
+
+
+@app.get("/resources", response_class=HTMLResponse)
+async def resources_page(request: Request):
+    """Resources page"""
+    return templates.TemplateResponse("resources.html", {"request": request})
+
+
+@app.get("/assets", response_class=HTMLResponse)
+async def assets_page(request: Request):
+    """Assets page"""
+    return templates.TemplateResponse("assets.html", {"request": request})
+
+
 @app.get("/signup", response_class=HTMLResponse)
 async def signup_page(request: Request):
     """Sign up page"""

@@ -15,8 +15,8 @@
         .glow-blue { box-shadow: 0 0 60px rgba(59, 130, 246, 0.2); }
         .animate-float { animation: float 6s ease-in-out infinite; }
         @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-15px); } }
-        .dropdown-menu { opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.2s ease; }
-        .dropdown:hover .dropdown-menu { opacity: 1; visibility: visible; transform: translateY(0); }
+        .dropdown-menu { opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.2s ease 0.15s; pointer-events: none; }
+        .dropdown:hover .dropdown-menu { opacity: 1; visibility: visible; transform: translateY(0); pointer-events: auto; transition-delay: 0s; }
         .pricing-card:hover { transform: translateY(-8px); border-color: rgba(99, 102, 241, 0.4); }
         .pricing-card, .feature-card { transition: all 0.3s ease; }
         .feature-card:hover { transform: translateY(-4px); border-color: rgba(99, 102, 241, 0.3); }
@@ -41,49 +41,49 @@
                 </a>
                 <div class="hidden lg:flex items-center gap-1">
                     <div class="dropdown relative">
-                        <button class="flex items-center gap-1 px-4 py-2 text-gray-300 hover:text-white transition rounded-lg hover:bg-white/5">Features<i data-lucide="chevron-down" class="w-4 h-4 ml-1"></i></button>
+                        <a href="/features" class="flex items-center gap-1 px-4 py-2 text-gray-300 hover:text-white transition rounded-lg hover:bg-white/5">Features<i data-lucide="chevron-down" class="w-4 h-4 ml-1"></i></a>
                         <div class="dropdown-menu absolute top-full left-0 mt-2 w-80 card-glass rounded-xl shadow-2xl p-4">
-                            <a href="#ai-analysis" class="flex items-start gap-3 p-3 rounded-lg hover:bg-white/5 transition">
+                            <a href="/features#ai-analysis" class="flex items-start gap-3 p-3 rounded-lg hover:bg-white/5 transition">
                                 <div class="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="brain" class="w-5 h-5 text-purple-400"></i></div>
                                 <div><div class="font-medium">AI Analysis</div><div class="text-sm text-gray-400">Advanced AI-powered market analysis</div></div>
                             </a>
-                            <a href="#signals" class="flex items-start gap-3 p-3 rounded-lg hover:bg-white/5 transition">
+                            <a href="/features#signals" class="flex items-start gap-3 p-3 rounded-lg hover:bg-white/5 transition">
                                 <div class="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="zap" class="w-5 h-5 text-blue-400"></i></div>
                                 <div><div class="font-medium">Trade Signals</div><div class="text-sm text-gray-400">Real-time buy/sell signals</div></div>
                             </a>
-                            <a href="#robots" class="flex items-start gap-3 p-3 rounded-lg hover:bg-white/5 transition">
+                            <a href="/features#robots" class="flex items-start gap-3 p-3 rounded-lg hover:bg-white/5 transition">
                                 <div class="w-10 h-10 bg-yellow-500/20 rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="bot" class="w-5 h-5 text-yellow-400"></i></div>
                                 <div><div class="font-medium">Trading Robots</div><div class="text-sm text-gray-400">Automated RSI, Stochastic strategies</div></div>
                             </a>
-                            <a href="#mtf" class="flex items-start gap-3 p-3 rounded-lg hover:bg-white/5 transition">
+                            <a href="/features#mtf" class="flex items-start gap-3 p-3 rounded-lg hover:bg-white/5 transition">
                                 <div class="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="layers" class="w-5 h-5 text-green-400"></i></div>
                                 <div><div class="font-medium">Multi-Timeframe</div><div class="text-sm text-gray-400">M1 to Monthly analysis</div></div>
                             </a>
                         </div>
                     </div>
                     <div class="dropdown relative">
-                        <button class="flex items-center gap-1 px-4 py-2 text-gray-300 hover:text-white transition rounded-lg hover:bg-white/5">Resources<i data-lucide="chevron-down" class="w-4 h-4 ml-1"></i></button>
+                        <a href="/resources" class="flex items-center gap-1 px-4 py-2 text-gray-300 hover:text-white transition rounded-lg hover:bg-white/5">Resources<i data-lucide="chevron-down" class="w-4 h-4 ml-1"></i></a>
                         <div class="dropdown-menu absolute top-full left-0 mt-2 w-80 card-glass rounded-xl shadow-2xl p-4">
-                            <a href="#" class="flex items-start gap-3 p-3 rounded-lg hover:bg-white/5 transition">
+                            <a href="/resources#tradingview" class="flex items-start gap-3 p-3 rounded-lg hover:bg-white/5 transition">
                                 <div class="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="line-chart" class="w-5 h-5 text-blue-400"></i></div>
                                 <div><div class="font-medium">TradingView Charts</div><div class="text-sm text-gray-400">Professional charts integration</div></div>
                             </a>
-                            <a href="#" class="flex items-start gap-3 p-3 rounded-lg hover:bg-white/5 transition">
+                            <a href="/resources#news" class="flex items-start gap-3 p-3 rounded-lg hover:bg-white/5 transition">
                                 <div class="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="newspaper" class="w-5 h-5 text-green-400"></i></div>
                                 <div><div class="font-medium">News Aggregator</div><div class="text-sm text-gray-400">ForexFactory, Investing.com feeds</div></div>
                             </a>
-                            <a href="#" class="flex items-start gap-3 p-3 rounded-lg hover:bg-white/5 transition">
+                            <a href="/resources#ai-models" class="flex items-start gap-3 p-3 rounded-lg hover:bg-white/5 transition">
                                 <div class="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="sparkles" class="w-5 h-5 text-purple-400"></i></div>
                                 <div><div class="font-medium">AI Models</div><div class="text-sm text-gray-400">GPT-4, Claude, Gemini powered</div></div>
                             </a>
-                            <a href="#faq" class="flex items-start gap-3 p-3 rounded-lg hover:bg-white/5 transition">
+                            <a href="/resources#faq" class="flex items-start gap-3 p-3 rounded-lg hover:bg-white/5 transition">
                                 <div class="w-10 h-10 bg-orange-500/20 rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="help-circle" class="w-5 h-5 text-orange-400"></i></div>
                                 <div><div class="font-medium">FAQs</div><div class="text-sm text-gray-400">Frequently asked questions</div></div>
                             </a>
                         </div>
                     </div>
-                    <a href="#pricing" class="px-4 py-2 text-gray-300 hover:text-white transition rounded-lg hover:bg-white/5">Pricing</a>
-                    <a href="#assets" class="px-4 py-2 text-gray-300 hover:text-white transition rounded-lg hover:bg-white/5">Assets</a>
+                    <a href="/pricing" class="px-4 py-2 text-gray-300 hover:text-white transition rounded-lg hover:bg-white/5">Pricing</a>
+                    <a href="/assets" class="px-4 py-2 text-gray-300 hover:text-white transition rounded-lg hover:bg-white/5">Assets</a>
                 </div>
                 <div class="flex items-center gap-3">
                     <a href="/signin" class="hidden sm:block px-4 py-2 text-gray-300 hover:text-white transition">Sign In</a>
