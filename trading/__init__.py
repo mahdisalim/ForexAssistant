@@ -12,6 +12,24 @@ SL/TP Strategies:
 - Swing Points (Premium)
 - Risk/Reward Ratio
 - Support/Resistance (Premium)
+
+Advanced SL Strategies:
+- Fixed Pips
+- ATR-Based
+- Pin Bar
+- Previous Leg
+- FVG Start
+- Session Open (NY/London/Tokyo)
+- Leg Start Pin Bar
+
+Pattern Detection:
+- Pin Bar Detection
+- Leg Detection
+- FVG Detection
+- Swing Point Detection
+
+Market Sessions:
+- Tokyo, London, New York session detection
 """
 
 from .sl_tp_strategies import (
@@ -33,6 +51,41 @@ from .sl_tp_strategies import (
     SwingTakeProfit,
     PercentageTakeProfit,
     SupportResistanceTakeProfit,
+)
+
+from .pattern_detection import (
+    PatternType,
+    Pattern,
+    Leg,
+    FVG,
+    PinBarDetector,
+    LegDetector,
+    FVGDetector,
+    SwingPointDetector,
+    PatternManager,
+)
+
+from .market_sessions import (
+    MarketSession,
+    SessionInfo,
+    SessionCandle,
+    MarketSessionDetector,
+    get_session_times_iran,
+)
+
+from .advanced_sl_strategies import (
+    AdvancedSLType,
+    SLCalculationResult,
+    BaseAdvancedSLStrategy,
+    FixedPipsSL,
+    ATRBasedSL,
+    PinBarSL,
+    PreviousLegSL,
+    FVGStartSL,
+    SessionOpenSL,
+    LegStartPinBarSL,
+    AdvancedSLFactory,
+    AdvancedSLManager,
 )
 
 from .base_robot import (
@@ -76,6 +129,35 @@ __all__ = [
     "SwingTakeProfit",
     "PercentageTakeProfit",
     "SupportResistanceTakeProfit",
+    # Pattern Detection
+    "PatternType",
+    "Pattern",
+    "Leg",
+    "FVG",
+    "PinBarDetector",
+    "LegDetector",
+    "FVGDetector",
+    "SwingPointDetector",
+    "PatternManager",
+    # Market Sessions
+    "MarketSession",
+    "SessionInfo",
+    "SessionCandle",
+    "MarketSessionDetector",
+    "get_session_times_iran",
+    # Advanced SL Strategies
+    "AdvancedSLType",
+    "SLCalculationResult",
+    "BaseAdvancedSLStrategy",
+    "FixedPipsSL",
+    "ATRBasedSL",
+    "PinBarSL",
+    "PreviousLegSL",
+    "FVGStartSL",
+    "SessionOpenSL",
+    "LegStartPinBarSL",
+    "AdvancedSLFactory",
+    "AdvancedSLManager",
     # Base
     "BaseRobot",
     "RobotConfig",

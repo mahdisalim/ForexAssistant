@@ -63,10 +63,15 @@ class RobotType(str, Enum):
 
 class SLType(str, Enum):
     """انواع استراتژی‌های SL"""
+    FIXED_PIPS = "fixed_pips"
     ATR = "atr"
     PIN_BAR = "pin_bar"
+    PREVIOUS_LEG = "previous_leg"
+    FVG_START = "fvg_start"
+    SESSION_OPEN = "session_open"
+    LEG_START_PIN_BAR = "leg_start_pin_bar"
+    # Legacy
     SWING_POINT = "swing_point"
-    FIXED_PIPS = "fixed_pips"
     COMPOSITE = "composite"
 
 
