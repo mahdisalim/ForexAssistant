@@ -26,6 +26,10 @@
         .testimonial-card:hover { transform: scale(1.02); }
         .asset-icon:hover { transform: scale(1.1); }
         .testimonial-card, .asset-icon { transition: all 0.3s ease; }
+        /* Hide TradingView branding */
+        .tradingview-widget-container__widget a[href*="tradingview"],
+        .tradingview-widget-container iframe + div,
+        .tradingview-widget-copyright { display: none !important; visibility: hidden !important; height: 0 !important; }
     </style>
 </head>
 <body class="gradient-bg min-h-screen text-white">
@@ -114,48 +118,69 @@
                     </div>
                 </div>
                 <div class="relative animate-float hidden lg:block">
-                    <div class="card-glass rounded-2xl p-4 glow-blue overflow-hidden" style="width: 400px; height: 280px;">
+                    <div class="card-glass rounded-2xl p-4 glow-blue" style="width: 400px; height: 340px;">
                         <div class="flex items-center gap-3 mb-3">
                             <div class="w-3 h-3 rounded-full bg-red-500"></div>
                             <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
                             <div class="w-3 h-3 rounded-full bg-green-500"></div>
                             <span class="text-xs text-gray-500 ml-2">Live Market Data</span>
                         </div>
-                        <!-- TradingView Widget -->
-                        <div class="tradingview-widget-container" style="height: 220px;">
-                            <div class="tradingview-widget-container__widget" style="height: 100%;"></div>
-                            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-quotes.js" async>
+                        <!-- TradingView Market Overview Widget -->
+                        <div class="relative rounded-lg overflow-hidden" style="height: 270px;">
+                            <div class="tradingview-widget-container" style="height: 100%;">
+                            <div class="tradingview-widget-container__widget"></div>
+                            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js" async>
                             {
+                                "colorTheme": "dark",
+                                "dateRange": "1D",
+                                "showChart": false,
+                                "locale": "en",
                                 "width": "100%",
                                 "height": "100%",
-                                "symbolsGroups": [
-                                    {
-                                        "name": "Forex",
-                                        "symbols": [
-                                            {"name": "FX:EURUSD", "displayName": "EUR/USD"},
-                                            {"name": "FX:GBPUSD", "displayName": "GBP/USD"},
-                                            {"name": "FX:USDJPY", "displayName": "USD/JPY"}
-                                        ]
-                                    },
-                                    {
-                                        "name": "Commodities",
-                                        "symbols": [
-                                            {"name": "OANDA:XAUUSD", "displayName": "Gold"}
-                                        ]
-                                    },
-                                    {
-                                        "name": "Crypto",
-                                        "symbols": [
-                                            {"name": "BINANCE:BTCUSDT", "displayName": "Bitcoin"}
-                                        ]
-                                    }
-                                ],
-                                "showSymbolLogo": true,
+                                "largeChartUrl": "",
                                 "isTransparent": true,
-                                "colorTheme": "dark",
-                                "locale": "en"
+                                "showSymbolLogo": true,
+                                "showFloatingTooltip": false,
+                                "tabs": [
+                                    {
+                                        "title": "Forex",
+                                        "symbols": [
+                                            {"s": "FX:EURUSD", "d": "EUR/USD"},
+                                            {"s": "FX:GBPUSD", "d": "GBP/USD"},
+                                            {"s": "FX:USDJPY", "d": "USD/JPY"},
+                                            {"s": "FX:AUDUSD", "d": "AUD/USD"},
+                                            {"s": "FX:USDCAD", "d": "USD/CAD"},
+                                            {"s": "FX:USDCHF", "d": "USD/CHF"}
+                                        ],
+                                        "originalTitle": "Forex"
+                                    },
+                                    {
+                                        "title": "Metals",
+                                        "symbols": [
+                                            {"s": "OANDA:XAUUSD", "d": "Gold"},
+                                            {"s": "OANDA:XAGUSD", "d": "Silver"},
+                                            {"s": "TVC:PLATINUM", "d": "Platinum"},
+                                            {"s": "TVC:PALLADIUM", "d": "Palladium"},
+                                            {"s": "COMEX:HG1!", "d": "Copper"}
+                                        ],
+                                        "originalTitle": "Metals"
+                                    },
+                                    {
+                                        "title": "Crypto",
+                                        "symbols": [
+                                            {"s": "BINANCE:BTCUSDT", "d": "Bitcoin"},
+                                            {"s": "BINANCE:ETHUSDT", "d": "Ethereum"},
+                                            {"s": "BINANCE:BNBUSDT", "d": "BNB"},
+                                            {"s": "BINANCE:SOLUSDT", "d": "Solana"},
+                                            {"s": "BINANCE:XRPUSDT", "d": "XRP"},
+                                            {"s": "BINANCE:ADAUSDT", "d": "Cardano"}
+                                        ],
+                                        "originalTitle": "Crypto"
+                                    }
+                                ]
                             }
                             </script>
+                            </div>
                         </div>
                     </div>
                 </div>

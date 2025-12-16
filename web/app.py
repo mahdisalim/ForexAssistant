@@ -116,6 +116,12 @@ async def pricing_page(request: Request):
     return templates.TemplateResponse("pricing.html", {"request": request})
 
 
+@app.get("/thank-you", response_class=HTMLResponse)
+async def thank_you_page(request: Request):
+    """Thank you page after subscription purchase"""
+    return templates.TemplateResponse("thank-you.html", {"request": request})
+
+
 @app.get("/features", response_class=HTMLResponse)
 async def features_page(request: Request):
     """Features page"""

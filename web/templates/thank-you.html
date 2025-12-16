@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thank You - Forex Assistant</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon32.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+        }
+        .card-glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glow-success {
+            box-shadow: 0 0 60px rgba(16, 185, 129, 0.3);
+        }
+        @keyframes checkmark {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes confetti {
+            0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+        .animate-checkmark {
+            animation: checkmark 0.6s ease-out forwards;
+        }
+        .animate-fadeInUp {
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            top: -10px;
+            animation: confetti 3s ease-in-out forwards;
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen text-white overflow-x-hidden">
+    <!-- Confetti Container -->
+    <div id="confetti-container"></div>
+
+    <!-- Main Content -->
+    <div class="min-h-screen flex items-center justify-center px-4 py-12">
+        <div class="max-w-lg w-full text-center">
+            <!-- Success Card -->
+            <div class="card-glass rounded-3xl p-8 md:p-12 glow-success">
+                <!-- Checkmark Animation -->
+                <div class="mb-8">
+                    <div class="w-24 h-24 mx-auto bg-gradient-to-br from-green-400 to-emerald-600 rounded-full flex items-center justify-center animate-checkmark">
+                        <i data-lucide="check" class="w-12 h-12 text-white"></i>
+                    </div>
+                </div>
+
+                <!-- Thank You Message -->
+                <div class="animate-fadeInUp" style="animation-delay: 0.3s; opacity: 0;">
+                    <h1 class="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
+                        Thank You!
+                    </h1>
+                    <p class="text-xl text-gray-300 mb-2">Your subscription has been activated</p>
+                    <p id="plan-name" class="text-2xl font-bold text-white mb-6">Pro Plan</p>
+                </div>
+
+                <!-- Plan Details -->
+                <div class="animate-fadeInUp bg-white/5 rounded-2xl p-6 mb-8" style="animation-delay: 0.5s; opacity: 0;">
+                    <div class="flex items-center justify-center gap-3 mb-4">
+                        <div id="plan-icon" class="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center">
+                            <i data-lucide="crown" class="w-6 h-6 text-white"></i>
+                        </div>
+                        <div class="text-left">
+                            <p class="text-sm text-gray-400">Your new plan</p>
+                            <p id="plan-display" class="text-lg font-semibold">Pro</p>
+                        </div>
+                    </div>
+                    <div class="space-y-3 text-left">
+                        <div class="flex items-center gap-2 text-gray-300">
+                            <i data-lucide="check-circle" class="w-5 h-5 text-green-400"></i>
+                            <span>All premium features unlocked</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-gray-300">
+                            <i data-lucide="check-circle" class="w-5 h-5 text-green-400"></i>
+                            <span>Advanced SL/TP strategies</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-gray-300">
+                            <i data-lucide="check-circle" class="w-5 h-5 text-green-400"></i>
+                            <span>Priority support</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-gray-300">
+                            <i data-lucide="check-circle" class="w-5 h-5 text-green-400"></i>
+                            <span>Unlimited analysis</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="animate-fadeInUp space-y-4" style="animation-delay: 0.7s; opacity: 0;">
+                    <a href="/" class="block w-full px-6 py-4 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 rounded-xl font-semibold text-lg transition shadow-lg">
+                        <span class="flex items-center justify-center gap-2">
+                            <i data-lucide="rocket" class="w-5 h-5"></i>
+                            Start Trading Now
+                        </span>
+                    </a>
+                    <a href="/pricing" class="block w-full px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl font-medium transition">
+                        View Plan Details
+                    </a>
+                </div>
+            </div>
+
+            <!-- Footer Note -->
+            <p class="mt-8 text-gray-500 text-sm animate-fadeInUp" style="animation-delay: 0.9s; opacity: 0;">
+                A confirmation email has been sent to your registered email address.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Get plan from URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const plan = urlParams.get('plan') || 'pro';
+
+        // Update UI based on plan
+        const planName = document.getElementById('plan-name');
+        const planDisplay = document.getElementById('plan-display');
+        const planIcon = document.getElementById('plan-icon');
+
+        if (plan === 'ultra') {
+            planName.textContent = 'Ultra Plan';
+            planDisplay.textContent = 'Ultra';
+            planIcon.className = 'w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center';
+        } else {
+            planName.textContent = 'Pro Plan';
+            planDisplay.textContent = 'Pro';
+            planIcon.className = 'w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center';
+        }
+
+        // Update user subscription in localStorage
+        const savedUser = localStorage.getItem('user');
+        if (savedUser) {
+            try {
+                const user = JSON.parse(savedUser);
+                user.subscription = plan;
+                localStorage.setItem('user', JSON.stringify(user));
+            } catch (e) {
+                console.error('Error updating user subscription:', e);
+            }
+        }
+
+        // Create confetti effect
+        function createConfetti() {
+            const container = document.getElementById('confetti-container');
+            const colors = ['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ef4444', '#ec4899'];
+            
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + 'vw';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                    confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                    confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                    container.appendChild(confetti);
+                    
+                    // Remove confetti after animation
+                    setTimeout(() => confetti.remove(), 5000);
+                }, i * 50);
+            }
+        }
+
+        // Start confetti on page load
+        createConfetti();
+
+        // Trigger animations
+        document.querySelectorAll('.animate-fadeInUp').forEach((el, index) => {
+            el.style.animationFillMode = 'forwards';
+        });
+    </script>
+</body>
+</html>
