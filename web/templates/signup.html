@@ -114,12 +114,21 @@
                             <i data-lucide="lock" class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
                             <input type="password" id="signup-password" required minlength="8"
                                    class="input-field w-full pl-12 pr-12 py-3.5 rounded-xl text-white placeholder-gray-500 focus:outline-none"
-                                   placeholder="••••••••">
+                                   placeholder="••••••••" oninput="checkPasswordStrength(this.value)">
                             <button type="button" onclick="togglePassword('signup-password')" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition">
                                 <i data-lucide="eye" class="w-5 h-5" id="eye-signup-password"></i>
                             </button>
                         </div>
-                        <p class="text-xs text-gray-500 mt-2">At least 8 characters</p>
+                        <!-- Password Strength Bar -->
+                        <div class="mt-2">
+                            <div class="flex gap-1 mb-1">
+                                <div id="strength-bar-1" class="h-1 flex-1 rounded bg-gray-700 transition-all"></div>
+                                <div id="strength-bar-2" class="h-1 flex-1 rounded bg-gray-700 transition-all"></div>
+                                <div id="strength-bar-3" class="h-1 flex-1 rounded bg-gray-700 transition-all"></div>
+                                <div id="strength-bar-4" class="h-1 flex-1 rounded bg-gray-700 transition-all"></div>
+                            </div>
+                            <p id="password-strength-text" class="text-xs text-gray-500">At least 8 characters</p>
+                        </div>
                     </div>
 
                     <!-- Confirm Password Field -->
@@ -247,7 +256,24 @@
                     }
                     window.location.href = '/dashboard';
                 } else {
-                    errorEl.textContent = data.detail || 'Sign up failed. Please try again.';
+                    // Parse error messages from Django REST Framework
+                    let errorMessage = 'Sign up failed. Please try again.';
+                    if (data.email) {
+                        if (data.email.includes('already registered') || data.email.includes('already exists')) {
+                            errorMessage = 'This email is already registered. Please sign in or use a different email.';
+                        } else {
+                            errorMessage = 'Email: ' + data.email.join(', ');
+                        }
+                    } else if (data.password) {
+                        errorMessage = 'Password: ' + data.password.join(', ');
+                    } else if (data.name) {
+                        errorMessage = 'Name: ' + data.name.join(', ');
+                    } else if (data.detail) {
+                        errorMessage = data.detail;
+                    } else if (data.non_field_errors) {
+                        errorMessage = data.non_field_errors.join(', ');
+                    }
+                    errorEl.textContent = errorMessage;
                     errorEl.classList.remove('hidden');
                 }
             } catch (error) {
@@ -263,6 +289,64 @@
 
         function socialLogin(provider) {
             alert(provider + ' login coming soon!');
+        }
+
+        function checkPasswordStrength(password) {
+            const bar1 = document.getElementById('strength-bar-1');
+            const bar2 = document.getElementById('strength-bar-2');
+            const bar3 = document.getElementById('strength-bar-3');
+            const bar4 = document.getElementById('strength-bar-4');
+            const text = document.getElementById('password-strength-text');
+            
+            // Reset bars
+            [bar1, bar2, bar3, bar4].forEach(bar => {
+                bar.className = 'h-1 flex-1 rounded bg-gray-700 transition-all';
+            });
+            
+            if (!password) {
+                text.textContent = 'At least 8 characters';
+                text.className = 'text-xs text-gray-500';
+                return;
+            }
+            
+            let strength = 0;
+            
+            // Length check
+            if (password.length >= 8) strength++;
+            if (password.length >= 12) strength++;
+            
+            // Contains lowercase
+            if (/[a-z]/.test(password)) strength++;
+            
+            // Contains uppercase
+            if (/[A-Z]/.test(password)) strength++;
+            
+            // Contains number
+            if (/[0-9]/.test(password)) strength++;
+            
+            // Contains special character
+            if (/[^a-zA-Z0-9]/.test(password)) strength++;
+            
+            // Normalize to 1-4 scale
+            let level = Math.min(4, Math.ceil(strength / 1.5));
+            
+            const colors = {
+                1: { bg: 'bg-red-500', text: 'Weak', textColor: 'text-red-400' },
+                2: { bg: 'bg-orange-500', text: 'Fair', textColor: 'text-orange-400' },
+                3: { bg: 'bg-yellow-500', text: 'Good', textColor: 'text-yellow-400' },
+                4: { bg: 'bg-green-500', text: 'Strong', textColor: 'text-green-400' }
+            };
+            
+            const config = colors[level] || colors[1];
+            
+            // Fill bars based on level
+            const bars = [bar1, bar2, bar3, bar4];
+            for (let i = 0; i < level; i++) {
+                bars[i].className = `h-1 flex-1 rounded ${config.bg} transition-all`;
+            }
+            
+            text.textContent = `Password strength: ${config.text}`;
+            text.className = `text-xs ${config.textColor}`;
         }
     </script>
 </body>

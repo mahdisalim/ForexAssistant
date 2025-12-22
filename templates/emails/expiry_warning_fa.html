@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>یادآوری انقضای اشتراک</title>
+    <style>
+        body {
+            font-family: 'Tahoma', 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            direction: rtl;
+        }
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #ffa751 0%, #ffe259 100%);
+            color: #333;
+            padding: 30px;
+            text-align: center;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .countdown {
+            background: linear-gradient(135deg, #ffa751 0%, #ffe259 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .countdown-number {
+            font-size: 48px;
+            font-weight: bold;
+        }
+        .button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 40px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⏰ یادآوری انقضای اشتراک</h1>
+        </div>
+        <div class="content">
+            <h2>سلام {{ user.get_full_name }}!</h2>
+            <p>اشتراک پریمیوم شما به زودی به پایان می‌رسد.</p>
+            
+            <div class="countdown">
+                <div class="countdown-number">{{ days_left }}</div>
+                <div>روز تا پایان اشتراک</div>
+            </div>
+            
+            <p>تاریخ انقضا: <strong>{{ expiry_date|date:"Y/m/d - H:i" }}</strong></p>
+            
+            <p>برای ادامه استفاده از امکانات پریمیوم، اشتراک خود را تمدید کنید:</p>
+            
+            <div style="text-align: center;">
+                <a href="{{ renewal_url }}" class="button">تمدید اشتراک</a>
+            </div>
+            
+            <h3>مزایای اشتراک پریمیوم:</h3>
+            <ul>
+                <li>✅ تحلیل نامحدود چارت با هوش مصنوعی</li>
+                <li>✅ دسترسی به تمام جفت ارزها</li>
+                <li>✅ تحلیل چند تایم‌فریم</li>
+                <li>✅ سیگنال‌های معاملاتی لحظه‌ای</li>
+                <li>✅ پشتیبانی اختصاصی</li>
+            </ul>
+        </div>
+        <div class="footer">
+            <p>© 2024 {{ site_name }}. تمامی حقوق محفوظ است.</p>
+        </div>
+    </div>
+</body>
+</html>

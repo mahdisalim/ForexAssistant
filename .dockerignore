@@ -1,0 +1,47 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+.env
+.venv
+env/
+venv/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Docker
+deploy/.env
+
+# Logs and data
+logs/*
+!logs/.gitkeep
+*.log
+
+# Database
+*.sqlite3
+db.sqlite3
+
+# Static files (will be collected)
+staticfiles/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Windows specific files
+*.bat
+*.ps1
+deploy/install_windows.ps1
+deploy/start_all.bat
+deploy/windows_service.py

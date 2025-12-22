@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اشتراک منقضی شد</title>
+    <style>
+        body {
+            font-family: 'Tahoma', 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            direction: rtl;
+        }
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #868f96 0%, #596164 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 40px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⏰ اشتراک شما به پایان رسید</h1>
+        </div>
+        <div class="content">
+            <h2>سلام {{ user.get_full_name }}!</h2>
+            <p>اشتراک پریمیوم شما در تاریخ <strong>{{ expiry_date|date:"Y/m/d" }}</strong> به پایان رسید.</p>
+            
+            <p>حساب شما به پلن رایگان تبدیل شده است. برای ادامه استفاده از امکانات پریمیوم، لطفاً اشتراک خود را تمدید کنید:</p>
+            
+            <div style="text-align: center;">
+                <a href="{{ renewal_url }}" class="button">تمدید اشتراک</a>
+            </div>
+            
+            <h3>امکاناتی که از دست داده‌اید:</h3>
+            <ul>
+                <li>❌ تحلیل نامحدود چارت با هوش مصنوعی</li>
+                <li>❌ دسترسی به تمام جفت ارزها</li>
+                <li>❌ تحلیل چند تایم‌فریم</li>
+                <li>❌ سیگنال‌های معاملاتی لحظه‌ای</li>
+                <li>❌ پشتیبانی اختصاصی</li>
+            </ul>
+            
+            <p>همین حالا تمدید کنید و دوباره به تمام امکانات دسترسی پیدا کنید! 🚀</p>
+        </div>
+        <div class="footer">
+            <p>© 2024 {{ site_name }}. تمامی حقوق محفوظ است.</p>
+        </div>
+    </div>
+</body>
+</html>

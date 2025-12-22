@@ -1,5 +1,22 @@
 # Forex Analysis Assistant - Dependencies
-# Optimized for Windows VPS with MetaTrader 5
+# Django version for Linux/Docker deployment
+
+# Django Framework
+Django==5.0.1
+djangorestframework==3.15.2
+django-cors-headers==4.3.1
+dj-database-url==2.1.0
+gunicorn==21.2.0
+whitenoise==6.6.0
+
+# Celery for background tasks
+celery==5.3.6
+django-celery-beat==2.6.0
+django-celery-results==2.5.1
+redis==5.0.1
+
+# Database
+psycopg2-binary==2.9.9
 
 # Web Scraping
 requests==2.31.0
@@ -14,21 +31,19 @@ python-dateutil==2.8.2
 # AI/LLM Integration
 openai==1.6.1
 
-# Web Framework
-fastapi==0.109.0
-uvicorn==0.25.0
+# Templates     
 jinja2==3.1.2
 
 # Utilities
 python-dotenv==1.0.0
 pydantic==2.5.3
 aiohttp==3.9.1
-schedule==1.2.1
 
 # Caching
 cachetools==5.3.2
 
-# Windows VPS / Phase 3
-MetaTrader5==5.0.45
-pywin32==306
+# Monitoring
 psutil==5.9.7
+
+# Encryption
+cryptography==41.0.7

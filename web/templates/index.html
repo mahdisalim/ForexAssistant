@@ -490,7 +490,7 @@
                                 <button onclick="addTimeframe('{{ pair }}')" id="add-tf-btn-{{ pair }}" class="hidden px-2 py-1 bg-green-600 hover:bg-green-700 rounded text-xs" title="Add TF">
                                     <i data-lucide="plus" class="w-3 h-3"></i>
                                 </button>
-                                <button onclick="loadPairAnalysis('{{ pair }}', true)" class="px-2 py-1 bg-blue-600 hover:bg-blue-700 rounded text-xs" title="Refresh">
+                                <button onclick="analyzeChart('{{ pair }}')" class="px-2 py-1 bg-blue-600 hover:bg-blue-700 rounded text-xs" title="Analyze Chart">
                                     <i data-lucide="refresh-cw" class="w-3 h-3"></i>
                                 </button>
                                 <button onclick="openChartInNewTab('{{ pair }}')" class="px-2 py-1 bg-purple-600 hover:bg-purple-700 rounded text-xs" title="Open Chart">
@@ -1786,7 +1786,7 @@
             };
 
             try {
-                const response = await fetch('/api/pairs', {
+                const response = await fetch('/api/pairs/add/', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ pair, config })
@@ -1797,10 +1797,11 @@
                     location.reload();
                 } else {
                     const error = await response.json();
-                    alert(error.detail);
+                    alert(error.detail || error.error || 'Failed to add pair');
                 }
             } catch (error) {
-                alert('Failed to add pair');
+                console.error('Add pair error:', error);
+                alert('Failed to add pair: ' + error.message);
             }
         }
 
@@ -2101,8 +2102,27 @@
 
             const sentimentClass = analysis.sentiment ? analysis.sentiment.toLowerCase() : 'neutral';
             const rec = recommendation || {};
-            const sl = rec.stop_loss || { pips: 0 };
-            const tp = rec.take_profit || { pips: 0 };
+            
+            // Extract SL/TP values - handle different response formats
+            const sl = rec.stop_loss || {};
+            const tp = rec.take_profit || {};
+            const slPips = sl.pips || sl.price || 0;
+            const tpPips = tp.pips || tp.price || 0;
+            const slDesc = sl.description || '';
+            const tpDesc = tp.description || '';
+            
+            // Calculate Risk/Reward ratio properly
+            let rrRatio = rec.risk_reward_ratio || 0;
+            if (rrRatio === 0 && slPips > 0 && tpPips > 0) {
+                rrRatio = (tpPips / slPips).toFixed(2);
+            }
+            
+            // Get entry zone info
+            const entryZone = rec.entry_zone || {};
+            const entryMin = entryZone.min || '';
+            const entryMax = entryZone.max || '';
+            const entryDesc = entryZone.description || '';
+            
             const styleName = t(style) || style;
             
             // Add to trade signals
@@ -2110,8 +2130,8 @@
             const signal = {
                 pair: pair,
                 action: rec.recommendation || 'HOLD',
-                tp: tp.pips || 0,
-                sl: sl.pips || 0,
+                tp: tpPips,
+                sl: slPips,
                 style: style
             };
             if (existingIndex >= 0) {
@@ -2125,10 +2145,14 @@
             const sentimentKey = (analysis.sentiment || 'neutral').toLowerCase();
             const translatedSentiment = t(sentimentKey) || analysis.sentiment || t('neutral');
             
+            // Determine sentiment color
+            const sentimentColor = sentimentKey === 'bullish' ? 'text-green-400' : 
+                                   sentimentKey === 'bearish' ? 'text-red-400' : 'text-yellow-400';
+            
             contentEl.innerHTML = `
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-xl font-bold ${sentimentClass}">${translatedSentiment}</span>
-                    <span class="text-xs text-gray-400">${analysis.confidence || 0}%</span>
+                    <span class="text-xl font-bold ${sentimentColor}">${translatedSentiment}</span>
+                    <span class="text-xs text-gray-400">${analysis.sentiment_score || analysis.confidence || rec.confidence || 0}%</span>
                 </div>
                 <div class="flex items-center gap-2 mb-2">
                     <span class="px-2 py-0.5 rounded text-xs font-medium
@@ -2149,11 +2173,16 @@
                                   '🟡 ' + t('wait')}
                             </span>
                         </div>
-                        <div class="flex justify-between">
-                            <span>${t('tp')}: ${tp.pips} pips</span>
-                            <span>${t('sl')}: ${sl.pips} pips</span>
+                        ${entryMin || entryMax ? `
+                        <div class="flex justify-between mb-1">
+                            <span class="text-blue-400">📍 ${t('entry')}: ${entryMin}${entryMax ? ' - ' + entryMax : ''}</span>
                         </div>
-                        <div class="text-gray-500">${t('rr')} ${rec.risk_reward_ratio || '1.5'}</div>
+                        ` : ''}
+                        <div class="flex justify-between">
+                            <span class="text-green-400">${t('tp')}: ${tpPips} ${typeof tpPips === 'number' ? 'pips' : ''}</span>
+                            <span class="text-red-400">${t('sl')}: ${slPips} ${typeof slPips === 'number' ? 'pips' : ''}</span>
+                        </div>
+                        ${rrRatio > 0 ? `<div class="text-gray-400 mt-1">${t('rr')} ${rrRatio}</div>` : ''}
                     </div>
                 </div>
                 <button onclick="showAnalysisDetail('${pair}')" 
@@ -2162,6 +2191,10 @@
                 </button>
             `;
             contentEl.classList.remove('loading');
+            
+            // Store analysis data for detail view
+            window.pairAnalysisData = window.pairAnalysisData || {};
+            window.pairAnalysisData[pair] = { analysis, recommendation, style };
         }
 
         // Update pair card with MTF results
@@ -2429,6 +2462,65 @@
                 }, 100);
             }
         };
+
+        // ============== Analyze Chart (Automatic) ==============
+        async function analyzeChart(pair) {
+            const tfSelect = document.getElementById(`tf-${pair}`);
+            const styleSelect = document.getElementById(`style-${pair}`);
+            const timeframe = tfSelect ? tfSelect.value : 'H1';
+            const style = styleSelect ? styleSelect.value : 'day';
+            const contentEl = document.getElementById(`analysis-${pair}`);
+            
+            // Show loading state
+            if (contentEl) {
+                contentEl.innerHTML = `
+                    <div class="text-center p-4">
+                        <div class="animate-spin text-blue-400 mb-2">
+                            <i data-lucide="loader" class="w-6 h-6 mx-auto"></i>
+                        </div>
+                        <p class="text-sm text-gray-300">در حال تحلیل چارت ${pair}...</p>
+                    </div>
+                `;
+                lucide.createIcons();
+            }
+            
+            try {
+                // Call API - backend automatically captures chart and analyzes
+                const response = await fetch(`/api/analysis/${pair}/?timeframe=${timeframe}&trading_style=${style}`);
+                const data = await response.json();
+                
+                if (response.ok && data.analysis) {
+                    updatePairCard(pair, data.analysis, data.recommendation, style);
+                    showNotification('تحلیل چارت با موفقیت انجام شد', 'success');
+                } else {
+                    throw new Error(data.error || 'تحلیل ناموفق');
+                }
+                
+            } catch (error) {
+                console.error('Chart analysis error:', error);
+                if (contentEl) {
+                    contentEl.innerHTML = `
+                        <div class="text-red-400 text-sm p-2">
+                            خطا در تحلیل: ${error.message}
+                        </div>
+                    `;
+                }
+                showNotification('خطا در تحلیل چارت', 'error');
+            }
+        }
+        
+        function showNotification(message, type = 'info') {
+            const colors = { success: 'bg-green-600', error: 'bg-red-600', info: 'bg-blue-600' };
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 ${colors[type] || colors.info} text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-opacity`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
 
         // ============== Open Chart in New Tab ==============
         function openChartInNewTab(pair) {
