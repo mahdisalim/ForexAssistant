@@ -1,354 +1,471 @@
-<div align="center">
-
 # 🤖 Forex Analysis Assistant
 
-### AI-Powered Forex Market Analysis & Trading Bot
+### AI-Powered Forex Market Analysis & Automated Trading Platform
 
 [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://python.org)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.109-green.svg)](https://fastapi.tiangolo.com)
+[![Django](https://img.shields.io/badge/Django-5.0-green.svg)](https://djangoproject.com)
 [![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4o--mini-purple.svg)](https://openai.com)
-[![MetaTrader5](https://img.shields.io/badge/MetaTrader-5-orange.svg)](https://www.metatrader5.com)
+[![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://docker.com)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-[English](#features) | [فارسی](#ویژگی‌ها)
+---
 
-<img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/python/python-original.svg" width="60" height="60" alt="Python"/>
-&nbsp;&nbsp;
-<img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/fastapi/fastapi-original.svg" width="60" height="60" alt="FastAPI"/>
+## 📋 فهرست مطالب
 
-</div>
+- [معرفی](#-معرفی)
+- [ویژگی‌ها](#-ویژگی‌ها)
+- [معماری](#-معماری)
+- [نصب سریع](#-نصب-سریع)
+- [مستندات](#-مستندات)
+- [استفاده](#-استفاده)
+- [API](#-api)
+- [مشارکت](#-مشارکت)
+- [لایسنس](#-لایسنس)
 
 ---
 
-## 📋 Table of Contents
+## 🎯 معرفی
 
-- [Features](#features)
-- [Screenshots](#screenshots)
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [Usage](#usage)
-- [API Reference](#api-reference)
-- [Project Structure](#project-structure)
-- [Deployment](#deployment)
-- [Contributing](#contributing)
-- [Disclaimer](#disclaimer)
+**Forex Analysis Assistant** یک پلتفرم جامع و پیشرفته برای تحلیل و معاملات خودکار فارکس است که با استفاده از هوش مصنوعی (OpenAI GPT-4o-mini) به شما کمک می‌کند تا:
 
----
+- 📰 اخبار بازار را از **5 منبع معتبر** جمع‌آوری کنید
+- 🤖 تحلیل‌های هوشمند و دقیق با **AI** دریافت کنید
+- 📊 سیگنال‌های معاملاتی **Buy/Sell** با confidence score تولید کنید
+- 📈 چارت‌های TradingView را **خودکار** تحلیل کنید
+- 🔄 معاملات را به صورت **کاملاً خودکار** اجرا کنید
+- 📧 نوتیفیکیشن‌های **ایمیل** دریافت کنید
+- 💼 ربات‌های معاملاتی **سفارشی** بسازید
 
-## ✨ Features
+### 🌟 چرا Forex Analysis Assistant؟
 
-### Phase 1 - Core Analysis
-| Feature | Description |
-|---------|-------------|
-| 📰 **Multi-Source Scraping** | Collects news from 5 trusted sources |
-| 🤖 **AI Analysis** | GPT-4o-mini powered market analysis |
-| 📊 **Trade Signals** | Buy/Sell recommendations with SL/TP |
-| 🌐 **Web Dashboard** | Modern, responsive UI |
-
-**Supported News Sources:**
-- Investing.com
-- Forex Factory (Calendar + News)
-- DailyFX
-- FXStreet
-- ForexLive
-
-### Phase 2 - Pair Management
-- ➕ Add/Remove currency pairs dynamically
-- ⚙️ Custom configuration per pair
-- 🔍 Auto-detect pairs in news
-- 💾 Result caching
-
-### Phase 3 - Algorithmic Trading
-- 🔗 MetaTrader 5 integration
-- 📈 Risk management & position sizing
-- 🤖 Automated trade execution
-- 📝 Comprehensive logging & monitoring
+- ✅ **Open Source** - کد کاملاً باز و قابل سفارشی‌سازی
+- ✅ **Production Ready** - آماده برای استفاده در محیط واقعی
+- ✅ **Docker Support** - نصب آسان با یک دستور
+- ✅ **Scalable** - قابل مقیاس‌پذیری برای حجم بالا
+- ✅ **Well Documented** - مستندات کامل و جامع
+- ✅ **Multi-Language** - پشتیبانی از 14 زبان
 
 ---
 
-## � Screenshots
+## ✨ ویژگی‌ها
 
-<div align="center">
+### 🔍 تحلیل هوشمند بازار
 
-| Dashboard | Analysis | Trade Signal |
-|:---------:|:--------:|:------------:|
-| ![Dashboard](https://via.placeholder.com/250x150/1a1a2e/4da6ff?text=Dashboard) | ![Analysis](https://via.placeholder.com/250x150/1a1a2e/10b981?text=Analysis) | ![Signal](https://via.placeholder.com/250x150/1a1a2e/ef4444?text=Signal) |
+#### 1. جمع‌آوری خودکار اخبار
+- **5 منبع معتبر:**
+  - 📰 Investing.com - اخبار جهانی
+  - 📅 ForexFactory - تقویم اقتصادی
+  - 📊 DailyFX - تحلیل تخصصی
+  - 📈 FXStreet - تحلیل فنی
+  - ⚡ ForexLive - اخبار لحظه‌ای
 
-</div>
+#### 2. تحلیل با AI
+- استفاده از **GPT-4o-mini** برای تحلیل اخبار
+- تحلیل **تصویر چارت** با Vision API
+- تحلیل **Multi-Timeframe** (چند بازه زمانی همزمان)
+- **خلاصه روزانه بازار** به 14 زبان
+
+#### 3. سیگنال‌های معاملاتی
+- پیشنهاد **BUY/SELL/HOLD**
+- **Confidence Score** (0-100%)
+- محاسبه **Stop Loss** و **Take Profit**
+- **Risk/Reward Ratio**
+- **Entry Zone** دقیق
+
+### 📊 تحلیل چارت
+
+- اسکرین‌شات خودکار از **TradingView**
+- تحلیل الگوهای قیمتی
+- شناسایی **Support/Resistance**
+- تشخیص **Trend** و **Momentum**
+- تحلیل **Multi-Timeframe**
+
+### 🤖 معاملات خودکار
+
+#### Trading Robots
+- **RSI Bot** - استراتژی RSI
+- **Breakout Bot** - شکست سطوح
+- **Trend Following** - دنبال کردن روند
+- **Mean Reversion** - بازگشت به میانگین
+- **Custom Bots** - ربات‌های سفارشی
+
+#### Risk Management
+- محاسبه **Position Size** خودکار
+- مدیریت **Risk per Trade**
+- **Trailing Stop Loss**
+- **Partial Take Profit**
+- **Max Daily Loss** protection
+
+### 👤 مدیریت کاربران
+
+- ثبت‌نام و ورود با **Email**
+- **Token-based Authentication**
+- تایید ایمیل با **کد 6 رقمی**
+- بازیابی رمز عبور
+- **Subscription Plans** (Free/Premium)
+- **Admin Panel** کامل
+
+### 📧 سیستم ایمیل
+
+- کد تایید ایمیل
+- بازیابی رمز عبور
+- تایید خرید اشتراک
+- یادآوری انقضای اشتراک (10، 5، 3 روز)
+- پیشنهادات تخفیف
+- اطلاع‌رسانی رویدادها
+- **9 Template** زیبا (فارسی و انگلیسی)
+
+### ⏰ Task Scheduling
+
+- **Celery** برای background tasks
+- **Celery Beat** برای scheduled tasks
+- چک خودکار انقضای اشتراک
+- اسکرپینگ دوره‌ای اخبار
+- تحلیل خودکار روزانه
 
 ---
 
-## 🚀 Installation
+## 🏗️ معماری
 
-### Prerequisites
+### Tech Stack
 
-- Python 3.10+
-- OpenAI API Key
-- MetaTrader 5 (for Phase 3, Windows only)
+| لایه | تکنولوژی |
+|------|----------|
+| **Backend** | Django 5.0.1 + FastAPI |
+| **API** | Django REST Framework 3.15.2 |
+| **Database** | PostgreSQL 15 |
+| **Cache/Queue** | Redis 7 |
+| **Task Queue** | Celery 5.3.6 |
+| **AI/LLM** | OpenAI GPT-4o-mini |
+| **Scraping** | BeautifulSoup4, httpx, aiohttp |
+| **Charts** | Playwright (TradingView) |
+| **Email** | Gmail SMTP |
+| **Trading** | MetaTrader5 API |
+| **Deployment** | Docker + Docker Compose |
+| **Web Server** | Gunicorn + Nginx |
 
-### Quick Start
+### ساختار کلی
+
+```
+┌─────────────────────────────────────────────┐
+│           Nginx (Load Balancer)             │
+└────────────────┬────────────────────────────┘
+                 │
+         ┌───────┴───────┐
+         │               │
+┌────────▼────────┐ ┌───▼──────────┐
+│   Django App    │ │  FastAPI     │
+│   (Primary)     │ │  (Optional)  │
+└────────┬────────┘ └───┬──────────┘
+         │               │
+         └───────┬───────┘
+                 │
+         ┌───────┴───────┐
+         │               │
+┌────────▼────────┐ ┌───▼──────────┐
+│   PostgreSQL    │ │    Redis     │
+└─────────────────┘ └───┬──────────┘
+                         │
+                ┌────────▼────────┐
+                │  Celery Worker  │
+                │  + Celery Beat  │
+                └────────┬────────┘
+                         │
+         ┌───────────────┴───────────────┐
+         │                               │
+┌────────▼────────┐            ┌────────▼────────┐
+│   OpenAI API    │            │  News Sources   │
+└─────────────────┘            └─────────────────┘
+```
+
+**مستندات کامل:** [ARCHITECTURE.md](ARCHITECTURE.md)
+
+---
+
+## 🚀 نصب سریع
+
+### با Docker (پیشنهادی)
 
 ```bash
-# Clone the repository
+# 1. Clone repository
 git clone https://github.com/yourusername/forex-analysis-assistant.git
 cd forex-analysis-assistant
 
-# Create virtual environment
-python -m venv venv
+# 2. پیکربندی environment
+cp .env.example .env
+nano .env  # تنظیم OPENAI_API_KEY و سایر متغیرها
 
-# Activate (Windows)
-venv\Scripts\activate
+# 3. اجرا
+cd deploy
+docker compose up -d
 
-# Activate (Linux/Mac)
+# 4. Migration
+docker compose exec web python manage.py migrate
+
+# 5. ایجاد superuser
+docker compose exec web python manage.py createsuperuser
+
+# ✅ آماده است!
+# http://localhost:8000
+```
+
+### نصب دستی
+
+```bash
+# 1. Virtual environment
+python3.10 -m venv venv
 source venv/bin/activate
 
-# Install dependencies
+# 2. نصب dependencies
 pip install -r requirements.txt
+playwright install chromium
+
+# 3. Database setup
+# نصب PostgreSQL و Redis
+# ایجاد database
+
+# 4. پیکربندی
+cp .env.example .env
+nano .env
+
+# 5. Migration
+python manage.py migrate
+
+# 6. اجرا
+python manage.py runserver  # Terminal 1
+celery -A forex_assistant worker -l info  # Terminal 2
+celery -A forex_assistant beat -l info  # Terminal 3
 ```
 
-### Windows VPS (Recommended for Phase 3)
-
-```powershell
-# Run as Administrator
-.\deploy\install_windows.ps1
-```
+**راهنمای کامل:** [SETUP.md](SETUP.md)
 
 ---
 
-## ⚙️ Configuration
+## 📚 مستندات
 
-### 1. Create Environment File
+### مستندات اصلی
 
+| فایل | توضیحات |
+|------|---------|
+| [ARCHITECTURE.md](ARCHITECTURE.md) | معماری فنی و ساختار سیستم |
+| [SETUP.md](SETUP.md) | راهنمای نصب و راه‌اندازی |
+| [API.md](API.md) | مستندات کامل API |
+| [DEVELOPMENT.md](DEVELOPMENT.md) | راهنمای توسعه‌دهنده |
+| [PROJECT_ANALYSIS.md](PROJECT_ANALYSIS.md) | تحلیل جامع پروژه |
+| [PENDING_TASKS.md](PENDING_TASKS.md) | لیست کارهای ناقص |
+
+### مستندات ویژگی‌ها
+
+| فایل | توضیحات |
+|------|---------|
+| [CHART_ANALYSIS_UPGRADE.md](CHART_ANALYSIS_UPGRADE.md) | سیستم تحلیل چارت |
+| [DAILY_SUMMARY_GUIDE.md](DAILY_SUMMARY_GUIDE.md) | خلاصه روزانه بازار |
+| [EMAIL_SYSTEM_README.md](EMAIL_SYSTEM_README.md) | سیستم ایمیل |
+| [GMAIL_SETUP_GUIDE.md](GMAIL_SETUP_GUIDE.md) | راهنمای Gmail |
+
+---
+
+## 💻 استفاده
+
+### 1. دسترسی به Dashboard
+
+```
+http://localhost:8000/dashboard/
+```
+
+### 2. Admin Panel
+
+```
+http://localhost:8000/admin/
+```
+
+### 3. API Endpoints
+
+#### Authentication
 ```bash
-copy .env.example .env
-```
-
-### 2. Edit `.env`
-
-```env
-# OpenAI Configuration
-OPENAI_API_KEY=sk-your-api-key-here
-OPENAI_MODEL=gpt-4o-mini
-
-# Server
-HOST=0.0.0.0
-PORT=8000
-
-# MetaTrader 5 (Phase 3)
-MT5_LOGIN=12345678
-MT5_PASSWORD=your_password
-MT5_SERVER=YourBroker-Server
-
-# Trading Settings
-ACCOUNT_BALANCE=10000
-RISK_PERCENT=1.0
-MIN_CONFIDENCE=60
-DEMO_MODE=true
-```
-
-### 3. Configure Currency Pairs
-
-Edit `data/pairs.json`:
-
-```json
+# ثبت‌نام
+POST /api/auth/signup/
 {
-  "EURUSD": {
-    "volatility": "medium",
-    "default_sl_pips": 30,
-    "default_tp_pips": 60,
-    "keywords": ["EUR", "USD", "euro", "dollar", "ECB", "Fed"]
-  },
-  "XAUUSD": {
-    "volatility": "high",
-    "default_sl_pips": 100,
-    "default_tp_pips": 200,
-    "keywords": ["gold", "XAU", "precious metal"]
-  }
+  "email": "user@example.com",
+  "password": "securepass123",
+  "name": "John Doe"
+}
+
+# ورود
+POST /api/auth/signin/
+{
+  "email": "user@example.com",
+  "password": "securepass123"
 }
 ```
 
----
-
-## 📖 Usage
-
-### Web Dashboard
-
+#### Analysis
 ```bash
-python main.py
+# تحلیل یک جفت ارز
+GET /api/analysis/EURUSD/?timeframe=H4&trading_style=day
+
+# خلاصه روزانه بازار
+GET /api/summary/?asset=USD&lang=fa
+
+# لیست جفت ارزها
+GET /api/pairs/
 ```
 
-Open http://localhost:8000 in your browser.
-
-### Scheduled Analysis
-
+#### Trading
 ```bash
-python scheduler.py
+# لیست حساب‌های معاملاتی
+GET /api/trading-accounts/
+
+# لیست ربات‌ها
+GET /api/robots/
 ```
 
-### Trading Bot (Phase 3)
-
-```bash
-python trading_bot.py
-```
-
-### All Services (Windows)
-
-```batch
-deploy\start_all.bat
-```
+**مستندات کامل API:** [API.md](API.md)
 
 ---
 
-## 🔌 API Reference
+## 📡 API
 
-### Pairs Management
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/pairs` | List all pairs |
-| `POST` | `/api/pairs` | Add new pair |
-| `DELETE` | `/api/pairs/{pair}` | Remove pair |
-
-### Analysis
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/analysis` | Analyze all pairs |
-| `GET` | `/api/analysis/{pair}` | Analyze specific pair |
-| `GET` | `/api/summary` | Daily market summary |
-
-### News
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/news` | Get scraped news |
-| `POST` | `/api/scrape` | Trigger news scraping |
-
-### Example Response
+### نمونه Response - تحلیل جفت ارز
 
 ```json
 {
   "pair": "EURUSD",
-  "recommendation": "BUY",
-  "confidence": 75,
   "timeframe": "H4",
-  "stop_loss": {"pips": 30, "description": "Below support"},
-  "take_profit": {"pips": 60, "description": "At resistance"},
-  "risk_reward_ratio": 2.0,
-  "reasoning": "Strong bullish momentum..."
+  "analysis": {
+    "sentiment": "Bullish",
+    "sentiment_score": 75,
+    "trend": "uptrend",
+    "support_levels": ["1.0850", "1.0820"],
+    "resistance_levels": ["1.0920", "1.0950"]
+  },
+  "recommendation": {
+    "recommendation": "BUY",
+    "confidence": 75,
+    "entry_zone": {"min": "1.0870", "max": "1.0880"},
+    "stop_loss": {"price": "1.0840", "pips": 30},
+    "take_profit": {"price": "1.0940", "pips": 60},
+    "risk_reward_ratio": 2.0
+  },
+  "generated_at": "2025-12-22T10:30:00Z"
+}
+```
+
+### نمونه Response - خلاصه روزانه
+
+```json
+{
+  "articles_count": 45,
+  "asset": "USD",
+  "lang": "fa",
+  "sources": ["Investing.com", "ForexFactory", "DailyFX", "FXStreet", "ForexLive"],
+  "summary": "**خلاصه بازار**\n\nدلار آمریکا در معاملات امروز...",
+  "generated_at": "2025-12-22T10:30:00Z"
 }
 ```
 
 ---
 
-## 📁 Project Structure
+## 🛠️ توسعه
 
-```
-forex-analysis-assistant/
-│
-├── 📂 config/
-│   └── settings.py           # App configuration
-│
-├── 📂 scrapers/
-│   ├── base_scraper.py       # Abstract scraper class
-│   ├── investing_scraper.py  # Investing.com
-│   ├── forexfactory_scraper.py
-│   ├── dailyfx_scraper.py
-│   ├── fxstreet_scraper.py
-│   ├── forexlive_scraper.py
-│   └── scraper_manager.py    # Orchestrator
-│
-├── 📂 llm/
-│   ├── analyzer.py           # AI analysis engine
-│   └── prompts.py            # GPT prompts
-│
-├── 📂 indicators/
-│   ├── risk_manager.py       # Position sizing
-│   └── trade_executor.py     # MT5 integration
-│
-├── 📂 web/
-│   ├── app.py                # FastAPI app
-│   └── templates/
-│       └── index.html        # Dashboard UI
-│
-├── 📂 deploy/
-│   ├── install_windows.ps1   # Windows installer
-│   ├── windows_service.py    # Windows service
-│   ├── monitor.py            # Health monitor
-│   └── start_all.bat         # Startup script
-│
-├── 📂 data/                   # Stored data
-├── 📂 logs/                   # Log files
-│
-├── main.py                    # Web server entry
-├── scheduler.py               # Scheduled tasks
-├── trading_bot.py             # Trading bot
-├── requirements.txt
-├── .env.example
-└── README.md
-```
-
----
-
-## 🖥️ Deployment
-
-### Windows VPS (Recommended)
-
-See [deploy/README_VPS.md](deploy/README_VPS.md) for detailed instructions.
-
-```powershell
-# Quick deploy
-.\deploy\install_windows.ps1
-
-# Start all services
-.\deploy\start_all.bat
-```
-
-### Docker (Coming Soon)
+### محیط Development
 
 ```bash
-docker-compose up -d
+# Clone و setup
+git clone https://github.com/yourusername/forex-analysis-assistant.git
+cd forex-analysis-assistant
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+
+# اجرای تست‌ها
+python manage.py test
+
+# Code formatting
+black .
+flake8 .
+
+# Type checking
+mypy apps/
 ```
+
+### ساختار پروژه
+
+```
+/srv/
+├── apps/                    # Django Applications
+│   ├── accounts/            # احراز هویت
+│   ├── analysis/            # تحلیل بازار
+│   ├── trading/             # معاملات
+│   └── scraping/            # اسکرپینگ
+├── forex_assistant/         # Django Project
+├── scrapers/                # ماژول اسکرپینگ
+├── llm/                     # AI/LLM
+├── trading/                 # ماژول معاملاتی
+├── strategy_bots/           # ربات‌های استراتژیک
+└── templates/               # Templates
+```
+
+**راهنمای کامل:** [DEVELOPMENT.md](DEVELOPMENT.md)
 
 ---
 
-## 🤝 Contributing
+## 🤝 مشارکت
 
-Contributions are welcome! Please follow these steps:
+مشارکت شما استقبال می‌شود! لطفاً:
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+1. Fork کنید
+2. Branch جدید بسازید (`git checkout -b feature/amazing-feature`)
+3. Commit کنید (`git commit -m 'feat: add amazing feature'`)
+4. Push کنید (`git push origin feature/amazing-feature`)
+5. Pull Request باز کنید
+
+**راهنمای مشارکت:** [DEVELOPMENT.md](DEVELOPMENT.md)
 
 ---
 
 ## ⚠️ Disclaimer
 
-> **IMPORTANT:** This software is for **educational and research purposes only**.
+> **هشدار مهم:** این نرم‌افزار صرفاً برای **اهداف آموزشی و تحقیقاتی** است.
 
-- Forex trading involves substantial risk of loss
-- Past performance does not guarantee future results
-- Always test with a **demo account** first
-- Never risk more than you can afford to lose
-- AI recommendations should not be your sole decision source
-- The developers are not responsible for any financial losses
+- معاملات فارکس ریسک بالایی دارد
+- عملکرد گذشته تضمینی برای آینده نیست
+- همیشه ابتدا با **حساب Demo** تست کنید
+- هرگز بیش از توان خود ریسک نکنید
+- پیشنهادات AI نباید تنها منبع تصمیم‌گیری باشد
+- توسعه‌دهندگان مسئولیتی در قبال ضررهای مالی ندارند
 
 ---
 
-## 📄 License
+## 📄 لایسنس
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+این پروژه تحت لایسنس [MIT License](LICENSE) منتشر شده است.
+
+---
+
+## 🌟 حمایت از پروژه
+
+اگر این پروژه برایتان مفید بود:
+
+- ⭐ **Star** بدهید
+- 🐛 **Bug** گزارش کنید
+- 💡 **Feature** پیشنهاد دهید
+- 🤝 **Contribute** کنید
+
+---
+
+## 📞 ارتباط
+
+- **Issues:** [GitHub Issues](https://github.com/yourusername/forex-analysis-assistant/issues)
+- **Discussions:** [GitHub Discussions](https://github.com/yourusername/forex-analysis-assistant/discussions)
+- **Email:** support@example.com
 
 ---
 
 <div align="center">
 
-### ⭐ Star this repo if you find it useful!
+### ساخته شده با ❤️ برای جامعه معامله‌گران
 
-Made with ❤️ for the trading community
-
-[Report Bug](https://github.com/yourusername/forex-analysis-assistant/issues) · [Request Feature](https://github.com/yourusername/forex-analysis-assistant/issues)
+**[Documentation](ARCHITECTURE.md)** • **[API Reference](API.md)** • **[Setup Guide](SETUP.md)** • **[Development](DEVELOPMENT.md)**
 
 </div>

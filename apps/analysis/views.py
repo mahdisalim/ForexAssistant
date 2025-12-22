@@ -174,20 +174,40 @@ def get_analysis(request, pair):
 @permission_classes([AllowAny])
 def get_all_analysis(request):
     """Get analysis for all configured pairs"""
+    import asyncio
+    from .services import get_analysis_service
+    
     pairs = get_pairs_config()
     timeframe = request.query_params.get('timeframe', 'H1')
     trading_style = request.query_params.get('trading_style', 'day')
     
-    # TODO: PRIORITY_NEXT - Implement full analysis for all pairs
+    service = get_analysis_service()
     results = []
+    
+    # Generate analysis for each pair
     for pair in pairs.keys():
-        results.append({
-            'pair': pair,
-            'analysis': {'sentiment': 'neutral', 'note': 'Full AI analysis pending'},
-            'recommendation': {'recommendation': 'WAIT', 'confidence': 0},
-            'timeframe': timeframe,
-            'trading_style': trading_style
-        })
+        try:
+            analysis = asyncio.run(service.auto_chart_analysis(
+                pair=pair,
+                timeframe=timeframe,
+                trading_style=trading_style
+            ))
+            results.append({
+                'pair': pair,
+                'sentiment': analysis.get('analysis', {}).get('sentiment', 'neutral'),
+                'recommendation': analysis.get('recommendation', {}).get('recommendation', 'WAIT'),
+                'confidence': analysis.get('recommendation', {}).get('confidence', 0),
+                'timeframe': timeframe,
+                'trading_style': trading_style
+            })
+        except Exception as e:
+            logger.error(f"Analysis failed for {pair}: {e}")
+            results.append({
+                'pair': pair,
+                'error': str(e),
+                'timeframe': timeframe,
+                'trading_style': trading_style
+            })
     
     return Response({
         'generated_at': datetime.now().isoformat(),

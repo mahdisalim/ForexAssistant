@@ -1,6 +1,6 @@
 """
 Views for Trading App
-# TODO: PRIORITY_NEXT - Integrate with existing trading/ and web/services/ modules
+Integrated with trading/ module
 """
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from .models import TradingAccount, TradingRobot
+from .services import get_trading_service
 
 
 # ============== Trading Accounts API ==============
@@ -67,21 +68,22 @@ def add_trading_account(request):
             status=status.HTTP_400_BAD_REQUEST
         )
     
-    # TODO: PRIORITY_NEXT - Encrypt password using web/services/encryption.py
-    # TODO: PRIORITY_NEXT - Connect to broker and verify credentials
-    
+    # Create account
     account = TradingAccount.objects.create(
         user=request.user,
         broker=broker,
         login=login,
         server=server,
         nickname=nickname,
-        risk_percent=risk_percent,
-        # password_encrypted=encrypt(password)  # TODO
+        risk_percent=risk_percent
     )
     
+    # Try to connect
+    connection_result = service.connect_account(account, password)
+    
     return Response({
-        'success': True,
+        'success': connection_result.get('success', True),
+        'connection': connection_result,
         'account': {
             'id': str(account.id),
             'broker': account.broker,
@@ -153,16 +155,11 @@ def update_account_risk(request, account_id):
 @permission_classes([IsAuthenticated])
 def get_available_robots(request):
     """Get available robots and strategies"""
-    # TODO: PRIORITY_NEXT - Integrate with trading/unified_robots.py
+    service = get_trading_service()
+    strategies = service.get_available_strategies()
     
     return Response({
-        'robots': [
-            {'name': 'stochastic', 'description': 'Stochastic Oscillator Robot', 'available': True},
-            {'name': 'rsi', 'description': 'RSI Robot', 'available': True},
-        ],
-        'sl_strategies': ['fixed', 'atr', 'swing', 'percentage'],
-        'tp_strategies': ['fixed', 'risk_reward', 'atr', 'swing'],
-        'timeframes': ['M1', 'M5', 'M15', 'M30', 'H1', 'H4', 'D1', 'W1', 'MN'],
+        **strategies,
         'subscription': request.user.subscription_plan
     })
 
@@ -197,7 +194,7 @@ def list_user_robots(request):
 @permission_classes([IsAuthenticated])
 def create_robot(request):
     """Create a new trading robot"""
-    # TODO: PRIORITY_NEXT - Integrate with trading/robot_manager.py
+    service = get_trading_service()
     
     robot = TradingRobot.objects.create(
         user=request.user,
@@ -212,8 +209,12 @@ def create_robot(request):
         risk_percent=request.data.get('risk_percent', 1.0),
     )
     
+    # Initialize robot
+    init_result = service.create_robot_instance(robot)
+    
     return Response({
-        'success': True,
+        'success': init_result.get('success', True),
+        'initialization': init_result,
         'robot': {
             'id': str(robot.id),
             'name': robot.name,

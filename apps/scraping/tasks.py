@@ -1,45 +1,41 @@
 """
 Celery Tasks for Scraping App
-# TODO: PRIORITY_NEXT - Integrate with existing scrapers/ module
 """
+import asyncio
 from celery import shared_task
-from django.utils import timezone
 import logging
+from typing import Optional, List
 
 logger = logging.getLogger(__name__)
 
 
 @shared_task
-def trigger_scrape_task():
+def trigger_scrape_task(pairs: Optional[List[str]] = None, source: Optional[str] = None):
     """
-    Background task to scrape news from all sources
-    # TODO: PRIORITY_NEXT - Integrate with scrapers/scraper_manager.py
-    """
-    from .models import ScrapeLog
+    Trigger news scraping in background
     
-    log = ScrapeLog.objects.create(source='all')
+    Args:
+        pairs: List of currency pairs to filter
+        source: Specific source to scrape (optional)
+    """
+    from .services import get_scraping_service
+    
+    logger.info(f"Scraping task triggered - pairs: {pairs}, source: {source}")
     
     try:
-        # TODO: PRIORITY_NEXT - Use existing scraper
-        # from scrapers import ScraperManager
-        # from django.conf import settings
-        # scraper_manager = ScraperManager(settings.DATA_DIR)
-        # articles = await scraper_manager.scrape_all(pairs)
+        service = get_scraping_service()
         
-        log.completed_at = timezone.now()
-        log.success = True
-        log.save()
+        if source:
+            result = asyncio.run(service.scrape_source(source, pairs))
+        else:
+            result = asyncio.run(service.scrape_all_sources(pairs))
         
-        logger.info("Scraping task completed")
+        logger.info(f"Scraping completed: {result}")
+        return result
         
     except Exception as e:
-        log.completed_at = timezone.now()
-        log.success = False
-        log.error_message = str(e)
-        log.save()
-        
-        logger.error(f"Scraping task failed: {e}")
-        raise
+        logger.error(f"Scraping task failed: {e}", exc_info=True)
+        return {'success': False, 'error': str(e)}
 
 
 @shared_task
@@ -51,12 +47,53 @@ def scheduled_scrape_task():
 @shared_task
 def daily_analysis_task():
     """
-    Daily analysis task
-    # TODO: PRIORITY_NEXT - Integrate with llm/analyzer.py
+    Daily market analysis task
+    Scrapes news and generates analysis for all configured pairs
     """
-    logger.info("Running daily analysis task")
+    from apps.analysis.services import AnalysisService
+    from apps.analysis.models import CurrencyPair
     
-    # TODO: PRIORITY_NEXT - Implement daily analysis
-    # Similar to scheduler.py daily_analysis_job()
+    logger.info("Daily analysis task triggered")
     
-    logger.info("Daily analysis task completed")
+    try:
+        # First, scrape all news
+        scrape_result = trigger_scrape_task()
+        logger.info(f"News scraped: {scrape_result.get('articles_count', 0)} articles")
+        
+        # Get all active pairs
+        pairs = CurrencyPair.objects.filter(is_active=True)
+        
+        # Generate analysis for each pair
+        service = AnalysisService()
+        results = []
+        
+        for pair in pairs:
+            try:
+                analysis = asyncio.run(service.auto_chart_analysis(
+                    pair=pair.symbol,
+                    timeframe='H4',
+                    trading_style='day'
+                ))
+                results.append({
+                    'pair': pair.symbol,
+                    'success': True,
+                    'sentiment': analysis.get('analysis', {}).get('sentiment')
+                })
+            except Exception as e:
+                logger.error(f"Analysis failed for {pair.symbol}: {e}")
+                results.append({
+                    'pair': pair.symbol,
+                    'success': False,
+                    'error': str(e)
+                })
+        
+        logger.info(f"Daily analysis completed for {len(results)} pairs")
+        return {
+            'success': True,
+            'scrape_result': scrape_result,
+            'analysis_results': results
+        }
+        
+    except Exception as e:
+        logger.error(f"Daily analysis task failed: {e}", exc_info=True)
+        return {'success': False, 'error': str(e)}

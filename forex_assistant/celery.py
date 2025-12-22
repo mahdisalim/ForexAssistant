@@ -18,6 +18,14 @@ app.conf.beat_schedule = {
         'task': 'apps.accounts.tasks.check_subscription_expiry',
         'schedule': crontab(hour=9, minute=0),
     },
+    'scrape-news-every-4-hours': {
+        'task': 'apps.scraping.tasks.trigger_scrape_task',
+        'schedule': crontab(minute=0, hour='*/4'),  # Every 4 hours
+    },
+    'daily-market-analysis': {
+        'task': 'apps.scraping.tasks.daily_analysis_task',
+        'schedule': crontab(hour=8, minute=0),  # Daily at 8 AM
+    },
     # Check expired subscriptions daily at 10:00 AM
     'check-expired-subscriptions-daily': {
         'task': 'apps.accounts.tasks.check_expired_subscriptions',
